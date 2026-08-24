@@ -1,4 +1,8 @@
-
+---
+import DocumentationContentEn from './DocumentationContentEn.astro';
+const { englishStart = false } = Astro.props as { englishStart?: boolean };
+---
+{englishStart ? <DocumentationContentEn /> : <>
 <section class="hero">
 <img src="/banner.webp" alt="Gentle-AI" width="1672" height="941" fetchpriority="high">
 <h1>Documentación de Gentle AI</h1>
@@ -19,7 +23,7 @@
   <div class="card"><h4>Después</h4><p>Tu agente ahora tiene memoria, skills, flujo de trabajo, herramientas MCP y una persona que además te enseña.</p></div>
 </div>
 
-<h3>La regla de oro</h3>
+<h3 id="la-regla-de-oro">La regla de oro</h3>
 <p>Gentle AI configura tu agente con memoria, skills, flujos y persona — y después se corre del camino. Según su propia documentación: <em>cuanto menos pienses en Gentle AI después de instalarlo, mejor está funcionando</em>.</p>
 
 <div class="tblwrap">
@@ -39,7 +43,7 @@
 
 <h2 id="instalacion">Instalación</h2>
 
-<h3>Requisitos previos</h3>
+<h3 id="requisitos-previos">Requisitos previos</h3>
 <ul>
 <li><strong>Git 2.38+</strong> en todas las plataformas.</li>
 <li><strong>Go 1.25.10+</strong> para compilar desde el código fuente (obligatorio en Windows, porque ahí se instala vía <code>go install</code>).</li>
@@ -49,15 +53,15 @@
 <li><strong>Pi</strong>: si seleccionás el agente Pi, <code>pi</code> tiene que estar instalado y disponible en el <code>PATH</code>.</li>
 </ul>
 
-<h3>macOS / Linux</h3>
+<h3 id="macos-linux">macOS / Linux</h3>
 <pre>curl -fsSL https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/scripts/install.sh | bash</pre>
 
-<h3>Homebrew</h3>
+<h3 id="homebrew">Homebrew</h3>
 <pre>brew tap Gentleman-Programming/homebrew-tap
 brew trust --formula gentleman-programming/tap/gentle-ai
 brew install gentle-ai</pre>
 
-<h3>Go install (cualquier plataforma con Go 1.25.10+)</h3>
+<h3 id="go-install">Go install (cualquier plataforma con Go 1.25.10+)</h3>
 <pre>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@latest</pre>
 <p>Fijate en el sufijo <code>/v2</code> en la ruta del módulo: Go lo exige para la versión mayor 2 en adelante. Los releases anteriores a <code>v2.0.0</code> usan la ruta sin sufijo.</p>
 
@@ -71,7 +75,7 @@ brew install gentle-ai</pre>
   <p>Al reemplazar o actualizar el binario <code>gentle-ai</code>, corré <code>gentle-ai sync</code> para refrescar sus assets administrados. Los assets de revisión y runtime están atados a la versión del binario: hasta que <code>sync</code> tenga éxito, las operaciones del ciclo de revisión fallan de forma cerrada si falta la procedencia del escritor administrado o no coincide.</p>
 </div>
 
-<h3>Alcance de instalación</h3>
+<h3 id="alcance-de-instalacion">Alcance de instalación</h3>
 <p>Por defecto, <code>gentle-ai install</code> escribe los archivos por agente en el directorio de configuración global de cada agente seleccionado. Para mantener el stack aislado a un solo proyecto:</p>
 <pre>gentle-ai install --scope=workspace</pre>
 <p>El alcance <code>workspace</code> aplica a los archivos por agente: prompts de sistema, skills, agentes SDD y archivos de persona se escriben en la raíz del proyecto actual cuando el agente soporta configuración local. Las integraciones que solo existen a nivel global — como instalación de paquetes o settings que el agente solo lee de su config global — siguen siendo globales por diseño. También se puede fijar con la variable de entorno <code>GENTLE_AI_INSTALL_SCOPE</code> para CI o uso no interactivo.</p>
@@ -92,7 +96,7 @@ brew install gentle-ai</pre>
 
 <h2 id="presets">Componentes, skills y presets</h2>
 
-<h3>Componentes</h3>
+<h3 id="componentes">Componentes</h3>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Componente</th><th>ID</th><th>Descripción</th></tr></thead>
@@ -122,7 +126,7 @@ brew install gentle-ai</pre>
   <p><code>gentle-ai install --component gga</code> instala el binario <code>gga</code> globalmente en tu máquina. <strong>No</strong> corre la configuración de hooks a nivel proyecto (<code>gga init</code> / <code>gga install</code>), porque esa debe ser una decisión explícita por repositorio.</p>
 </div>
 
-<h3>Presets</h3>
+<h3 id="presets-list">Presets</h3>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Preset</th><th>ID</th><th>Qué incluye</th></tr></thead>
@@ -135,6 +139,7 @@ brew install gentle-ai</pre>
 </table>
 </div>
 <p>La persona se selecciona por separado en su propia pantalla y se aplica de forma independiente del preset.</p>
+</>}
 
 <hr>
 
@@ -1397,4 +1402,3 @@ $env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentl
 </div>
 
 <p class="foot">Esta página resume la documentación oficial de Gentle AI. Ante cualquier diferencia, la fuente de verdad son los documentos del repositorio enlazados arriba. Gentle AI se distribuye bajo licencia MIT.</p>
-

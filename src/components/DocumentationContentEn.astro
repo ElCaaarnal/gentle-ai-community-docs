@@ -1,0 +1,135 @@
+<section class="hero">
+<img src="/banner.webp" alt="Gentle-AI" width="1672" height="941" fetchpriority="high">
+<h1>Gentle AI Documentation</h1>
+<p class="lede">Gentle AI equips the AI coding agents already on your machine with persistent memory, specification-driven development, curated skills, MCP servers, model routing, a teaching-oriented persona, and native bounded review.</p>
+<div class="meta"><span class="chip">Stable <b>v2.4.0</b></span><span class="chip">Latest RC <b>v2.4.0-rc.8</b></span><span class="chip">Go <b>1.25.10+</b></span><span class="chip">License <b>MIT</b></span><span class="chip">16 supported agents</span></div>
+</section>
+
+<div class="imp">
+  <b>The first thing to understand</b>
+  <p>Gentle AI <strong>does not install AI coding agents</strong>. It adapts the runtimes already on your machine. If you select an agent that is not installed, Gentle AI refuses and shows the exact command you need to run yourself.</p>
+</div>
+
+<h2 id="que-es">What is Gentle AI</h2>
+<p>It is an <strong>ecosystem configurator</strong>. It takes your AI coding agent and adds the pieces it needs to become more than a chatbot that writes code.</p>
+<div class="cards">
+  <div class="card"><h4>Before</h4><p>“I installed Claude Code / OpenCode / Cursor, but it is only a chatbot that writes code.”</p></div>
+  <div class="card"><h4>After</h4><p>Your agent now has memory, skills, workflow, MCP tools, and a persona that also teaches you.</p></div>
+</div>
+
+<h3 id="la-regla-de-oro">The golden rule</h3>
+<p>Gentle AI configures your agent with memory, skills, workflows, and a persona — then gets out of the way. Its own documentation says: <em>the less you think about Gentle AI after installation, the better it is working</em>.</p>
+
+<div class="tblwrap">
+<table>
+<thead><tr><th>Do this</th><th>Do not do this</th></tr></thead>
+<tbody>
+<tr><td>Run the installer and choose agents and a preset</td><td>Manually edit generated configuration files</td></tr>
+<tr><td>Start programming with your agent</td><td>Memorize SDD phases or commands</td></tr>
+<tr><td>Let the agent propose SDD when the task warrants it</td><td>Force SDD for every small task</td></tr>
+<tr><td>Trust Engram to store context when it is installed and active</td><td>Inspect Engram storage unless you need <code>engram sync</code> or <code>engram tui</code></td></tr>
+<tr><td>Let startup hooks or <code>sdd-init</code> refresh the skill registry</td><td>Rescan skills manually unless you need <code>--force</code></td></tr>
+<tr><td>Say “use sdd” when you already know you want structured planning</td><td>Worry about which SDD phase comes next</td></tr>
+<tr><td>Run the installer again to update or change your setup</td><td>Manually patch skill files or persona instructions</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="instalacion">Installation</h2>
+
+<h3 id="requisitos-previos">Prerequisites</h3>
+<ul>
+<li><strong>Git 2.38+</strong> on every platform.</li>
+<li><strong>Go 1.25.10+</strong> to build from source (required on Windows because installation there uses <code>go install</code>).</li>
+<li><strong>Node.js 18+ and npm</strong>: <code>gentle-ai install</code> verifies them as requirements on every platform and provides a distribution-specific installation suggestion if either is missing. It does not install them for you.</li>
+<li><strong>macOS</strong>: Homebrew on the <code>PATH</code>. If the tap requests trust, run <code>brew trust --formula gentleman-programming/tap/gentle-ai</code> once.</li>
+<li><strong>Ubuntu/Debian, Arch, Fedora/RHEL</strong>: the corresponding package manager (<code>apt-get</code>, <code>pacman</code>, <code>dnf</code>) and <code>sudo</code> access.</li>
+<li><strong>Pi</strong>: if you select the Pi agent, <code>pi</code> must be installed and available on the <code>PATH</code>.</li>
+</ul>
+
+<h3 id="macos-linux">macOS / Linux</h3>
+<pre>curl -fsSL https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/scripts/install.sh | bash</pre>
+
+<h3 id="homebrew">Homebrew</h3>
+<pre>brew tap Gentleman-Programming/homebrew-tap
+brew trust --formula gentleman-programming/tap/gentle-ai
+brew install gentle-ai</pre>
+
+<h3 id="go-install">Go install (any platform with Go 1.25.10+)</h3>
+<pre>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@latest</pre>
+<p>Notice the <code>/v2</code> suffix in the module path: Go requires it for major version 2 and later. Releases before <code>v2.0.0</code> use the path without the suffix.</p>
+
+<div class="warn">
+  <b>Windows</b>
+  <p>Building from source and CI/runtime tests remain supported, but official Windows binary distribution and Scoop are temporarily unavailable. Windows installation and updates require Go 1.25.10+ and fail closed to the build-from-source guidance: they never download an unsigned Gentle AI executable or run a remote update script.</p>
+</div>
+
+<div class="imp">
+  <b>Synchronize after changing the binary</b>
+  <p>After replacing or updating the <code>gentle-ai</code> binary, run <code>gentle-ai sync</code> to refresh its managed assets. Review and runtime assets are tied to the binary version: until <code>sync</code> succeeds, review-cycle operations fail closed when managed-writer provenance is missing or does not match.</p>
+</div>
+
+<h3 id="alcance-de-instalacion">Installation scope</h3>
+<p>By default, <code>gentle-ai install</code> writes per-agent files to the global configuration directory of each selected agent. To keep the stack isolated to one project:</p>
+<pre>gentle-ai install --scope=workspace</pre>
+<p>The <code>workspace</code> scope applies to per-agent files: system prompts, skills, SDD agents, and persona files are written to the current project root when the agent supports local configuration. Integrations that exist only globally — such as package installation or settings that an agent reads only from its global configuration — remain global by design. You can also set <code>GENTLE_AI_INSTALL_SCOPE</code> for CI or non-interactive use.</p>
+
+<h2 id="contexto">Project context</h2>
+<p>After configuring your agents, open an agent in a project. These two commands register project context. <strong>Neither is required</strong> for basic use.</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Command</th><th>What it does</th><th>When to run it again</th></tr></thead>
+<tbody>
+<tr><td><code>/sdd-init</code></td><td>Detects the stack and testing capabilities; enables Strict TDD when available</td><td>When the project adds or removes test frameworks, or the first time in a new project</td></tr>
+<tr><td><code>gentle-ai skill-registry refresh</code></td><td>Scans installed skills and project conventions, then builds the registry</td><td>After installing or removing skills, or the first time in a new project</td></tr>
+</tbody>
+</table>
+</div>
+<p>The SDD orchestrator runs <code>/sdd-init</code> automatically when it does not detect context. Startup hooks usually keep the skill registry current for agents that support hooks — Codex, Claude Code, OpenCode, and Pi through <code>gentle-pi</code>. Starting Pi with <code>pi -ns</code> skips skill loading and startup hooks, so refresh the registry manually in that case.</p>
+<p>At any time, you can run <code>gentle-ai doctor</code>, a read-only ecosystem health check.</p>
+
+<h2 id="presets">Components, skills, and presets</h2>
+
+<h3 id="componentes">Components</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Component</th><th>ID</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td>Engram</td><td><code>engram</code></td><td>Persistent memory between sessions through MCP: project-name detection, full-text search, Git synchronization, and project consolidation</td></tr>
+<tr><td>SDD</td><td><code>sdd</code></td><td>Specification-driven development workflow (10 phases, including <code>sdd-onboard</code>). The agent handles it organically when appropriate or when you request it</td></tr>
+<tr><td>Skills</td><td><code>skills</code></td><td>Curated skills library</td></tr>
+<tr><td>Context7</td><td><code>context7</code></td><td>MCP server with live framework and library documentation</td></tr>
+<tr><td>Persona</td><td><code>persona</code></td><td>Managed Gentleman/neutral persona injection, or unmanaged custom-persona mode</td></tr>
+<tr><td>Permissions</td><td><code>permissions</code></td><td>Defaults and safety barriers. Applied to Claude Code and OpenCode, the two adapters that support permission overlays</td></tr>
+<tr><td>GGA</td><td><code>gga</code></td><td>Gentleman Guardian Angel: AI provider switcher</td></tr>
+<tr><td>Theme</td><td><code>theme</code></td><td>Gentleman Kanagawa theme overlay</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4>Default-denied sensitive-path list</h4>
+<p>The permissions component applies this deny list:</p>
+<pre>~/.ssh/*            ~/.ssh/**/*        **/*.pem
+**/*.key            **/.env*           ~/.credentials/*
+~/.aws/credentials  ~/.config/gh/hosts.yml
+~/Library/Keychains/*                  **/secrets/*
+**/*.p12            **/*.pfx</pre>
+
+<div class="note">
+  <b>GGA behavior</b>
+  <p><code>gentle-ai install --component gga</code> installs the <code>gga</code> binary globally on your machine. It <strong>does not</strong> run project-level hook configuration (<code>gga init</code> / <code>gga install</code>), because that must be an explicit decision for each repository.</p>
+</div>
+
+<h3 id="presets-list">Presets</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Preset</th><th>ID</th><th>What it includes</th></tr></thead>
+<tbody>
+<tr><td>Dev Stack + Polish</td><td><code>full-gentleman</code></td><td>All components (Engram + SDD + Skills + Context7 + GGA + Permissions + Theme) and every skill</td></tr>
+<tr><td>Dev Stack</td><td><code>ecosystem-only</code></td><td>Core components (Engram + SDD + Skills + Context7 + GGA) and every skill</td></tr>
+<tr><td>Memory Only</td><td><code>minimal</code></td><td>Engram and the SDD skills only</td></tr>
+<tr><td>Custom</td><td><code>custom</code></td><td>You choose components and skills manually; any existing persona or setting remains unmanaged</td></tr>
+</tbody>
+</table>
+</div>
+<p>The persona is selected separately on its own screen and is applied independently of the preset.</p>

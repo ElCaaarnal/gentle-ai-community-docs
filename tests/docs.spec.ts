@@ -35,3 +35,19 @@ test('unknown or encoded fragments fall back to a usable alternate route and mai
   await expect(page).toHaveURL(/\/es\/$/);
   await expect(page.locator('main')).toBeVisible();
 });
+
+test('getting started uses localized headings with matching canonical IDs', async ({ page }) => {
+  const sections = ['que-es', 'instalacion', 'contexto', 'presets'];
+  const subsections = ['la-regla-de-oro', 'requisitos-previos', 'macos-linux', 'homebrew', 'go-install', 'alcance-de-instalacion', 'componentes', 'presets-list'];
+
+  for (const route of ['/', '/es/']) {
+    await page.goto(route);
+    expect(await page.locator('h2').evaluateAll((headings, ids) => ids.every((id) => headings.some((heading) => heading.id === id)), sections)).toBe(true);
+    expect(await page.locator('h3').evaluateAll((headings, ids) => ids.every((id) => headings.some((heading) => heading.id === id)), subsections)).toBe(true);
+  }
+
+  await page.goto('/');
+  await expect(page.locator('h2#que-es')).toContainText('What is Gentle AI');
+  await page.goto('/es/');
+  await expect(page.locator('h2#que-es')).toContainText('Qué es Gentle AI');
+});
