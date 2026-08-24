@@ -1,0 +1,569 @@
+/* ============================================================
+   Kanagawa — paleta canónica de rebelot/kanagawa.nvim
+   El acento es la familia rosa del propio Kanagawa (sakuraPink /
+   waveRed), que hace de puente con la rosa neón del banner.
+   ============================================================ */
+:root{
+  /* tinta sumi */
+  --sumi-0:#16161D; --sumi-3:#1F1F28; --sumi-4:#2A2A37;
+  --sumi-5:#363646; --sumi-6:#54546D;
+  /* tintas de texto */
+  --fuji-white:#DCD7BA; --old-white:#C8C093; --fuji-gray:#727169;
+  /* la ola */
+  --wave-blue-1:#223249; --wave-blue-2:#2D4F67;
+  --crystal-blue:#7E9CD8; --spring-blue:#7FB4CA; --dragon-blue:#658594;
+  /* otoño */
+  --carp-yellow:#E6C384; --autumn-yellow:#DCA561; --ronin-yellow:#FF9E3B;
+  --winter-yellow:#49443C;
+  /* sakura */
+  --sakura:#D27E99; --wave-red:#E46876; --peach-red:#FF5D62; --winter-red:#43242B;
+  /* verdes */
+  --spring-green:#98BB6C; --wave-aqua:#7AA89F; --winter-green:#2B3328;
+  --oni-violet:#957FB8;
+  /* marca: muestreada del banner del repo, solo para el resplandor del hero */
+  --brand-rose:#FA2E8D;
+
+  /* roles semánticos */
+  --bg:var(--sumi-0); --surface:var(--sumi-3); --surface-2:var(--sumi-4);
+  --line:var(--sumi-5); --line-strong:var(--sumi-6);
+  --fg:var(--fuji-white); --fg-2:var(--old-white); --muted:var(--fuji-gray);
+  --accent:var(--sakura); --accent-strong:var(--wave-red);
+
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --display:"Zen Kaku Gothic New","Inter",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --sidebar:296px;
+  --radius:10px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--fg);
+  font:400 15.5px/1.75 var(--sans);
+  -webkit-font-smoothing:antialiased;
+  font-feature-settings:"cv05","ss01";
+}
+::selection{background:var(--wave-blue-2);color:var(--fuji-white)}
+a{color:var(--accent);text-decoration:none;transition:color .15s}
+a:hover{color:var(--accent-strong);text-decoration:underline;text-underline-offset:3px}
+code,pre{font-family:var(--mono)}
+
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:var(--sumi-0)}
+::-webkit-scrollbar-thumb{background:var(--sumi-4);border-radius:6px;border:2px solid var(--sumi-0)}
+::-webkit-scrollbar-thumb:hover{background:var(--sumi-6)}
+
+/* ---------- layout ---------- */
+.wrap{display:flex;min-height:100vh}
+aside{
+  width:var(--sidebar);flex:0 0 var(--sidebar);
+  background:var(--surface);border-right:1px solid var(--line);
+  position:sticky;top:0;height:100vh;overflow-y:auto;padding:26px 16px 40px;
+}
+main{flex:1;min-width:0;padding:0 56px 160px;max-width:1040px}
+/* el centrado solo aplica en escritorio: en el flex column de móvil,
+   un margen auto en el eje cruzado anula el stretch y el main colapsa
+   al ancho de su tabla más ancha (984px sobre un viewport de 375). */
+@media(min-width:901px){ main{margin-inline:auto} }
+
+/* ---------- sidebar ---------- */
+.brand{
+  font-family:var(--display);font-weight:900;font-size:19px;
+  letter-spacing:.04em;margin:0 0 5px;color:var(--fg);
+}
+.brand span{
+  color:var(--accent);
+  text-shadow:0 0 14px rgba(210,126,153,.5);
+}
+.tag{color:var(--muted);font-size:12px;line-height:1.6;margin:0 0 22px}
+nav a{
+  display:block;color:var(--muted);font-size:13px;line-height:1.45;
+  padding:6px 11px;border-radius:7px;border-left:2px solid transparent;
+  transition:background .15s,color .15s,border-color .15s;
+}
+nav a:hover{color:var(--fg-2);background:var(--surface-2);text-decoration:none}
+nav a.active{
+  color:var(--fg);background:var(--wave-blue-1);
+  border-left-color:var(--accent);font-weight:500;
+}
+nav .grp{
+  color:var(--sumi-6);font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.13em;
+  margin:20px 0 6px;padding-left:11px;
+}
+
+/* ---------- hero ---------- */
+.hero{
+  margin:0 -56px 8px;padding:52px 56px 44px;
+  background:
+    radial-gradient(1100px 380px at 22% -5%, rgba(250,46,141,.16), transparent 62%),
+    radial-gradient(760px 300px at 88% 8%, rgba(45,79,103,.42), transparent 66%),
+    linear-gradient(180deg,#000 0%, var(--sumi-0) 100%);
+  border-bottom:1px solid var(--line);
+}
+.hero img{
+  display:block;width:100%;max-width:560px;height:auto;
+  margin:0 0 26px;border-radius:var(--radius);
+  filter:drop-shadow(0 0 44px rgba(250,46,141,.28));
+}
+.hero h1{margin:0 0 12px}
+.hero .lede{max-width:66ch;margin:0}
+.hero .meta{
+  display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 0;
+}
+.chip{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;
+  padding:5px 11px;border-radius:20px;
+  border:1px solid var(--line-strong);background:rgba(34,50,73,.5);color:var(--fg-2);
+}
+.chip b{color:var(--carp-yellow);font-weight:500}
+
+/* ---------- tipografía ---------- */
+h1{
+  font-family:var(--display);font-weight:900;
+  font-size:clamp(34px,4.6vw,46px);line-height:1.1;
+  letter-spacing:-.015em;margin:0 0 12px;color:#fff;
+}
+h2{
+  font-family:var(--display);font-weight:700;
+  font-size:26px;line-height:1.25;letter-spacing:-.01em;
+  margin:72px 0 18px;padding-bottom:12px;
+  scroll-margin-top:24px;position:relative;color:#fff;
+  border-bottom:1px solid var(--line);
+}
+h2::after{
+  content:"";position:absolute;left:0;bottom:-1px;width:78px;height:2px;
+  background:linear-gradient(90deg,var(--accent),var(--wave-blue-2));
+}
+h3{
+  font-family:var(--display);font-weight:700;font-size:18px;
+  margin:38px 0 12px;color:var(--fg);letter-spacing:-.005em;
+}
+h4{
+  font-size:12px;font-weight:700;margin:26px 0 10px;color:var(--carp-yellow);
+  text-transform:uppercase;letter-spacing:.11em;
+}
+p{margin:14px 0}
+.lede{color:var(--fg-2);font-size:18px;line-height:1.65;margin:0 0 28px;font-weight:400}
+ul,ol{padding-left:24px}
+li{margin:8px 0}
+li::marker{color:var(--sumi-6)}
+strong{color:#fff;font-weight:600}
+blockquote{
+  border-left:3px solid var(--accent);margin:22px 0;
+  padding:10px 0 10px 22px;color:var(--fg-2);font-style:italic;font-size:16px;
+}
+
+/* ---------- código ---------- */
+pre{
+  background:linear-gradient(180deg,#131319,var(--sumi-0));
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 18px;overflow-x:auto;
+  font-size:13px;line-height:1.7;color:var(--fg-2);
+  box-shadow:inset 0 1px 0 rgba(220,215,186,.03);
+}
+:not(pre)>code{
+  background:var(--surface-2);border:1px solid var(--line);
+  border-radius:5px;padding:1.5px 6px;font-size:12.5px;
+  color:var(--carp-yellow);font-weight:500;
+}
+td code,th code{white-space:nowrap}
+
+/* ---------- tablas ---------- */
+.tblwrap{
+  overflow-x:auto;margin:20px 0;
+  border:1px solid var(--line);border-radius:var(--radius);
+}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:11px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{
+  background:var(--surface-2);font-weight:600;color:var(--fg);
+  font-size:12.5px;letter-spacing:.02em;
+  border-bottom:1px solid var(--line-strong);white-space:nowrap;
+}
+tbody tr:nth-child(even){background:rgba(31,31,40,.55)}
+tbody tr:hover{background:var(--wave-blue-1)}
+tbody tr:last-child td{border-bottom:0}
+
+/* ---------- avisos ---------- */
+.note,.warn,.imp,.ok{
+  padding:15px 19px;border-radius:0 var(--radius) var(--radius) 0;
+  margin:22px 0;font-size:14.5px;line-height:1.65;
+}
+.note{border-left:3px solid var(--spring-blue);background:var(--wave-blue-1)}
+.warn{border-left:3px solid var(--ronin-yellow);background:var(--winter-yellow)}
+.imp {border-left:3px solid var(--sakura);background:var(--winter-red)}
+.ok  {border-left:3px solid var(--spring-green);background:var(--winter-green)}
+.note b,.warn b,.imp b,.ok b{
+  display:block;margin-bottom:6px;font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.11em;
+}
+.note b{color:var(--spring-blue)} .warn b{color:var(--ronin-yellow)}
+.imp b{color:var(--sakura)}       .ok b{color:var(--spring-green)}
+.note p:last-child,.warn p:last-child,.imp p:last-child,.ok p:last-child{margin-bottom:0}
+.note code,.warn code,.imp code,.ok code{background:rgba(22,22,29,.55)}
+
+/* ---------- tarjetas ---------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin:20px 0}
+.card{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);padding:17px 19px;
+  transition:border-color .18s,transform .18s;
+}
+.card:hover{border-color:var(--line-strong);transform:translateY(-2px)}
+.card h4{
+  margin:0 0 8px;font-size:14px;color:var(--fg);
+  text-transform:none;letter-spacing:0;font-family:var(--display);font-weight:700;
+}
+.card p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.65}
+
+/* ---------- pasos ---------- */
+.steps{counter-reset:s;list-style:none;padding:0;margin:22px 0}
+.steps li{counter-increment:s;position:relative;padding:0 0 0 46px;margin:18px 0}
+.steps li::before{
+  content:counter(s);position:absolute;left:0;top:1px;
+  width:29px;height:29px;border-radius:50%;
+  background:var(--wave-blue-1);border:1px solid var(--wave-blue-2);
+  color:var(--carp-yellow);font-family:var(--mono);font-size:13px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* ---------- misc ---------- */
+.pill{
+  display:inline-block;font-family:var(--mono);font-size:10.5px;
+  padding:2px 9px;border-radius:20px;
+  border:1px solid var(--line-strong);background:var(--surface-2);
+  color:var(--muted);margin-left:7px;vertical-align:middle;
+}
+.mermaid{
+  background:linear-gradient(180deg,#131319,var(--sumi-0));
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px;margin:22px 0;overflow-x:auto;text-align:center;
+}
+dl.gloss{margin:20px 0}
+dl.gloss dt{
+  font-family:var(--display);font-weight:700;color:var(--carp-yellow);
+  margin-top:22px;font-size:15px;
+}
+dl.gloss dd{margin:5px 0 0;color:var(--fg-2);font-size:14.5px;line-height:1.65}
+hr{border:0;border-top:1px solid var(--line);margin:56px 0}
+.foot{
+  color:var(--muted);font-size:12.5px;line-height:1.7;
+  margin-top:72px;padding-top:24px;border-top:1px solid var(--line);
+}
+
+@media(max-width:900px){
+  .wrap{flex-direction:column}
+  aside{width:100%;flex:none;height:auto;position:static;border-right:0;border-bottom:1px solid var(--line)}
+  main{padding:0 20px 90px}
+  .hero{margin:0 -20px 8px;padding:34px 20px 30px}
+  h2{margin-top:52px}
+}
+
+/* ===================== navegación y lectura ===================== */
+
+/* barra de progreso */
+#progress{
+  position:fixed;top:0;left:0;height:2px;width:0;z-index:60;
+  background:linear-gradient(90deg,var(--wave-blue-2),var(--sakura));
+  transition:width .08s linear;
+}
+
+/* atajo + buscador en la barra lateral */
+.searchbtn{
+  display:flex;align-items:center;gap:9px;width:100%;
+  background:var(--sumi-0);border:1px solid var(--line);
+  border-radius:8px;padding:9px 11px;margin:0 0 20px;
+  color:var(--muted);font:400 13px/1 var(--sans);cursor:pointer;
+  transition:border-color .15s,color .15s;
+}
+.searchbtn:hover{border-color:var(--line-strong);color:var(--fg-2)}
+.searchbtn svg{flex:0 0 14px;opacity:.7}
+.searchbtn .kbd{margin-left:auto;display:flex;gap:3px}
+kbd{
+  font-family:var(--mono);font-size:10px;line-height:1;
+  padding:3px 5px;border-radius:4px;
+  border:1px solid var(--line-strong);background:var(--surface-2);color:var(--muted);
+}
+
+/* sub-navegación: aparece solo en la sección activa */
+.subnav{
+  max-height:0;overflow:hidden;
+  transition:max-height .26s cubic-bezier(.4,0,.2,1);
+}
+.subnav.open{max-height:760px}
+.subnav a{
+  font-size:12.2px;padding:4px 11px 4px 24px;color:var(--sumi-6);
+  border-left:1px solid var(--line);border-radius:0 6px 6px 0;margin-left:11px;
+}
+.subnav a:hover{color:var(--fg-2);background:transparent;border-left-color:var(--line-strong)}
+.subnav a.active{
+  color:var(--carp-yellow);background:transparent;
+  border-left-color:var(--accent);font-weight:500;
+}
+
+/* superposición de búsqueda */
+#searchOverlay{
+  position:fixed;inset:0;z-index:100;display:none;
+  background:rgba(13,12,12,.72);backdrop-filter:blur(3px);
+  padding:11vh 20px 20px;
+}
+#searchOverlay.open{display:block}
+.searchbox{
+  max-width:660px;margin:0 auto;background:var(--surface);
+  border:1px solid var(--line-strong);border-radius:14px;overflow:hidden;
+  box-shadow:0 26px 70px rgba(0,0,0,.6),0 0 0 1px rgba(210,126,153,.09);
+}
+.searchbox input{
+  width:100%;border:0;outline:0;background:transparent;
+  color:var(--fg);font:400 16px/1 var(--sans);
+  padding:19px 22px;border-bottom:1px solid var(--line);
+}
+.searchbox input::placeholder{color:var(--sumi-6)}
+#searchResults{max-height:52vh;overflow-y:auto;padding:8px}
+#searchResults .hit{
+  display:block;padding:10px 14px;border-radius:8px;
+  color:var(--fg-2);text-decoration:none;border:1px solid transparent;
+}
+#searchResults .hit:hover,#searchResults .hit.sel{
+  background:var(--wave-blue-1);border-color:var(--wave-blue-2);text-decoration:none;
+}
+#searchResults .hit .t{display:block;color:var(--fg);font-size:14.5px;font-weight:500}
+#searchResults .hit .p{
+  display:block;color:var(--sakura);font-size:10.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.09em;margin-bottom:3px;
+}
+#searchResults .hit .s{
+  display:block;color:var(--muted);font-size:12.5px;line-height:1.5;
+  margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+#searchResults mark{background:transparent;color:var(--carp-yellow);font-weight:600}
+.searchfoot{
+  display:flex;gap:16px;padding:10px 18px;border-top:1px solid var(--line);
+  color:var(--sumi-6);font-size:11.5px;align-items:center;
+}
+.searchfoot span{display:flex;align-items:center;gap:5px}
+.empty{padding:26px 18px;color:var(--muted);font-size:14px;text-align:center}
+
+/* anclas en los encabezados */
+h2 .anchor,h3 .anchor{
+  opacity:0;margin-left:10px;color:var(--sumi-6);font-weight:400;
+  font-size:.72em;text-decoration:none;transition:opacity .15s,color .15s;
+}
+h2:hover .anchor,h3:hover .anchor{opacity:1}
+h2 .anchor:hover,h3 .anchor:hover{color:var(--accent);text-decoration:none}
+:target{scroll-margin-top:24px}
+
+/* copiar bloques de código */
+.codeblock{position:relative}
+.codeblock .copy{
+  position:absolute;top:9px;right:9px;opacity:0;
+  background:var(--surface-2);border:1px solid var(--line-strong);
+  color:var(--muted);border-radius:6px;padding:5px 10px;
+  font:500 11px/1 var(--mono);cursor:pointer;
+  transition:opacity .16s,color .16s,border-color .16s;
+}
+.codeblock:hover .copy{opacity:1}
+.codeblock .copy:hover{color:var(--carp-yellow);border-color:var(--accent)}
+.codeblock .copy.done{color:var(--spring-green);border-color:var(--spring-green)}
+
+/* aviso de scroll horizontal en tablas anchas */
+.tblwrap{position:relative}
+.tblwrap.scrollable::after{
+  content:"";position:absolute;top:0;right:0;bottom:0;width:46px;
+  pointer-events:none;border-radius:0 var(--radius) var(--radius) 0;
+  background:linear-gradient(90deg,transparent,rgba(22,22,29,.92));
+}
+.tblwrap.scrolled-end::after{opacity:0;transition:opacity .2s}
+
+/* volver arriba */
+#toTop{
+  position:fixed;right:26px;bottom:26px;z-index:50;
+  width:42px;height:42px;border-radius:50%;
+  background:var(--surface);border:1px solid var(--line-strong);
+  color:var(--fg-2);cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transform:translateY(8px);
+  transition:opacity .22s,transform .22s,border-color .18s,color .18s;
+}
+#toTop.show{opacity:1;pointer-events:auto;transform:none}
+#toTop:hover{border-color:var(--accent);color:var(--accent)}
+
+/* botón de menú en móvil */
+#menuBtn{
+  display:none;position:fixed;top:12px;left:12px;z-index:70;
+  width:40px;height:40px;border-radius:9px;
+  background:var(--surface);border:1px solid var(--line-strong);
+  color:var(--fg);cursor:pointer;font-size:17px;
+  align-items:center;justify-content:center;
+}
+#scrim{
+  display:none;position:fixed;inset:0;z-index:65;
+  background:rgba(13,12,12,.6);backdrop-filter:blur(2px);
+}
+#scrim.open{display:block}
+
+@media(max-width:900px){
+  #menuBtn{display:flex}
+  aside{
+    position:fixed;top:0;left:0;z-index:68;
+    width:290px;height:100vh;overflow-y:auto;
+    border-right:1px solid var(--line);border-bottom:0;
+    transform:translateX(-100%);transition:transform .26s cubic-bezier(.4,0,.2,1);
+  }
+  aside.open{transform:none}
+  main{padding-top:8px}
+  #toTop{right:16px;bottom:16px}
+}
+@media(prefers-reduced-motion:reduce){
+  *{transition:none!important;scroll-behavior:auto!important}
+}
+
+/* ===================== móvil ===================== */
+#topbar{display:none}
+
+@media(max-width:900px){
+  /* barra superior: el botón flotante tapaba los títulos al saltar a una sección */
+  #topbar{
+    display:flex;align-items:center;gap:12px;
+    position:fixed;top:0;left:0;right:0;z-index:70;height:52px;padding:0 12px;
+    background:rgba(31,31,40,.94);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  #topbar button{
+    width:36px;height:36px;flex:0 0 36px;border-radius:8px;
+    background:transparent;border:1px solid var(--line-strong);
+    color:var(--fg-2);cursor:pointer;font-size:16px;
+    display:flex;align-items:center;justify-content:center;padding:0;
+  }
+  #topbar button svg{width:16px;height:16px}
+  /* el botón conservaba su position:fixed anterior y se montaba sobre el logo */
+  #topbar #menuBtn{position:static;top:auto;left:auto;width:36px;height:36px;border-radius:8px}
+  #topbar #searchBtnM{margin-left:auto}
+  .tb-brand{
+    font-family:var(--display);font-weight:900;font-size:15px;
+    letter-spacing:.03em;color:var(--fg);
+  }
+  .tb-brand span{color:var(--accent)}
+
+  main{padding-top:52px}
+  .hero{margin-top:0;padding-top:28px}
+  aside{top:0;padding-top:20px}
+  /* los encabezados ya no quedan debajo de la barra al saltar por ancla */
+  h2,h3,:target{scroll-margin-top:66px}
+
+  /* tablas: menos aire y aviso de scroll más visible */
+  th,td{padding:9px 11px;font-size:13px}
+  .tblwrap.scrollable::after{width:34px;background:linear-gradient(90deg,transparent,rgba(22,22,29,.97))}
+  .tblwrap.scrollable::before{
+    content:"→ deslizá";position:absolute;top:-1px;right:0;z-index:2;
+    font:500 9.5px/1 var(--mono);letter-spacing:.06em;
+    color:var(--sumi-0);background:var(--accent);
+    padding:4px 7px;border-radius:0 var(--radius) 0 7px;
+  }
+  .tblwrap.scrolled-end::before{opacity:0;transition:opacity .2s}
+
+  /* diagramas: antes se encogían hasta ser ilegibles; ahora se deslizan */
+  .mermaid{padding:14px 12px;text-align:left}
+  .mermaid svg{min-width:600px;height:auto!important;max-width:none!important}
+
+  /* buscador a pantalla casi completa */
+  #searchOverlay{padding:0}
+  .searchbox{max-width:none;height:100%;border-radius:0;border:0;display:flex;flex-direction:column}
+  .searchbox input{padding:17px 18px;font-size:16px}
+  #searchResults{max-height:none;flex:1}
+
+  #toTop{bottom:16px;right:16px}
+  .hero img{max-width:100%}
+}
+
+@media(max-width:420px){
+  main{padding-left:16px;padding-right:16px}
+  .hero{margin:0 -16px 8px;padding:24px 16px 26px}
+  h1{font-size:29px}
+  h2{font-size:22px;margin-top:46px}
+  .cards{grid-template-columns:1fr}
+  pre{font-size:12px;padding:13px 14px}
+  .chip{font-size:10.5px;padding:4px 9px}
+}
+
+/* ============ correcciones de accesibilidad y legibilidad ============ */
+
+/* contraste: fujiGray daba 3.67:1 sobre el fondo y 3.33:1 sobre el panel.
+   dragonGray2 da 6.48 / 5.89 y sigue siendo Kanagawa canónico. */
+:root{
+  --dragon-gray2:#9e9b93;
+  --spring-violet1:#938AA9;
+  --muted:var(--dragon-gray2);
+}
+.subnav a{color:var(--spring-violet1)}          /* antes sumi-6, 2.23:1 */
+.searchfoot{color:var(--muted)}                  /* antes sumi-6 */
+.searchbox input::placeholder{color:var(--muted)}
+
+/* medida de línea: los párrafos venían a ~91 caracteres; la convención es 60-80.
+   Solo afecta al texto corrido — tablas, código y diagramas siguen a ancho completo. */
+main > p, main > ul, main > ol, main > dl, main > blockquote{max-width:70ch}
+.note, .warn, .imp, .ok{max-width:76ch}
+.steps{max-width:72ch}
+.hero .lede{max-width:66ch}
+
+/* foco visible: no había ninguno definido */
+:focus-visible{
+  outline:2px solid var(--sakura);
+  outline-offset:3px;
+  border-radius:4px;
+}
+main:focus-visible, main:focus{outline:none}
+nav a:focus-visible, .subnav a:focus-visible{outline-offset:-2px}
+.searchbox input:focus-visible{outline:none}
+#searchResults .hit:focus-visible{outline-offset:-2px}
+
+/* saltar al contenido */
+.skip{
+  position:absolute;left:12px;top:-70px;z-index:200;
+  background:var(--surface);color:var(--fg);
+  border:1px solid var(--accent);border-radius:8px;
+  padding:11px 18px;font-size:14px;font-weight:600;
+  transition:top .16s;
+}
+.skip:focus{top:12px;text-decoration:none}
+
+/* el banner declara proporción para que no salte al cargar */
+.hero img{aspect-ratio:1672/941}
+
+/* ============ tablas como tarjetas en pantallas angostas ============ */
+/* Con scroll horizontal, una tabla cuya primera columna lleva comandos
+   largos deja la segunda en 4 caracteres por línea. Debajo de 760px cada
+   fila pasa a ser una tarjeta y el encabezado se convierte en etiqueta. */
+@media(max-width:760px){
+  .tblwrap{border:0;overflow:visible;border-radius:0}
+  .tblwrap.scrollable::before,
+  .tblwrap.scrollable::after{display:none}
+
+  table,tbody,tr,td{display:block;width:100%}
+  thead{display:none}
+
+  tbody tr,
+  tbody tr:nth-child(even){
+    background:var(--surface);
+    border:1px solid var(--line);border-radius:var(--radius);
+    margin:0 0 10px;padding:2px 0;
+  }
+  tbody tr:hover{background:var(--surface)}
+  tbody tr:last-child{margin-bottom:0}
+
+  td{border:0;padding:10px 14px;font-size:13.5px}
+  td:not(:last-child){border-bottom:1px solid rgba(84,84,109,.28)}
+  td:empty{display:none}
+  td::before{
+    content:attr(data-label);display:block;
+    font:700 9.5px/1.4 var(--sans);letter-spacing:.11em;text-transform:uppercase;
+    color:var(--sakura);margin-bottom:4px;
+  }
+  td:not([data-label])::before{display:none}
+
+  /* los comandos largos ahora quiebran en lugar de estirar la fila */
+  td code{white-space:normal;overflow-wrap:anywhere}
+  td .pill{margin-left:0}
+}

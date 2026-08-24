@@ -1,0 +1,1400 @@
+
+<section class="hero">
+<img src="/banner.png" alt="Gentle-AI" width="1672" height="941" fetchpriority="high">
+<h1>Documentación de Gentle AI</h1>
+<p class="lede">Gentle AI equipa a los agentes de IA que ya usás con memoria persistente, desarrollo guiado por especificación, skills curadas, servidores MCP, ruteo de modelos, una persona orientada a la enseñanza y revisión nativa acotada.</p>
+<div class="meta"><span class="chip">Estable <b>v2.4.0</b></span><span class="chip">Última RC <b>v2.4.0-rc.8</b></span><span class="chip">Go <b>1.25.10+</b></span><span class="chip">Licencia <b>MIT</b></span><span class="chip">16 agentes soportados</span></div>
+</section>
+
+
+<div class="imp">
+  <b>Lo primero que hay que entender</b>
+  <p>Gentle AI <strong>no instala agentes de IA</strong>. Adapta los runtimes que ya están en tu máquina. Si seleccionás un agente que no está instalado, Gentle AI se niega y te muestra el comando exacto que tendrías que correr vos.</p>
+</div>
+
+<h2 id="que-es">Qué es Gentle AI</h2>
+<p>Es un <strong>configurador de ecosistema</strong>. Toma tu agente de IA y le agrega las piezas que le faltan para dejar de ser un chatbot que escribe código.</p>
+<div class="cards">
+  <div class="card"><h4>Antes</h4><p>"Instalé Claude Code / OpenCode / Cursor, pero es solo un chatbot que escribe código."</p></div>
+  <div class="card"><h4>Después</h4><p>Tu agente ahora tiene memoria, skills, flujo de trabajo, herramientas MCP y una persona que además te enseña.</p></div>
+</div>
+
+<h3>La regla de oro</h3>
+<p>Gentle AI configura tu agente con memoria, skills, flujos y persona — y después se corre del camino. Según su propia documentación: <em>cuanto menos pienses en Gentle AI después de instalarlo, mejor está funcionando</em>.</p>
+
+<div class="tblwrap">
+<table>
+<thead><tr><th>Hacé esto</th><th>No hagas esto</th></tr></thead>
+<tbody>
+<tr><td>Correr el instalador y elegir agentes y preset</td><td>Editar a mano los archivos de configuración generados</td></tr>
+<tr><td>Empezar a programar con tu agente</td><td>Memorizar fases o comandos de SDD</td></tr>
+<tr><td>Dejar que el agente proponga SDD cuando la tarea lo amerita</td><td>Forzar SDD en cada tarea chica</td></tr>
+<tr><td>Confiar en que Engram guarda contexto cuando está instalado y activo</td><td>Meterte en el almacenamiento de Engram salvo que necesites <code>engram sync</code> o <code>engram tui</code></td></tr>
+<tr><td>Dejar que los hooks de arranque o <code>sdd-init</code> refresquen el registro de skills</td><td>Reescanear skills a mano salvo que necesites <code>--force</code></td></tr>
+<tr><td>Decir "usá sdd" si ya sabés que querés planificación estructurada</td><td>Preocuparte por qué fase de SDD viene después</td></tr>
+<tr><td>Volver a correr el instalador para actualizar o cambiar tu setup</td><td>Parchear a mano archivos de skills o instrucciones de persona</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="instalacion">Instalación</h2>
+
+<h3>Requisitos previos</h3>
+<ul>
+<li><strong>Git 2.38+</strong> en todas las plataformas.</li>
+<li><strong>Go 1.25.10+</strong> para compilar desde el código fuente (obligatorio en Windows, porque ahí se instala vía <code>go install</code>).</li>
+<li><strong>Node.js 18+ y npm</strong>: <code>gentle-ai install</code> los verifica como requisito en toda plataforma y avisa con una sugerencia de instalación específica de tu distro si falta alguno. No los instala por vos.</li>
+<li><strong>macOS</strong>: Homebrew en el PATH. Si el tap pide confianza, corré una vez <code>brew trust --formula gentleman-programming/tap/gentle-ai</code>.</li>
+<li><strong>Ubuntu/Debian, Arch, Fedora/RHEL</strong>: el gestor de paquetes correspondiente (<code>apt-get</code>, <code>pacman</code>, <code>dnf</code>) y acceso <code>sudo</code>.</li>
+<li><strong>Pi</strong>: si seleccionás el agente Pi, <code>pi</code> tiene que estar instalado y disponible en el <code>PATH</code>.</li>
+</ul>
+
+<h3>macOS / Linux</h3>
+<pre>curl -fsSL https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/scripts/install.sh | bash</pre>
+
+<h3>Homebrew</h3>
+<pre>brew tap Gentleman-Programming/homebrew-tap
+brew trust --formula gentleman-programming/tap/gentle-ai
+brew install gentle-ai</pre>
+
+<h3>Go install (cualquier plataforma con Go 1.25.10+)</h3>
+<pre>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@latest</pre>
+<p>Fijate en el sufijo <code>/v2</code> en la ruta del módulo: Go lo exige para la versión mayor 2 en adelante. Los releases anteriores a <code>v2.0.0</code> usan la ruta sin sufijo.</p>
+
+<div class="warn">
+  <b>Windows</b>
+  <p>La compilación desde fuente y los tests de CI/runtime siguen soportados, pero la distribución oficial de binarios de Windows y Scoop están temporalmente no disponibles. La instalación y las actualizaciones en Windows requieren Go 1.25.10+ y fallan de forma cerrada hacia la guía de instalación desde fuente: nunca descargan un ejecutable de Gentle AI sin firmar ni ejecutan un script remoto de actualización.</p>
+</div>
+
+<div class="imp">
+  <b>Después de cambiar el binario, sincronizá</b>
+  <p>Al reemplazar o actualizar el binario <code>gentle-ai</code>, corré <code>gentle-ai sync</code> para refrescar sus assets administrados. Los assets de revisión y runtime están atados a la versión del binario: hasta que <code>sync</code> tenga éxito, las operaciones del ciclo de revisión fallan de forma cerrada si falta la procedencia del escritor administrado o no coincide.</p>
+</div>
+
+<h3>Alcance de instalación</h3>
+<p>Por defecto, <code>gentle-ai install</code> escribe los archivos por agente en el directorio de configuración global de cada agente seleccionado. Para mantener el stack aislado a un solo proyecto:</p>
+<pre>gentle-ai install --scope=workspace</pre>
+<p>El alcance <code>workspace</code> aplica a los archivos por agente: prompts de sistema, skills, agentes SDD y archivos de persona se escriben en la raíz del proyecto actual cuando el agente soporta configuración local. Las integraciones que solo existen a nivel global — como instalación de paquetes o settings que el agente solo lee de su config global — siguen siendo globales por diseño. También se puede fijar con la variable de entorno <code>GENTLE_AI_INSTALL_SCOPE</code> para CI o uso no interactivo.</p>
+
+<h2 id="contexto">Contexto del proyecto</h2>
+<p>Una vez configurados tus agentes, abrí el agente en un proyecto. Estos dos comandos registran el contexto del proyecto. <strong>Ninguno es obligatorio</strong> para el uso básico.</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Comando</th><th>Qué hace</th><th>Cuándo volver a correrlo</th></tr></thead>
+<tbody>
+<tr><td><code>/sdd-init</code></td><td>Detecta el stack y las capacidades de testing; activa Strict TDD si está disponible</td><td>Cuando el proyecto agrega o saca frameworks de test, o la primera vez en un proyecto nuevo</td></tr>
+<tr><td><code>gentle-ai skill-registry refresh</code></td><td>Escanea skills instaladas y convenciones del proyecto, y construye el registro</td><td>Después de instalar o quitar skills, o la primera vez en un proyecto nuevo</td></tr>
+</tbody>
+</table>
+</div>
+<p>El orquestador de SDD corre <code>/sdd-init</code> automáticamente si no detecta contexto. Los hooks de arranque normalmente mantienen fresco el registro de skills en los agentes que soportan hooks — Codex, Claude Code, OpenCode y Pi a través de <code>gentle-pi</code>. Si arrancás Pi con <code>pi -ns</code>, se saltea la carga de skills y los hooks de inicio, así que ahí conviene refrescar el registro a mano.</p>
+<p>En cualquier momento podés correr <code>gentle-ai doctor</code>, un chequeo de salud de solo lectura del ecosistema.</p>
+
+<h2 id="presets">Componentes, skills y presets</h2>
+
+<h3>Componentes</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Componente</th><th>ID</th><th>Descripción</th></tr></thead>
+<tbody>
+<tr><td>Engram</td><td><code>engram</code></td><td>Memoria persistente entre sesiones vía MCP: autodetección del nombre del proyecto, búsqueda de texto completo, sincronización con git y consolidación de proyectos</td></tr>
+<tr><td>SDD</td><td><code>sdd</code></td><td>Flujo de desarrollo guiado por especificación (10 fases, incluida <code>sdd-onboard</code>). El agente lo maneja de forma orgánica cuando la tarea lo amerita, o cuando se lo pedís</td></tr>
+<tr><td>Skills</td><td><code>skills</code></td><td>Biblioteca curada de skills</td></tr>
+<tr><td>Context7</td><td><code>context7</code></td><td>Servidor MCP con documentación en vivo de frameworks y librerías</td></tr>
+<tr><td>Persona</td><td><code>persona</code></td><td>Inyección de la persona Gentleman/neutral administrada, o modo persona custom sin administrar</td></tr>
+<tr><td>Permisos</td><td><code>permissions</code></td><td>Defaults y barreras de seguridad. Se aplica a Claude Code y OpenCode, los dos adaptadores con soporte de overlay de permisos</td></tr>
+<tr><td>GGA</td><td><code>gga</code></td><td>Gentleman Guardian Angel: conmutador de proveedores de IA</td></tr>
+<tr><td>Theme</td><td><code>theme</code></td><td>Overlay del tema Gentleman Kanagawa</td></tr>
+</tbody>
+</table>
+</div>
+
+<h4>Lista de rutas sensibles denegadas por defecto</h4>
+<p>El componente de permisos aplica esta lista de negación:</p>
+<pre>~/.ssh/*            ~/.ssh/**/*        **/*.pem
+**/*.key            **/.env*           ~/.credentials/*
+~/.aws/credentials  ~/.config/gh/hosts.yml
+~/Library/Keychains/*                  **/secrets/*
+**/*.p12            **/*.pfx</pre>
+
+<div class="note">
+  <b>Comportamiento de GGA</b>
+  <p><code>gentle-ai install --component gga</code> instala el binario <code>gga</code> globalmente en tu máquina. <strong>No</strong> corre la configuración de hooks a nivel proyecto (<code>gga init</code> / <code>gga install</code>), porque esa debe ser una decisión explícita por repositorio.</p>
+</div>
+
+<h3>Presets</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Preset</th><th>ID</th><th>Qué incluye</th></tr></thead>
+<tbody>
+<tr><td>Dev Stack + Polish</td><td><code>full-gentleman</code></td><td>Todos los componentes (Engram + SDD + Skills + Context7 + GGA + Permisos + Theme) y todas las skills</td></tr>
+<tr><td>Dev Stack</td><td><code>ecosystem-only</code></td><td>Componentes principales (Engram + SDD + Skills + Context7 + GGA) y todas las skills</td></tr>
+<tr><td>Memory Only</td><td><code>minimal</code></td><td>Solo Engram y las skills de SDD</td></tr>
+<tr><td>Custom</td><td><code>custom</code></td><td>Elegís componentes y skills a mano, y cualquier persona o setting existente queda sin administrar</td></tr>
+</tbody>
+</table>
+</div>
+<p>La persona se selecciona por separado en su propia pantalla y se aplica de forma independiente del preset.</p>
+
+<hr>
+
+<h2 id="engram">Engram — memoria persistente</h2>
+<p>Engram es la memoria persistente de tu agente. Guarda decisiones, descubrimientos, arreglos de bugs y contexto entre sesiones, <strong>de forma automática</strong>. El agente administra todo vía herramientas MCP.</p>
+
+<div class="ok">
+  <b>En el día a día no tenés que hacer nada</b>
+  <p>El agente maneja la memoria solo. Los comandos existen para cuando querés inspeccionar, compartir o arreglar tus memorias a mano.</p>
+</div>
+
+<h3>Comandos del día a día</h3>
+<pre># Navegar memorias visualmente: buscar, filtrar, entrar a cada observación
+engram tui
+
+# Buscar desde la terminal sin abrir la TUI
+engram search "refactor de auth"
+
+# Exportar memorias del proyecto a .engram/ para commitearlas a git
+engram sync</pre>
+<p><code>engram tui</code> es la forma más rápida de ver qué viene guardando tu agente. Empezá por ahí.</p>
+
+<h3>Gestión de proyectos</h3>
+<p>Engram agrupa memorias por nombre de proyecto, autodetectado desde tu remoto de git desde la v1.11.0. A veces un mismo proyecto termina con nombres duplicados ("my-app" vs "My-App" vs "my-app-frontend"). Estos comandos lo arreglan:</p>
+<pre>engram projects list          # Lista todos los proyectos con su conteo de observaciones
+engram projects consolidate   # Fusiona nombres duplicados de forma interactiva</pre>
+<p>El equivalente MCP es <code>mem_merge_projects</code>, que el agente puede llamar directamente cuando detecta deriva de nombres.</p>
+
+<h3>Cómo funciona la detección de proyecto</h3>
+<p>Desde la v1.11.0, Engram lee la URL del remoto de git al arrancar, la normaliza a minúsculas y la usa como nombre del proyecto. Si encuentra nombres existentes parecidos, te avisa. Esto previene el problema más común: que el mismo proyecto acumule memorias bajo variantes ligeramente distintas del nombre. Si trabajás fuera de un repo git, Engram usa el nombre del directorio.</p>
+
+<h3>Compartir con el equipo</h3>
+<p>Las memorias de Engram viven localmente por defecto. Para compartirlas vía git:</p>
+<pre># Después de una sesión de trabajo: exportá las memorias a .engram/ en tu repo
+engram sync
+
+# En otra máquina: importá las memorias después de clonar
+engram sync --import</pre>
+<p>Agregá <code>.engram/</code> al repo y commiteálo. Cuando alguien del equipo clona y corre <code>engram sync --import</code>, obtiene el contexto completo del proyecto. Es especialmente útil para onboarding: quien recién entra arranca con el conocimiento acumulado del equipo.</p>
+
+<h3>Herramientas MCP principales</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Herramienta</th><th>Qué hace</th></tr></thead>
+<tbody>
+<tr><td><code>mem_save</code></td><td>Guarda una decisión, arreglo de bug, descubrimiento o convención. Desde Engram v1.15.3+ captura el prompt del usuario en modo best-effort cuando ya había contexto de prompt para el mismo proyecto/sesión</td></tr>
+<tr><td><code>mem_search</code></td><td>Busca en memoria por palabras clave y devuelve las observaciones que coinciden</td></tr>
+<tr><td><code>mem_context</code></td><td>Obtiene el historial reciente de sesión (se llama al inicio de sesión)</td></tr>
+<tr><td><code>mem_session_summary</code></td><td>Guarda un resumen de fin de sesión para que la siguiente tenga contexto</td></tr>
+<tr><td><code>mem_get_observation</code></td><td>Recupera el contenido completo sin truncar de una observación por ID</td></tr>
+<tr><td><code>mem_save_prompt</code></td><td>Guarda el prompt del usuario y alimenta la actividad de sesión para que un <code>mem_save</code> posterior pueda capturarlo y deduplicarlo</td></tr>
+</tbody>
+</table>
+</div>
+<p>Las herramientas avanzadas — <code>mem_update</code>, <code>mem_suggest_topic_key</code>, <code>mem_session_start</code>/<code>mem_session_end</code>, <code>mem_stats</code>, <code>mem_delete</code>, <code>mem_timeline</code>, <code>mem_capture_passive</code> y <code>mem_merge_projects</code> — rara vez hacen falta, pero están disponibles.</p>
+
+<div class="note">
+  <b>Sobre <code>capture_prompt</code></b>
+  <p><code>mem_save</code> acepta el parámetro opcional <code>capture_prompt</code>. Dejalo sin definir para guardados humanos o proactivos normales. Usá <code>capture_prompt: false</code> solo para artefactos automatizados: reportes de propuesta, spec, diseño, tareas, apply, verify, archive e init de SDD; cachés de capacidades de testing; artefactos de onboarding o estado; o salida del registro de skills. Si el servidor MCP no tiene contexto de prompt, <code>mem_save</code> igual tiene éxito y no inventa texto.</p>
+</div>
+
+<h2 id="sdd">SDD — desarrollo guiado por especificación</h2>
+<p>SDD es un flujo de planificación estructurada para funcionalidades sustanciales. Tiene fases, pero <strong>no necesitás aprender ninguna</strong>.</p>
+
+<div class="cards">
+  <div class="card"><h4>Pedido chico</h4><p>El agente lo hace y ya. Sin ceremonia.</p></div>
+  <div class="card"><h4>Funcionalidad sustancial</h4><p>El agente sugiere usar SDD para planificarla bien: explorar el código, proponer un enfoque, diseñar la arquitectura y después implementar paso a paso.</p></div>
+  <div class="card"><h4>Querés SDD explícitamente</h4><p>Decí "usá sdd" o "hazlo con sdd" y el agente arranca el flujo.</p></div>
+</div>
+
+<h3>Las diez fases</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Fase</th><th>Qué hace</th></tr></thead>
+<tbody>
+<tr><td><code>sdd-init</code></td><td>Inicializa el contexto de SDD en un proyecto</td></tr>
+<tr><td><code>sdd-explore</code></td><td>Investiga el código antes de comprometerse a un cambio</td></tr>
+<tr><td><code>sdd-propose</code></td><td>Crea la propuesta de cambio con intención, alcance y enfoque</td></tr>
+<tr><td><code>sdd-spec</code></td><td>Escribe las especificaciones con requerimientos y escenarios</td></tr>
+<tr><td><code>sdd-design</code></td><td>Diseño técnico con decisiones de arquitectura</td></tr>
+<tr><td><code>sdd-tasks</code></td><td>Descompone el cambio en tareas de implementación ordenadas</td></tr>
+<tr><td><code>sdd-apply</code></td><td>Implementa las tareas siguiendo specs y diseño</td></tr>
+<tr><td><code>sdd-verify</code></td><td>Valida que la implementación coincida con las specs</td></tr>
+<tr><td><code>sdd-archive</code></td><td>Sincroniza las delta-specs con las specs principales y archiva</td></tr>
+<tr><td><code>sdd-onboard</code></td><td>Recorrido guiado de punta a punta sobre el código real</td></tr>
+</tbody>
+</table>
+</div>
+<p>A eso se suma <strong>Judgment Day</strong> (<code>judgment-day</code>): revisión adversarial en paralelo donde dos jueces independientes revisan el mismo objetivo.</p>
+
+<h3>Dónde viven los artefactos</h3>
+<p>Los artefactos de SDD pueden persistirse en tres modos:</p>
+<ul>
+<li><strong>Engram</strong> — memoria entre sesiones.</li>
+<li><strong>OpenSpec</strong> — archivos versionados en el repositorio.</li>
+<li><strong>Híbrido</strong> — ambos.</li>
+</ul>
+
+<h3>Sub-agentes: más inteligentes de lo que parecen</h3>
+<p>Cuando el orquestador delega trabajo a un sub-agente, ese sub-agente no es un ejecutor tonto corriendo un script. Es un agente completo, con su propia sesión, herramientas y contexto.</p>
+<ol class="steps">
+<li><strong>El orquestador los mantiene enfocados.</strong> Resuelve el registro de skills una vez, pasa las rutas relevantes de <code>SKILL.md</code> dentro del prompt de cada sub-agente y le da un rol concreto. Los sub-agentes leen los archivos de skill exactos en lugar de recibir resúmenes generados.</li>
+<li><strong>Se adaptan a tu proyecto.</strong> Un <code>sdd-apply</code> trabajando sobre React recibe patrones de React. El mismo sub-agente sobre Go recibe convenciones de testing de Go. Las reglas dependen del registro y del contexto de la tarea, no de una lista hardcodeada.</li>
+<li><strong>Persisten artefactos de fase cuando el backend lo soporta.</strong> En flujos SDD respaldados por Engram, los agentes de fase guardan artefactos antes de retornar. La fase siguiente puede continuar desde la propuesta, spec, diseño, tareas o progreso de apply guardados — incluso entre sesiones.</li>
+</ol>
+
+<h2 id="openspec">OpenSpec — <code>openspec/config.yaml</code></h2>
+<p><code>openspec/config.yaml</code> es una <strong>convención documentada a nivel proyecto</strong> para SDD cuando trabajás en modo de persistencia <code>openspec</code> o <code>hybrid</code>.</p>
+
+<div class="warn">
+  <b>Convención actual, no contrato estable</b>
+  <p>El soporte hoy es principalmente impulsado por prompts. Las skills de SDD y los prompts del orquestador le dicen a los agentes que lean o escriban este archivo, y <code>sdd-init</code> muestra las formas que se espera que los agentes creen.</p>
+  <p style="margin-top:8px"><strong>Lo que NO es cierto hoy:</strong> no hay un parser o validador del lado de Go que imponga un esquema canónico; no hay un contrato de compatibilidad fuerte que garantice que cada campo documentado se consuma de forma uniforme en todas las fases. La forma exacta se entiende mejor como la convención actual del repo, no como una especificación pública fija.</p>
+</div>
+
+<h3>Qué se puede personalizar</h3>
+<ul>
+<li>Contexto del proyecto reutilizado entre fases.</li>
+<li>Activación de TDD estricto.</li>
+<li>Reglas específicas por fase para propuesta, specs, diseño, tareas, apply, verify y archive.</li>
+<li>Overrides de comandos y cobertura usados por los prompts de apply/verify.</li>
+<li>Caché de capacidades de testing detectadas para los flujos de apply/verify.</li>
+</ul>
+
+<h3>Qué fases lo referencian</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Fase</th><th>Cómo usa la config</th></tr></thead>
+<tbody>
+<tr><td><code>sdd-init</code></td><td>En modo OpenSpec, las instrucciones del prompt le indican al agente crear el archivo y escribir las secciones <code>context</code>, <code>rules</code> y <code>testing</code> detectadas</td></tr>
+<tr><td><code>sdd-explore</code></td><td>Lo lee como parte del descubrimiento de contexto del proyecto</td></tr>
+<tr><td><code>sdd-propose</code></td><td>Aplica <code>rules.proposal</code> si está presente</td></tr>
+<tr><td><code>sdd-design</code></td><td>Aplica <code>rules.design</code> si está presente</td></tr>
+<tr><td><code>sdd-spec</code></td><td>Aplica <code>rules.specs</code> si está presente</td></tr>
+<tr><td><code>sdd-tasks</code></td><td>Aplica <code>rules.tasks</code> si está presente</td></tr>
+<tr><td><code>sdd-apply</code></td><td>Lee <code>strict_tdd</code>, <code>testing</code> y <code>rules.apply</code> si están presentes</td></tr>
+<tr><td><code>sdd-verify</code></td><td>Lee <code>strict_tdd</code>, <code>testing</code> y <code>rules.verify</code> si están presentes</td></tr>
+<tr><td><code>sdd-archive</code></td><td>Aplica <code>rules.archive</code> si está presente</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Ejemplo de estructura</h3>
+<p>Combinando el documento de convención compartida, la guía de <code>sdd-init</code> y las referencias de apply/verify, la estructura práctica de nivel superior se ve así:</p>
+<pre>schema: spec-driven
+
+context: |
+  Tech stack: ...
+  Architecture: ...
+  Testing: ...
+  Style: ...
+
+strict_tdd: true
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+  specs:
+    - Use Given/When/Then for scenarios
+  design:
+    - Document architecture decisions with rationale
+  tasks:
+    - Keep tasks completable in one session
+  apply:
+    - Follow existing code patterns
+  verify:
+    test_command: ""
+    build_command: ""
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
+
+testing:
+  strict_tdd: true
+  detected: "YYYY-MM-DD"
+  runner:
+    command: "go test ./..."
+    framework: "Go standard testing"</pre>
+<p>Tomalo como una síntesis práctica de los campos que la capa de prompts puede leer o emitir hoy, no como una definición estricta de esquema.</p>
+
+<h3>Inconsistencias conocidas</h3>
+<p>La forma del archivo todavía no es uniforme. En los ejemplos actuales:</p>
+<ul>
+<li><code>sdd-init</code> muestra <code>rules.apply</code> y <code>rules.verify</code> como listas planas de instrucciones.</li>
+<li>El documento de convención compartida muestra <code>rules.apply</code> con <code>tdd</code> y <code>test_command</code>, y <code>rules.verify</code> con claves de override estructuradas.</li>
+<li><code>sdd-apply/strict-tdd.md</code> se refiere a <code>rules.apply.test_command</code>.</li>
+<li><code>sdd-verify</code> se refiere a <code>rules.verify.test_command</code>, <code>rules.verify.build_command</code> y <code>rules.verify.coverage_threshold</code>.</li>
+</ul>
+<p>Es decir: <code>rules.apply</code> y <code>rules.verify</code> se tratan hoy como si pudieran contener claves estructuradas, mientras otros ejemplos muestran esas mismas reglas de fase como listas planas.</p>
+
+<h2 id="tdd">Strict TDD</h2>
+<p>El modo TDD estricto se activa cuando el proyecto tiene soporte de testing detectable.</p>
+<ul>
+<li><code>/sdd-init</code> detecta las capacidades de testing del proyecto y activa Strict TDD si están disponibles.</li>
+<li>Cuando Strict TDD está activo, <strong><code>sdd-apply</code> trabaja test-first</strong>.</li>
+<li><strong><code>sdd-verify</code> audita la evidencia RED/GREEN</strong> y corre la verificación.</li>
+<li>El flag <code>strict_tdd</code> en <code>openspec/config.yaml</code> lo habilita o deshabilita; lo referencian <code>sdd-init</code>, los prompts del orquestador, <code>sdd-apply</code> y <code>sdd-verify</code>.</li>
+<li>La sección <code>testing</code> cachea las capacidades detectadas para que las fases no tengan que redescubrirlas cada vez.</li>
+<li>También se puede activar al sincronizar con <code>gentle-ai sync --strict-tdd</code>.</li>
+</ul>
+<p>En Pi, los assets de soporte viven en <code>.pi/gentle-ai/support/strict-tdd.md</code> y <code>.pi/gentle-ai/support/strict-tdd-verify.md</code>.</p>
+
+<h2 id="skills">Skills y registro de skills</h2>
+
+<h3>Dos capas de skills</h3>
+<p>Gentle AI instala <strong>skills de SDD</strong> y <strong>skills de base</strong> (flujo de trabajo, patrones de testing) directamente en el directorio de skills de tu agente. Están embebidas en el binario y siempre actualizadas. Son 22 archivos de skill.</p>
+<p>Para <strong>skills de código</strong> — React 19, Angular, TypeScript, Tailwind 4, Zod 4, Playwright, etc. — la comunidad mantiene un repositorio aparte: <a href="https://github.com/Gentleman-Programming/Gentleman-Skills" target="_blank" rel="noopener">Gentleman-Programming/Gentleman-Skills</a>. Esas se instalan a mano:</p>
+<pre>git clone https://github.com/Gentleman-Programming/Gentleman-Skills.git
+cp -r Gentleman-Skills/curated/react-19 ~/.claude/skills/
+cp -r Gentleman-Skills/curated/typescript ~/.claude/skills/
+# ... o copiá el directorio curated/ completo</pre>
+<p>Una vez instaladas, el agente detecta sobre qué estás trabajando y carga las skills relevantes automáticamente. No hace falta activarlas ni invocarlas.</p>
+
+<h4>Skills de base incluidas</h4>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Skill</th><th>ID</th><th>Descripción</th></tr></thead>
+<tbody>
+<tr><td>Go Testing</td><td><code>go-testing</code></td><td>Patrones de testing en Go, incluido testing de TUIs Bubbletea</td></tr>
+<tr><td>Skill Creator</td><td><code>skill-creator</code></td><td>Crear skills nuevas siguiendo la especificación Agent Skills</td></tr>
+<tr><td>Skill Improver</td><td><code>skill-improver</code></td><td>Auditar y mejorar skills existentes contra la guía de estilo del repo</td></tr>
+<tr><td>Branch &amp; PR</td><td><code>branch-pr</code></td><td>Flujo de creación de PRs con commits convencionales, nombres de rama y regla issue-first</td></tr>
+<tr><td>Issue Creation</td><td><code>issue-creation</code></td><td>Flujo de creación de issues con plantillas de bug y feature request</td></tr>
+<tr><td>Skill Registry</td><td><code>skill-registry</code></td><td>Construir un índice de skills instaladas con triggers, alcances y rutas exactas de <code>SKILL.md</code></td></tr>
+<tr><td>Chained PR</td><td><code>chained-pr</code></td><td>Planificar y crear PRs encadenados y revisables</td></tr>
+<tr><td>Cognitive Doc Design</td><td><code>cognitive-doc-design</code></td><td>Escribir documentación que reduce la carga cognitiva de revisión y onboarding</td></tr>
+<tr><td>Comment Writer</td><td><code>comment-writer</code></td><td>Redactar comentarios de colaboración y respuestas de revisión, cálidos y directos</td></tr>
+<tr><td>Work Unit Commits</td><td><code>work-unit-commits</code></td><td>Dividir la implementación en unidades de trabajo revisables</td></tr>
+<tr><td>RDD Defect Workflow</td><td><code>rdd-defect-workflow</code></td><td>Guiar el trabajo sobre defectos de RDD con evidencia veraz y límites de autoridad claros</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>El registro de skills</h3>
+<p>El registro es un <strong>índice local del proyecto</strong> que permite que todos los agentes soportados encuentren las mismas skills sin reescribirlas. Guarda nombres, descripciones completas, alcances y rutas exactas de <code>SKILL.md</code>.</p>
+
+<pre>gentle-ai skill-registry refresh
+gentle-ai skill-registry refresh --force
+gentle-ai skill-registry refresh --cwd /ruta/al/proyecto --quiet</pre>
+
+<h4>Flujo de refresco</h4>
+<pre>gentle-ai skill-registry refresh
+   │
+   ├─ Escanea primero las raíces de skills del proyecto
+   │     skills/, .opencode/skills/, .claude/skills/, .github/skills/, ...
+   │
+   ├─ Escanea después las raíces globales del agente
+   │     ~/.config/opencode/skills/, ~/.claude/skills/, ...
+   │
+   ├─ Deduplica por nombre de skill
+   │     la skill del proyecto gana sobre la global
+   │
+   ├─ Parsea el frontmatter
+   │     name + description completa + path + scope
+   │
+   └─ Escribe .atl/skill-registry.md + caché</pre>
+
+<h4>Flujo en runtime</h4>
+<pre>Tarea del usuario
+   │
+   ▼
+El orquestador lee .atl/skill-registry.md
+   │
+   ▼
+Compara tarea + contexto de archivos contra las descripciones completas
+   │
+   ▼
+Pasa las rutas exactas de SKILL.md al sub-agente
+   │
+   ▼
+El sub-agente lee las skills completas antes de trabajar
+   │
+   ▼
+El sub-agente ejecuta con la intención original de la skill intacta</pre>
+
+<h4>Contrato del registro</h4>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Campo</th><th>Significado</th></tr></thead>
+<tbody>
+<tr><td><code>Skill</code></td><td>El <code>name</code> del frontmatter, o el nombre del directorio como respaldo</td></tr>
+<tr><td><code>Trigger / description</code></td><td>La <code>description</code> completa, incluidas descripciones YAML multilínea plegadas</td></tr>
+<tr><td><code>Scope</code></td><td><code>project</code> o <code>user</code></td></tr>
+<tr><td><code>Path</code></td><td>El archivo <code>SKILL.md</code> exacto a cargar</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="note">
+  <b>Por qué un índice y no reglas compactas</b>
+  <p>Los resúmenes compactos eran más baratos por delegación, pero podían distorsionar las skills. El diseño index-first gasta tokens solo cuando un sub-agente realmente necesita una skill, y preserva el contrato completo de runtime.</p>
+</div>
+
+<h4>Skills excluidas</h4>
+<p>El registro nunca indexa <code>_shared</code>, <code>skill-registry</code>, ni ninguna skill <code>sdd-*</code>. Las dos primeras son plomería interna; las <code>sdd-*</code> las administra el flujo de SDD, no el delegador. La exclusión es intencional y silenciosa, así que una skill de usuario cuyo nombre colisione con estos prefijos se descarta sin aviso.</p>
+
+<h4>Inspeccionar sin escribir</h4>
+<pre>gentle-ai skill-registry list          # name&lt;TAB&gt;scope&lt;TAB&gt;path
+gentle-ai skill-registry list --json   # legible por máquina, incluye descripciones</pre>
+<p>La caché usa un fingerprint que incluye la versión de esquema más la ruta, mtime y tamaño de cada <code>SKILL.md</code> descubierto, así que un arranque normal es un cache-hit barato cuando las skills no cambiaron.</p>
+
+<h2 id="personas">Personas</h2>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Persona</th><th>ID</th><th>Descripción</th></tr></thead>
+<tbody>
+<tr><td>Gentleman</td><td><code>gentleman</code></td><td>Persona mentora orientada a la enseñanza: cuestiona las malas prácticas y explica el porqué</td></tr>
+<tr><td>Neutral</td><td><code>neutral</code></td><td>Mismo maestro, misma filosofía, sin lenguaje regional: cálido y profesional</td></tr>
+<tr><td>Custom</td><td><code>custom</code></td><td>Mantiene tu persona o config existente sin administrar: Gentle AI no inyecta ninguna persona</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>custom</code> es una elección de compatibilidad y propiedad, no un editor de personas. Usalo cuando ya tenés tus propias instrucciones de persona y querés que Gentle AI las deje en paz.</p>
+
+<hr>
+
+<h2 id="ruteo">Ruteo orgánico de implementación</h2>
+<p>Pedí el resultado. Gentle AI mantiene inline el trabajo ya comprendido, delega solo las acciones que se benefician de contexto fresco, y ofrece SDD únicamente cuando la planificación durable reduce la incertidumbre de forma material.</p>
+
+<div class="imp">
+  <b>Cada cambio toma exactamente una ruta</b>
+  <p>El conteo de archivos, las líneas cambiadas, el tamaño o el riesgo percibido <strong>nunca</strong> seleccionan SDD por sí solos. Solo lo hace un pedido explícito o una propuesta aceptada.</p>
+</div>
+
+<h3>Las tres rutas</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Ruta</th><th>Cuándo se usa</th><th>Qué pasa</th></tr></thead>
+<tbody>
+<tr><td><strong>Directa inline</strong></td><td>Decidir o verificar requiere <strong>1 a 3 archivos</strong>; o el cambio es <strong>un archivo mecánico ya comprendido</strong>, sin investigación ni decisiones de diseño pendientes</td><td>La acción acotada se mantiene inline</td></tr>
+<tr><td><strong>Delegada directa</strong></td><td>Entender requiere <strong>4 o más archivos</strong>; la lectura prepara una escritura; hace falta investigación amplia; o hay que escribir <strong>2 o más archivos no triviales</strong></td><td>Se delega la exploración acotada y/o un solo escritor para esa acción</td></tr>
+<tr><td><strong>SDD opcional</strong></td><td>El trabajo tiene ambigüedad sustancial, o artefactos durables de propuesta, spec, diseño o tareas reducirían la incertidumbre de forma material</td><td>Se propone SDD. Se selecciona solo tras un pedido explícito o una propuesta aceptada</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Los conteos de archivos describen el <strong>contexto necesario para la acción actual</strong>, no un puntaje de riesgo ni un umbral de SDD. El riesgo puede fortalecer la verificación nativa o la revisión, pero nunca fuerza SDD.</p>
+
+<p>La delegación también aplica por acción: tests, builds, instalaciones y actores nativos de revisión pueden usar workers frescos sin cambiar la ruta de implementación ni crear una corrida de SDD. El trabajo directo y el delegado no crean artefactos de SDD, intentos de fase ni ciclos SDD sintéticos.</p>
+
+<p>Si un trabajo aparentemente simple revela ambigüedad sustancial, Gentle AI puede ofrecer SDD en el siguiente límite seguro. Rechazarlo lleva a un alcance reducido de forma segura, a una ruta directa o delegada justificada, o a <strong>Necesita tu decisión</strong> — nunca a una inscripción silenciosa en SDD.</p>
+
+<h2 id="delegacion">Reglas de parada de la delegación</h2>
+<p>El orquestador debe dejar de actuar como ejecutor monolítico cuando aparece complejidad:</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Regla</th><th>Disparador</th></tr></thead>
+<tbody>
+<tr><td><strong>Regla de 4 archivos</strong></td><td>Leer 4 o más archivos para entender un flujo implica delegar la exploración o correr una fase de exploración</td></tr>
+<tr><td><strong>Regla de escritura multiarchivo</strong></td><td>Tocar 2 o más archivos no triviales implica usar un solo escritor, o exigir revisión fresca antes de completar</td></tr>
+<tr><td><strong>Regla de PR</strong></td><td>La revisión puede aportar evidencia fresca para un commit, push o PR, pero nunca autoriza la entrega</td></tr>
+<tr><td><strong>Regla de incidente</strong></td><td>Después de un cwd equivocado, un accidente de worktree/git, una recuperación de merge, un comando de test confuso o un workaround del entorno: correr una auditoría fresca antes de continuar</td></tr>
+<tr><td><strong>Regla de sesión larga</strong></td><td>Después de unas 20 llamadas a herramientas, 5 lecturas exploratorias o 2 ediciones no mecánicas con complejidad creciente: pausar y delegar, replanificar, o justificar por qué no</td></tr>
+<tr><td><strong>Regla de revisión fresca</strong></td><td>Usar contexto fresco para revisión adversarial de diffs, conflictos, preparación de PR e incidentes, cuando la plataforma del agente lo soporta</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="estados">Estados públicos</h2>
+<p>La interacción normal reporta solo cuatro estados. El usuario no elige internos de revisión, hashes, receipts ni transiciones de ciclo de vida.</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Estado</th><th>Significado</th></tr></thead>
+<tbody>
+<tr><td><strong>Working</strong> <span class="pill">trabajando</span></td><td>La implementación todavía puede cambiar</td></tr>
+<tr><td><strong>Checking</strong> <span class="pill">verificando</span></td><td>Gentle AI está ejecutando la prueba funcional aplicable y la revisión acotada</td></tr>
+<tr><td><strong>Ready</strong> <span class="pill">listo</span></td><td>El candidato exacto tiene evidencia suficiente para la ruta de entrega seleccionada</td></tr>
+<tr><td><strong>Needs your decision</strong> <span class="pill">necesita tu decisión</span></td><td>La convergencia automática segura es imposible; Gentle AI presenta la causa, el impacto y opciones concretas</td></tr>
+</tbody>
+</table>
+</div>
+<p>Una pregunta es necesaria solo cuando la respuesta cambia el alcance pedido, el impacto destructivo o irreversible, la exposición de permisos o seguridad, el costo de verificación o efectos secundarios externos, el riesgo residual aceptado, o la entrega.</p>
+
+<hr>
+
+<h2 id="rdd">RDD — Receipt-Driven Development</h2>
+<p>RDD revisa un candidato terminado <strong>sin apropiarse de la entrega</strong>. Es deliberadamente chico: el código nativo congela un candidato de worktree, coordina la revisión acotada, quema la autoridad completada y devuelve el control al humano.</p>
+
+<h3>El modelo en tres frases</h3>
+<div class="cards">
+  <div class="card"><h4>La revisión sigue al trabajo</h4><p>El candidato existe antes de que empiece la revisión. El padre le pide a STATUS nativo que haga preflight solo del worktree actual.</p></div>
+  <div class="card"><h4>Lo nativo es dueño de la mecánica</h4><p>Go deriva riesgo, árboles congelados, lentes, bindings del proveedor, admisión, refutación, una corrección acotada, evidencia del repositorio y validación dirigida.</p></div>
+  <div class="card"><h4>El humano es dueño de la entrega</h4><p>La aprobación nunca commitea, pushea, abre un PR ni sobrescribe la política del repositorio.</p></div>
+</div>
+
+<div class="imp">
+  <b>El interruptor es un interruptor, y arranca apagado</b>
+  <p>RDD es <strong>opt-in</strong>. Hasta que alguien corra <code>gentle-ai review mode enable --scope global</code>, no gobierna el candidato. Nada bloquea ni condiciona la entrega: aplica la política ordinaria del repositorio. Activar RDD revalida el candidato actual en lugar de retomar obligaciones viejas.</p>
+</div>
+
+<h2 id="rdd-control">Prender y apagar RDD</h2>
+<pre>gentle-ai review mode status --cwd &lt;repo&gt;
+gentle-ai review mode enable --scope global --cwd &lt;repo&gt;
+gentle-ai review mode disable --cwd &lt;repo&gt;
+gentle-ai review mode disable --scope clone --cwd &lt;repo&gt;
+gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
+
+<div class="tblwrap">
+<table>
+<thead><tr><th>Comando</th><th>Efecto</th></tr></thead>
+<tbody>
+<tr><td><code>review mode status</code></td><td>Reporta la fuente global, la fuente local del clon, la fuente que decide y el modo efectivo — sin mutar nada</td></tr>
+<tr><td><code>review mode enable --scope global</code></td><td>Activa RDD globalmente para candidatos futuros. <strong>Es el único comando que lo prende</strong></td></tr>
+<tr><td><code>review mode disable</code></td><td>Desactiva RDD globalmente</td></tr>
+<tr><td><code>review mode disable --scope clone</code></td><td>Lo desactiva solo para este clon; ningún otro clon hereda el override</td></tr>
+<tr><td><code>review mode enable --scope clone</code></td><td>Limpia el override de apagado de este clon. <strong>No lo prende por sí solo</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>Cualquier fuente en estado desactivado gana.</strong> Un clon puede optar por salirse, pero no puede exigirle revisión al usuario, así que el alcance global es la única forma de entrar. Sin ninguna fuente expresando una opinión, el modo efectivo es <code>off</code>, reportado como decidido por <code>default</code>.</p>
+
+<p>Los arranques interactivos preguntan antes del trabajo de revisión, una vez por clon. Aceptar registra esa elección; <strong>"ahora no" aplica solo a ese candidato y no cambia el modo de revisión</strong>. Los arranques no interactivos de tier-1/tier-2 proceden sin preguntar y reportan cómo desactivar el modo de revisión.</p>
+
+<p>Mientras RDD está desactivado, el trabajo continúa por ruteo directo inline, delegado directo o SDD opcional, sin iniciar, reintentar ni reactivar la revisión por cuenta propia. Los gates nativos de entrega reportan <code>disabled/unmanaged</code> cuando no aplica ningún receipt exacto, y <strong>nunca fabrican una aprobación</strong>.</p>
+
+<h2 id="rdd-ciclo">El ciclo atómico</h2>
+<pre>STATUS sin selector → START exacto → colección/finalize acotados → aprobado + quema → política ordinaria del repositorio</pre>
+
+<h3>1. STATUS sin selector solo hace preflight</h3>
+<p>STATUS sin selector evalúa <strong>únicamente el candidato del worktree actual</strong> y renderiza una invocación START exacta. <strong>No</strong> descubre autoridad ambiente, no retoma otro worktree, no recupera historia ni selecciona un linaje viejo. El padre corre solo la <code>next_transition</code> devuelta y sus tokens ordenados.</p>
+<pre>gentle-ai review status \
+  --cwd &lt;repo&gt; \
+  --contract gentle-ai.review-integration/v2 \
+  --agent claude-code \
+  --next-transition</pre>
+<p>Esto evita que una autoridad histórica, un worktree hermano o una respuesta de ciclo de vida obsoleta dirijan el candidato actual.</p>
+
+<h3>2. START congela una transacción independiente</h3>
+<p>START congela el candidato en una transacción compacta, explícitamente atada a su linaje, worktree y objetivo. Selecciona riesgo y lentes de forma nativa. El padre captura los tokens de <strong>lineage, revision y target</strong> devueltos.</p>
+<p>Un replay exacto de un START activo puede devolver <code>replayed</code>. Un START genuinamente nuevo es independiente. Un linaje quemado nunca se reutiliza.</p>
+
+<h3>3. Las llamadas atadas manejan la transacción</h3>
+<p>Cada STATUS, <code>review capture-result</code> y FINALIZE posterior lleva esos tokens exactos. El padre rutea únicamente desde la <code>next_transition</code> devuelta:</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Transición</th><th>Acción del padre</th></tr></thead>
+<tbody>
+<tr><td><code>execute</code></td><td>Corre la operación exacta y los argumentos ordenados, sin cambios</td></tr>
+<tr><td><code>collect</code></td><td>Provee solo el input nombrado a través de su operación de captura exacta, y después vuelve a consultar STATUS</td></tr>
+<tr><td><code>stop</code></td><td>No corre ninguna operación de ciclo de vida. No infiere una recuperación a partir del texto</td></tr>
+</tbody>
+</table>
+</div>
+<p>Un <em>forecast</em> es descriptivo, no una ruta. Se relata completo, pero se ejecuta solo <code>next_transition</code>.</p>
+
+<h3>4. La aprobación quema la autoridad</h3>
+<p>Al tener éxito, el código nativo lee de vuelta la aprobación terminal y después <strong>quema</strong> el linaje exacto y sus artefactos antes de devolver <code>approved</code>. No sobrevive ningún receipt terminal, tombstone, testigo, espejo ni autoridad de entrega. Otros linajes y worktrees quedan intactos.</p>
+
+<div class="warn">
+  <b>Un FINALIZE no limpio no es una aprobación</b>
+  <p>Esto incluye salida malformada o vacía, falla de transporte, ambigüedad post-mutación, y el caso en que la autoridad terminal ya pueda estar commiteada. El padre conserva el linaje, revisión y objetivo exactos, consulta STATUS atado una vez, y sigue solo la acción devuelta. Nunca cae en recuperación ambiente ni inventa otro linaje.</p>
+</div>
+
+<h3>Continuidad entre repositorios</h3>
+<p>Una sesión con raíz en el repositorio A puede revisar un objetivo anidado — explícitamente autorizado por el usuario — en un repositorio B no relacionado. Go resuelve la ruta pedida a la raíz canónica de worktree de B; los adaptadores permanecen opacos y nunca parsean autorización ni raíces.</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Regla</th><th>Contrato</th></tr></thead>
+<tbody>
+<tr><td>Raíz del ciclo de vida</td><td>Una vez seleccionado B, el host mantiene B canónico desde STATUS hasta consentimiento, colección, corrección, validación, FINALIZE y quema. A nunca es un respaldo</td></tr>
+<tr><td>Comandos</td><td>Se corren los tokens emitidos por el proveedor sin cambios. Si un comando omite <code>--cwd</code>, se corre con el cwd de proceso B</td></tr>
+<tr><td>Captura opaca</td><td><code>repository_context</code> puede materializarse o capturarse desde otro cwd de proceso, pero permanece atado a B</td></tr>
+<tr><td>Aislamiento</td><td>Un texto de linaje idéntico en A y B nombra transacciones independientes. La aprobación quema solo B; A queda intacto</td></tr>
+<tr><td>Entrega</td><td>La política ordinaria del repositorio y cualquier autorización explícita de entrega nombran a B</td></tr>
+</tbody>
+</table>
+</div>
+<p>Este ciclo de vida está disponible únicamente para <strong>Claude Code, Codex, OpenCode y Pi</strong>. Los runtimes no soportados fallan antes de cualquier mutación de repositorio o autoridad.</p>
+
+<h2 id="rdd-lentes">Riesgo y lentes</h2>
+<p>START clasifica el riesgo una sola vez a partir de evidencia del repositorio y lo <strong>congela</strong>. Una corrección no puede recalcular el riesgo hacia abajo para escapar de la revisión, ni hacia arriba para fabricar más trabajo.</p>
+
+<div class="tblwrap">
+<table>
+<thead><tr><th>Riesgo</th><th>Lentes seleccionadas</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td><strong>Bajo</strong></td><td>0 lentes</td><td>Lectura estructural de vuelta. Silenciosa, sin pregunta de consentimiento</td></tr>
+<tr><td><strong>Estándar</strong></td><td>1 lente de foco</td><td>Un pase enfocado, con consentimiento</td></tr>
+<tr><td><strong>Alto</strong></td><td>4R canónicas</td><td>Riesgo, Resiliencia, Legibilidad y Confiabilidad, con consentimiento y forecast de costo</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Esa forma de 0, 1 o 4 es <strong>control estructural de costos</strong>. Un cambio de solo documentación no debería pagar cuatro llamadas amplias al modelo. Un cambio de código normal se beneficia de un pase enfocado. Autenticación, pagos, tokens de servicio, rutas sensibles a seguridad o un cambio grande merecen cuatro perspectivas independientes.</p>
+
+<h3>Las lentes son de solo lectura</h3>
+<p>Cada lente seleccionada es de solo lectura y está separada de la autoría. Lee el candidato, juzga una preocupación, emite un resultado JSON estricto y para. <strong>Ninguna lente edita archivos, genera un corrector ni avanza el estado del ciclo de vida.</strong> Como dice el Capítulo 21: <em>el jurado no es el contratista</em>.</p>
+
+<p>Los revisores reciben contexto inmutable emitido por el proveedor, no estado vivo del workspace. Inspeccionan solo los árboles inmutables atados por el proveedor: nunca el worktree vivo, el índice, el <code>HEAD</code> ni otra revisión. Los bytes del candidato no deben pasar por <code>/tmp</code>, un archivo scratch del repositorio ni <code>GENTLE_AI_FROZEN_CANDIDATE_CONTEXT</code>.</p>
+
+<h3>La forma de un resultado de revisor</h3>
+<pre>&#123;
+  "findings": [
+    &#123;
+      "location": "internal/auth/token.go:84",
+      "severity": "CRITICAL",
+      "claim": "the candidate accepts an expired service token",
+      "proof_refs": [
+        "TestExpiredToken passes on base and fails on candidate"
+      ],
+      "evidence_class": "deterministic",
+      "causal_disposition": "introduced"
+    &#125;
+  ],
+  "evidence": [
+    "inspected the complete candidate diff and ran the focused differential test"
+  ]
+&#125;</pre>
+<p>La omisión es deliberada: <strong>sin ID de finding, sin nombre de lente, sin hash, sin metadata de linaje</strong>. El facade ya sabe qué resultado de lente llegó en qué posición seleccionada. Go completa los IDs faltantes, canonicaliza el orden, valida la prueba requerida y rechaza campos desconocidos. Un modelo es bueno para afirmaciones y evidencia; es una pésima elección para construir bytes canónicos.</p>
+
+<h3>Evidencia independiente</h3>
+<p>La opinión de revisión y la evidencia de verificación son cosas distintas. Una lente puede decir "los tests parecen adecuados". La evidencia dice <em>go test ./... salió con éxito</em>, el build completó, los ejemplos de aceptación pasaron.</p>
+<div class="note">
+  <b>Por qué importa la independencia</b>
+  <p>Si el mismo modelo dice "revisé el código" y después escribe "los tests pasaron" sin un resultado de herramienta, tenés dos oraciones de una sola parte interesada. El facade no puede transformar narración en verdad. Solo puede atar bytes de evidencia reales que otro mecanismo produjo.</p>
+</div>
+
+<h2 id="rdd-correccion">Corrección acotada</h2>
+<p>Solo los findings severos <strong>causados por el candidato</strong> pueden bloquear. Los preexistentes o de solo base se convierten en seguimientos; lo desconocido escala; WARNING y SUGGESTION quedan como información.</p>
+
+<p>Una revisión ordinaria permite <strong>exactamente una transacción de corrección</strong>. START congela el presupuesto de corrección en <code>min(200, ceil(líneas_originales_cambiadas / 2))</code>.</p>
+
+<ul>
+<li>Antes de editar se da un forecast positivo, y se continúa solo por la siguiente transición devuelta por el proveedor.</li>
+<li>Después de la edición acotada, se corre un validador de arreglo de solo lectura, únicamente cuando el input de colección exacto lo pide.</li>
+<li><strong>Un validador que no puede inspeccionar los árboles inmutables no tiene veredicto.</strong> Hay que reportar ese bloqueo en lugar de enviar una validación fallida: un chequeo inconcluso registrado como fallido consume el único intento de corrección de forma irreversible.</li>
+<li>Una vez aceptado el intento — incluso con un delta medido de cero líneas — la corrección ordinaria queda agotada. Un cambio posterior requiere un sucesor autorizado.</li>
+<li>Las observaciones posteriores son seguimientos, no otra corrección.</li>
+</ul>
+
+<h2 id="rdd-entrega">Entrega y gates</h2>
+<div class="imp">
+  <b>La revisión nunca autoriza la entrega</b>
+  <p>El estado terminal de revisión es informativo. Commit, push, PR, release y archive siguen la política ordinaria del repositorio y requieren su propia autorización explícita.</p>
+</div>
+
+<p><code>gentle-ai review validate</code> y sus gates nombrados — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code> y <code>release</code> — son comandos de compatibilidad e información. Nunca descubren autoridad ni deciden la entrega:</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Modo RDD</th><th>Resultado informativo</th></tr></thead>
+<tbody>
+<tr><td>Activado</td><td><code>invalidated/unmanaged</code></td></tr>
+<tr><td>Desactivado</td><td><code>disabled/unmanaged</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Nunca permiten, aprueban, bloquean, commitean, pushean ni abren un pull request.</p>
+
+<h3>Proyecciones del candidato</h3>
+<p><code>gentle-ai review start</code> usa por defecto la proyección <code>workspace</code>. Para un monorepo o un worktree compartido, se puede revisar exactamente lo que está en el índice de Git:</p>
+<pre>git add apps/mi-servicio
+git diff --cached
+gentle-ai review start --projection staged</pre>
+<p>La proyección <code>staged</code> congela el <strong>índice existente completo</strong>, incluidas todas las rutas ya stageadas. Excluye el contenido no stageado y sin trackear del worktree, y no modifica el índice ni el worktree vivos al derivar evidencia. Inicia la revisión, pero por sí sola no emite un receipt aprobado.</p>
+<p>Una autoridad existente nunca se convierte automáticamente entre proyecciones. La recuperación hereda la proyección del predecesor cuando se omite <code>--projection</code>.</p>
+
+<h3>Códigos de parada</h3>
+<p>Un <code>stop</code> lleva exactamente un código de razón y ninguna transición ejecutable. Estos son algunos de los códigos más frecuentes y su continuación:</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Código</th><th>Continuación</th></tr></thead>
+<tbody>
+<tr><td><code>rdd_disabled</code></td><td>Correr el comando <code>gentle-ai review mode enable</code> exacto que renderiza STATUS, y después volver a correr su comando STATUS exacto atado al repositorio</td></tr>
+<tr><td><code>corrected_candidate_unavailable</code></td><td>Cambiar el candidato de corrección y volver a consultar STATUS con el linaje y objetivo capturados. No reutilizar el objetivo previo a la corrección</td></tr>
+<tr><td><code>correction_repository_verification_failed</code></td><td>Cambiar el candidato de corrección abierto y volver a consultar STATUS para obtener evidencia nueva del repositorio</td></tr>
+<tr><td><code>unchanged_or_unverified_authority</code></td><td>Terminal. Un <code>review start</code> sobre un candidato sin cambios solo retoma el mismo linaje. Hay que cambiar el contenido primero</td></tr>
+<tr><td><code>lens_context_budget_exceeded</code></td><td>Terminal. El contexto inmutable del revisor no se puede truncar. Reducir el alcance del candidato e iniciar una transacción nueva</td></tr>
+<tr><td><code>corrupted_or_unverifiable_authority</code></td><td>Terminal. La autoridad es ilegible o no soportada. Pedirle a un mantenedor que la inspeccione</td></tr>
+<tr><td><code>manual_intervention_required</code></td><td>Terminal. El estado de autoridad está fuera del ciclo de vida negociado</td></tr>
+<tr><td><code>original_finalize_request_required</code></td><td>Volver a correr <code>gentle-ai review finalize --lineage &lt;id&gt;</code> con el payload original exacto atado al contenido</td></tr>
+<tr><td><code>native_stop_required</code></td><td>Terminal. El linaje escaló y no tiene continuación nativa</td></tr>
+<tr><td><code>empty_base_diff_bootstrap_required</code></td><td>Terminal. La base commiteada no tiene rutas revisables</td></tr>
+<tr><td><code>recovery_scope_unchanged</code></td><td>Cambiar el objetivo para que su identidad difiera, y reintentar la invocación <code>review recover</code> exacta devuelta</td></tr>
+</tbody>
+</table>
+</div>
+<p>Para cada salida con alcance de clon, <code>gentle-ai review mode disable --scope clone --cwd &lt;repo&gt;</code> devuelve la entrega a la política ordinaria del repositorio. <strong>Ningún código de parada se resuelve cambiando de runtime, proveedor o toolchain.</strong></p>
+
+<h2 id="rdd-limites">Límites de confianza</h2>
+<p>El modelo mental viene del <a href="https://the-amazing-gentleman-programming-book.vercel.app/en/book/Chapter21_Verifiable-Trust" target="_blank" rel="noopener">Capítulo 21 — Verifiable Trust</a>:</p>
+<blockquote style="border-left:3px solid var(--accent);margin:18px 0;padding:6px 0 6px 18px;color:var(--muted);font-style:italic">
+"El modelo juzga el candidato. El facade construye la autoridad. El gate re-deriva la verdad."
+</blockquote>
+<p>La separación central: <strong>Go hace el trabajo determinista, el modelo hace el trabajo de juicio.</strong> El modelo no inventa un ID de linaje, no calcula hashes, no serializa payloads de operación para quince transiciones de estado, no congela ledgers a mano ni construye contextos de gate.</p>
+
+<div class="note">
+  <b>Por qué insistir con el camino corto</b>
+  <p>La complejidad de protocolo es un problema de confiabilidad. Cada operación manual es otra instrucción que puede quedar enterrada en el token 140.000, ser descartada por compactación, llamarse en el orden equivocado, o narrarse de forma convincente sin haberse ejecutado.</p>
+</div>
+
+<h3>Qué protege el modelo de amenazas — y qué no</h3>
+<p>El store compacto de revisión protege la autoridad válida de <strong>corrupción accidental y escritores concurrentes</strong>. <strong>No</strong> pretende autenticar el estado contra un actor local malicioso con el mismo usuario y acceso al sistema de archivos: sin un ancla de confianza externa, ese actor puede reescribir el estado, el receipt, el repositorio Git o el binario.</p>
+
+<div class="tblwrap">
+<table>
+<thead><tr><th>Escenario</th><th>¿En alcance?</th><th>Resultado exigido</th></tr></thead>
+<tbody>
+<tr><td>Estado truncado, malformado o semánticamente inválido</td><td>Sí</td><td>La validación falla de forma cerrada; la autoridad existente queda intacta</td></tr>
+<tr><td>Reemplazo interrumpido</td><td>Sí</td><td>El reemplazo atómico y la sincronización del filesystem preservan el registro válido viejo o el nuevo</td></tr>
+<tr><td>Escritor concurrente u obsoleto</td><td>Sí</td><td>Un lock más la revisión esperada rechazan transiciones viejas; un reintento exacto es idempotente</td></tr>
+<tr><td>El repositorio cambia después de la revisión</td><td>Sí</td><td>Se re-deriva evidencia desde Git vivo y se reportan cambios de alcance o identidad para reparación de revisión</td></tr>
+<tr><td>La autoridad terminal necesita otra revisión</td><td>Sí</td><td><code>review recover</code> exige sus predicados de alcance y estado; el estado, receipt, journal y bytes de evidencia del predecesor quedan inmutables</td></tr>
+<tr><td><strong>Actor local malicioso con el mismo usuario</strong></td><td><strong>No</strong></td><td>No se hace ninguna afirmación de autenticidad ni resistencia a manipulación</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Controles retenidos</h3>
+<ul>
+<li>Validación estricta de esquema y semántica antes de aceptar o reemplazar autoridad.</li>
+<li>Validación de transiciones legales contra el estado actualmente bloqueado y la evidencia derivada del repositorio.</li>
+<li>Reemplazo atómico de archivos, con sincronización de archivo y directorio donde sea practicable.</li>
+<li>Un lock de escritor y una revisión esperada para detectar escritores concurrentes.</li>
+<li>Un lock de mantenimiento compartido en <code>&lt;git-common-dir&gt;/gentle-ai/REVIEW-MAINTENANCE.lock</code>, fuera del subárbol de autoridad reemplazable. Coordina solo participantes cooperativos de Gentle AI; <strong>no es una defensa contra un actor malicioso del mismo usuario</strong>.</li>
+<li>Reconocimiento de reintentos exactos para operaciones idempotentes.</li>
+<li>Re-derivación de contexto desde Git vivo en lugar de confiar en espejos persistidos.</li>
+<li>Checksums solo donde son útiles para detectar corrupción accidental: <strong>no son autenticación</strong>.</li>
+</ul>
+
+<h3>Esquemas de entrada</h3>
+<p>Se pueden imprimir los esquemas JSON versionados:</p>
+<pre>gentle-ai review schema reviewer
+gentle-ai review schema refuter
+gentle-ai review schema validator
+gentle-ai review schema verification-evidence-record
+gentle-ai review schema final-verification-incident</pre>
+<p>La evidencia de verificación cruda sigue siendo bytes arbitrarios no vacíos, pero <strong>por sí sola nunca es autoridad de resultado</strong>. La captura nativa persiste un registro estricto <code>gentle-ai.review-verification-evidence/v2</code> con un resultado cerrado y bindings inmutables de candidato, revisión, payload, ruta y ledger.</p>
+
+<h2 id="rdd-mantenimiento">Mantenimiento del store de revisión</h2>
+<p>La autoridad de revisión se acumula sin límite: cada candidato deja un linaje atrás y nada elimina uno ya entregado, así que un clon de vida larga termina con cientos de linajes y cientos de megabytes de checkouts de candidatos.</p>
+
+<div class="tblwrap">
+<table>
+<thead><tr><th>Comando</th><th>Efecto</th></tr></thead>
+<tbody>
+<tr><td><code>review store-reset --cwd &lt;repo&gt;</code></td><td>Reporta, por categoría, qué eliminaría un reset y qué preservaría. <strong>No elimina nada</strong></td></tr>
+<tr><td><code>review store-reset --cwd &lt;repo&gt; --confirm</code></td><td>Elimina el estado de linajes de revisión de este clon. <strong>Irreversible</strong></td></tr>
+<tr><td><code>... --confirm --include-in-flight</code></td><td>Elimina también revisiones que no llegaron a un estado terminal</td></tr>
+<tr><td><code>... --confirm --include-adapter-reviews</code></td><td>Elimina también el store de grafo <code>reviews/</code> escrito por el adaptador</td></tr>
+<tr><td><code>review store-reset --cwd &lt;repo&gt; --json</code></td><td>El mismo reporte, legible por máquina</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="warn">
+  <b>La vista previa es el default</b>
+  <p><code>--confirm</code> es obligatorio para eliminar cualquier cosa: la operación es irreversible y abarca todo el clon, así que la invocación que uno escribe de memoria tiene que ser la que solo mira. Tiene alcance de clon y nunca toca una ubicación global o de máquina.</p>
+</div>
+
+<p><strong>Elimina</strong> <code>candidate-views/</code> y los subárboles <code>v1</code>, <code>v2</code>, <code>quarantine</code>, <code>effect-markers</code> e <code>incidents</code> de <code>review-transactions/</code>.</p>
+<p><strong>Preserva</strong> el interruptor de RDD — tanto en <code>review-mode/</code> como en el espejo previo a #2882 — junto con <code>sdd-runtime/</code>, <code>defect-reports/</code>, <code>review-artifacts/</code>, <code>incidents/</code> y <code>REVIEW-MAINTENANCE.lock</code>. <strong>Las revisiones que estaban apagadas siguen apagadas.</strong> La lista es una lista de permitidos, así que cualquier ruta que el comando no reconozca — incluida una que agregue un release futuro — se reporta y se deja en su lugar en lugar de adivinar.</p>
+<p><strong>Retiene</strong> <code>reviews/</code>, el store de grafo que escribe el adaptador de gentle-pi, y solo lo elimina con <code>--include-adapter-reviews</code>. Una corrida por defecto no puede distinguir un grafo muerto de una revisión viva, y un comando destructivo no borra lo que no puede garantizar.</p>
+<p>La TUI expone la misma acción como <strong>Reset review store</strong> en el menú principal, entre <em>Manage backups</em> y <em>Managed uninstall</em>, con el cursor de confirmación arrancando en <em>Cancel</em>. La TUI no tiene equivalente de <code>--include-in-flight</code> ni <code>--include-adapter-reviews</code>: cuando existen revisiones abiertas se niega e imprime la invocación de CLI, para que destruir trabajo en vuelo nunca esté a una sola tecla de distancia.</p>
+
+<hr>
+
+<h2 id="flujo-organico">Flujo orgánico completo</h2>
+<p>El agente elige la ruta más chica útil y RDD entra al final, sobre el candidato congelado.</p>
+<div class="mermaid">
+flowchart TD
+    A["El usuario pide un cambio"] --> B&#123;"Ruta de<br/>implementación"&#125;
+    B -->|"decidir/verificar<br/>1-3 archivos"| C["Directa inline"]
+    B -->|"explorar 4+ archivos<br/>o escribir 2+ no triviales"| D["Delegada directa<br/>(un worker acotado)"]
+    C --> E["Implementación + tests"]
+    D --> E
+    E --> F&#123;"¿RDD activado?<br/>(opt-in del usuario)"&#125;
+    F -->|"apagado (default)"| Z["Entrega ordinaria<br/>reporta disabled/unmanaged"]
+    F -->|"activado"| G["review status --next-transition<br/>(ruta negociada del proveedor)"]
+    G --> H&#123;"Riesgo congelado<br/>en START"&#125;
+    H -->|"bajo"| I["Lectura estructural<br/>0 lentes - silenciosa"]
+    H -->|"estándar"| J["1 lente de foco<br/>+ consentimiento"]
+    H -->|"alto"| K["4R canónicas + consentimiento<br/>+ forecast de costo"]
+    J --> L["Los revisores inspeccionan<br/>el candidato inmutable"]
+    K --> L
+    L --> M&#123;"¿Findings severos<br/>causados por el candidato?"&#125;
+    I --> N["Resultado: aprobado<br/>(informativo)"]
+    M -->|"no"| N
+    M -->|"sí"| O["Una corrección acotada<br/>(presupuesto congelado)"]
+    O --> P["Validador de arreglo<br/>(solo lectura)"]
+    P -->|"pasa"| N
+    P -->|"falla con evidencia"| Q["Escalado"]
+    P -->|"sin acceso al diff"| R["Inconcluso: el intento<br/>no se consume"]
+    R --> P
+    Q --> S["review recover<br/>(sucesor autorizado)"]
+    N --> T["Política ordinaria<br/>del repositorio"]
+    T --> U["Commit → Push → PR"]
+    Z --> U
+
+    style N fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
+    style Q fill:#49443C,stroke:#FF9E3B,color:#DCD7BA
+    style U fill:#43242B,stroke:#D27E99,color:#DCD7BA
+    style Z fill:#1F1F28,stroke:#54546D,color:#727169
+</div>
+
+<h2 id="flujo-sdd">Flujo SDD completo</h2>
+<p>Primero los artefactos durables de planificación, después apply, verificación independiente y una oferta opcional de revisión RDD. El archivado y la entrega siguen la política ordinaria del repositorio.</p>
+<div class="mermaid">
+flowchart TD
+    A["sdd-new / sdd-explore<br/>(o sdd-ff para adelantar la planificación)"] --> B["Explorar<br/>investigar código y enfoques"]
+    B --> C["Proponer<br/>intención - alcance - enfoque"]
+    C --> D&#123;"¿El usuario aprueba<br/>la propuesta?"&#125;
+    D -->|"no"| B
+    D -->|"sí"| E["Spec<br/>requerimientos + escenarios"]
+    E --> F["Diseño<br/>decisiones de arquitectura"]
+    F --> G["Tareas<br/>checklist ordenado"]
+    G --> H["Apply<br/>el sub-agente implementa<br/>contra las specs"]
+    H --> Q["Verify<br/>verificación independiente contra<br/>spec - diseño - tareas"]
+    Q -->|"falla"| H
+    Q -->|"pasa"| I["Oferta opcional de revisión RDD"]
+    I --> J&#123;"Riesgo"&#125;
+    J -->|"bajo"| K["Lectura estructural"]
+    J -->|"estándar / alto"| L["1 lente o 4R + consentimiento"]
+    L --> M&#123;"¿Findings severos?"&#125;
+    M -->|"sí"| N["Una corrección acotada<br/>+ validador de arreglo"]
+    M -->|"no"| O["Resultado: aprobado<br/>(informativo)"]
+    K --> O
+    N -->|"valida"| O
+    N -->|"falla"| P["Escalado → recover"]
+    O --> R["Archive<br/>fusiona delta-specs - cierra el ciclo"]
+    R --> S["Política ordinaria del repositorio"]
+    S --> T["Commit → Push → PR"]
+
+    style O fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
+    style P fill:#49443C,stroke:#FF9E3B,color:#DCD7BA
+    style T fill:#43242B,stroke:#D27E99,color:#DCD7BA
+</div>
+
+<hr>
+
+<h2 id="agentes">Matriz de agentes soportados</h2>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Agente</th><th>ID</th><th>Skills</th><th>MCP</th><th>Delegación</th><th>Ruta de config</th></tr></thead>
+<tbody>
+<tr><td>Claude Code</td><td><code>claude-code</code></td><td>Sí</td><td>Sí</td><td>Completa (Task tool)</td><td><code>~/.claude</code></td></tr>
+<tr><td>OpenCode</td><td><code>opencode</code></td><td>Sí</td><td>Sí</td><td>Completa (overlay multi-modo)</td><td><code>~/.config/opencode</code></td></tr>
+<tr><td>Kilo Code</td><td><code>kilocode</code></td><td>Sí</td><td>Sí</td><td>Completa (overlay multi-modo)</td><td><code>~/.config/kilo</code></td></tr>
+<tr><td>Gemini CLI</td><td><code>gemini-cli</code></td><td>Sí</td><td>Sí</td><td>Completa (experimental)</td><td><code>~/.gemini</code></td></tr>
+<tr><td>Cursor</td><td><code>cursor</code></td><td>Sí</td><td>Sí</td><td>Completa (subagentes nativos)</td><td><code>~/.cursor</code></td></tr>
+<tr><td>VS Code Copilot</td><td><code>vscode-copilot</code></td><td>Sí</td><td>Sí</td><td>Completa (runSubagent)</td><td><code>~/.copilot</code> + perfil de usuario</td></tr>
+<tr><td>Codex</td><td><code>codex</code></td><td>Sí</td><td>Sí</td><td>Multi-agente nativo (default; solo-agente como respaldo)</td><td><code>~/.codex</code></td></tr>
+<tr><td>Windsurf</td><td><code>windsurf</code></td><td>Sí (nativas)</td><td>Sí</td><td>Solo-agente</td><td><code>~/.codeium/windsurf</code></td></tr>
+<tr><td>Antigravity</td><td><code>antigravity</code></td><td>Sí (nativas)</td><td>Sí</td><td>Solo-agente + Mission Control</td><td><code>~/.gemini/antigravity</code></td></tr>
+<tr><td>Kimi Code</td><td><code>kimi</code></td><td>Sí</td><td>Sí</td><td>Completa (agentes custom nativos)</td><td><code>~/.kimi</code></td></tr>
+<tr><td>Qwen Code</td><td><code>qwen-code</code></td><td>Sí</td><td>Sí</td><td>Completa (sub-agentes nativos)</td><td><code>~/.qwen</code></td></tr>
+<tr><td>Kiro IDE</td><td><code>kiro-ide</code></td><td>Sí</td><td>Sí</td><td>Completa (subagentes nativos)</td><td><code>~/.kiro</code></td></tr>
+<tr><td>OpenClaw</td><td><code>openclaw</code></td><td>Sí</td><td>Sí</td><td>Solo-agente</td><td><code>~/.openclaw</code></td></tr>
+<tr><td>Trae</td><td><code>trae-ide</code></td><td>Sí</td><td>Sí</td><td>Solo-agente</td><td><code>~/.trae</code></td></tr>
+<tr><td>Pi</td><td><code>pi</code></td><td>Sí</td><td>Sí</td><td>Completa (subagentes por paquete)</td><td><code>~/.pi</code></td></tr>
+<tr><td>Hermes</td><td><code>hermes</code></td><td>Sí</td><td>Sí</td><td>Completa (delegate_task efímero)</td><td><code>~/.hermes</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Soporte de SDD multi-modo</h3>
+<p><strong>Todos</strong> los agentes soportan el orquestador de SDD y SDD de modo único. El <strong>multi-modo</strong> — asignar modelos distintos a cada fase de SDD — lo soportan:</p>
+<ul>
+<li><strong>OpenCode</strong> y <strong>Kilo Code</strong>, a través del overlay multi-modo compatible con OpenCode.</li>
+<li><strong>Kiro IDE</strong>, a través del frontmatter <code>model:</code> de subagentes nativos.</li>
+<li><strong>Pi</strong>, donde el multi-modo es propiedad de los paquetes: <code>gentle-pi</code> instala agentes y cadenas SDD en <code>.pi/agents/</code> y <code>.pi/chains/</code>, y los overrides de modelo viven en esos archivos o pasos de cadena.</li>
+</ul>
+<p>Todos los demás corren en <strong>modo único</strong>: el orquestador maneja todo con el modelo que el agente ya está usando. El modo único no es un downgrade: es el default más simple y funciona bien. El multi-modo sirve cuando querés deliberadamente hacer tradeoffs de costo, velocidad o razonamiento por fase.</p>
+
+<h2 id="modelos-delegacion">Modelos de delegación</h2>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Modelo</th><th>Cómo funciona</th><th>Agentes</th></tr></thead>
+<tbody>
+<tr><td><strong>Completa (sub-agentes)</strong></td><td>Cada fase de SDD corre en una ventana de contexto aislada, vía delegación nativa, subagentes por paquete o un overlay compatible con OpenCode. El orquestador coordina; los sub-agentes ejecutan</td><td>Claude Code, OpenCode, Kilo Code, Gemini CLI, Cursor, VS Code Copilot, Kimi Code, Kiro IDE, Qwen Code, Pi</td></tr>
+<tr><td><strong>Completa (delegate_task)</strong></td><td>El orquestador usa la primitiva nativa <code>delegate_task</code> de Hermes para generar workers efímeros en ventanas de contexto frescas. Los workers reciben solo una misión autocontenida; el padre recibe solo su resumen final</td><td>Hermes</td></tr>
+<tr><td><strong>Multi-agente nativo</strong></td><td>El orquestador delega vía las herramientas nativas de colaboración del agente cuando están configuradas y disponibles, con ejecución inline como respaldo elegante</td><td>Codex</td></tr>
+<tr><td><strong>Solo-agente</strong></td><td>Todas las fases de SDD corren inline en la misma conversación. El orquestador ES el ejecutor. Engram provee la persistencia entre fases</td><td>Windsurf, Antigravity, OpenClaw, Trae</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Notas por agente</h3>
+
+<h4>Claude Code</h4>
+<ul>
+<li>Sub-agentes vía la herramienta nativa Task con ventanas de contexto aisladas.</li>
+<li>Servidores MCP configurados como plugins en <code>~/.claude/mcp/</code>.</li>
+<li>Output styles en <code>~/.claude/output-styles/</code>.</li>
+<li>Prompt de sistema vía secciones markdown en <code>~/.claude/CLAUDE.md</code>.</li>
+</ul>
+
+<h4>OpenCode</h4>
+<ul>
+<li>Overlay multi-agente completo con 11 agentes nombrados en <code>opencode.json</code>: <code>gentle-orchestrator</code> más 10 agentes de fase SDD.</li>
+<li>Slash commands para las fases de SDD (<code>/sdd-new</code>, <code>/sdd-explore</code>, etc.).</li>
+<li>La ejecución en background administrada se configura con <code>--opencode-background-subagents=auto|on|off</code> o la variable <code>GENTLE_AI_OPENCODE_BACKGROUND_SUBAGENTS</code>. La precedencia de CLI es: flag, entorno no vacío, estado administrado previo, y después <code>auto</code>.</li>
+<li>Los jobs en background son locales al proceso y no durables, no tienen aislamiento de filesystem, y no deben usarse para fases dependientes ni escritores paralelos en un mismo worktree.</li>
+<li>Los modelos custom de <code>opencode.json</code> deben declarar <code>tool_call: true</code> explícitamente para aparecer como opciones seleccionables con capacidad SDD.</li>
+<li>Requisito para multi-modo: primero conectá tus proveedores de IA, después corré <code>opencode models --refresh</code>.</li>
+<li>Gentle AI pone el sharing de agentes SDD en <code>disabled</code> por defecto, por privacidad; los valores de <code>share</code> ya administrados por el usuario, como <code>manual</code> o <code>auto</code>, se preservan.</li>
+</ul>
+
+<h4>Codex</h4>
+<ul>
+<li>Agente nativo de CLI con config TOML en <code>~/.codex/config.toml</code>.</li>
+<li>Perfiles de selección de modelo escritos como archivos separados en <code>~/.codex/&lt;nombre&gt;.config.toml</code>. Los defaults de GPT-5.6 requieren Codex &gt;= 0.144.0.</li>
+<li>Los tres carriles se dividen por lo que la fase realmente hace: <code>sdd-strong</code> razona sobre contexto que le entregan, <code>sdd-mid</code> escribe código en un loop agéntico donde el esfuerzo importa más que la fuerza bruta del modelo, y <code>sdd-cheap</code> hace transcripción estructurada con contexto corto y salida verificable — así que compra esfuerzo en lugar de un modelo más grande.</li>
+<li>La delegación multi-agente está activada por defecto: se escriben <code>features.multi_agent = true</code>, <code>agents.max_threads = 4</code> y <code>agents.max_depth = 2</code>. Si la configuración o las herramientas nativas no están disponibles, la orquestación cae elegantemente a ejecución inline solo-agente.</li>
+</ul>
+
+<h4>Cursor</h4>
+<ul>
+<li>Subagentes nativos en <code>~/.cursor/agents/sdd-&#123;fase&#125;.md</code> (10 archivos). El Agent de Cursor autodelega al subagente correcto según el campo <code>description</code> del frontmatter YAML.</li>
+<li><code>sdd-explore</code> y <code>sdd-verify</code> corren con <code>readonly: false</code> para poder inspeccionar el código y ejecutar comandos de verificación.</li>
+<li>Skills en <code>~/.cursor/skills/</code>, prompt de sistema en <code>~/.cursor/rules/gentle-ai.mdc</code>, MCP en <code>~/.cursor/mcp.json</code>.</li>
+</ul>
+
+<h4>Kiro IDE</h4>
+<ul>
+<li>Detección: por el binario <code>kiro</code> en el <code>PATH</code>. Un directorio de config solo no marca a Kiro como instalado.</li>
+<li>Archivo de steering en <code>~/.kiro/steering/gentle-ai.md</code> con frontmatter <code>inclusion: always</code>.</li>
+<li>La config MCP siempre está en una raíz separada: <code>~/.kiro/settings/mcp.json</code>.</li>
+<li>Flujo nativo de specs de Kiro: <code>.kiro/specs/&lt;feature&gt;/requirements.md</code>, <code>design.md</code>, <code>tasks.md</code>, con puertas de aprobación antes de las fases de apply y archive.</li>
+<li>Instalación solo manual desde <a href="https://kiro.dev/downloads" target="_blank" rel="noopener">kiro.dev/downloads</a>.</li>
+</ul>
+
+<h4>Windsurf</h4>
+<ul>
+<li>Corre como solo-agente y aprovecha funcionalidades nativas: <strong>Plan Mode</strong> (documentos de plan persistentes que se pueden @mencionar entre sesiones, ideal para artefactos de spec y diseño), <strong>Code Mode</strong>, y <strong>workflows nativos</strong> (<code>sdd-new</code> disponible en <code>.windsurf/workflows/sdd-new.md</code>).</li>
+<li>El orquestador rutea las tareas por caminos de decisión Chico/Mediano/Grande.</li>
+</ul>
+
+<h4>Hermes</h4>
+<ul>
+<li><strong>Detect-only</strong>: Gentle AI no puede instalar Hermes. Instalalo manualmente primero y después corré <code>gentle-ai install --agent hermes</code>.</li>
+<li>La delegación efímera se ajusta en <code>~/.hermes/config.yaml</code> bajo la clave <code>delegation</code>: <code>max_spawn_depth</code> (2), <code>max_concurrent_children</code> (4), <code>max_iterations</code>, <code>child_timeout_seconds</code>, <code>inherit_mcp_toolsets</code> (false) y <code>subagent_auto_approve</code> (false).</li>
+<li>Los toolsets, servidores MCP y skills <strong>no</strong> se heredan automáticamente del padre: hay que pasarlos explícitamente en la misión.</li>
+<li>La salida del worker se trata como auto-reporte: hay que verificar escrituras de archivos, resultados de tests, URLs y efectos externos antes de reportar éxito.</li>
+</ul>
+
+<h2 id="perfiles">Perfiles SDD de OpenCode</h2>
+<p>Permiten asignar modelos distintos a fases distintas de SDD: uno potente para diseño, uno rápido para implementación, uno barato para exploración. OpenCode usa <code>gentle-orchestrator</code> como conductor SDD base.</p>
+<pre># Crear un perfil "cheap" con un modelo gratuito para todas las fases
+gentle-ai sync --profile cheap:openrouter/qwen/qwen3-30b-a3b:free
+
+# Sobrescribir la fase de diseño con un modelo más fuerte
+gentle-ai sync --profile-phase cheap:sdd-design:anthropic/claude-sonnet-4-20250514
+
+# Crear varios perfiles en un solo comando
+gentle-ai sync \
+  --profile cheap:openrouter/qwen/qwen3-30b-a3b:free \
+  --profile premium:anthropic/claude-sonnet-4-20250514</pre>
+<p>Después de crear un perfil, abrí OpenCode y presioná <strong>Tab</strong> para cambiar entre <code>gentle-orchestrator</code> y tus perfiles custom.</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Lo que necesitás</th><th>Usá esto</th></tr></thead>
+<tbody>
+<tr><td>Conductor SDD por defecto</td><td><code>gentle-orchestrator</code></td></tr>
+<tr><td>Configuraciones legacy</td><td><code>sdd-orchestrator</code> se migra a <code>gentle-orchestrator</code> al sincronizar</td></tr>
+<tr><td>Perfiles de modelo nombrados</td><td><code>sdd-orchestrator-cheap</code>, <code>sdd-orchestrator-premium</code>, etc.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Si preferís un <strong>gestor de perfiles en runtime</strong> que mantenga los perfiles fuera de <code>opencode.json</code>, Gentle AI también lo soporta: durante el sync, OpenCode puede autodetectar archivos de perfil externos en <code>~/.config/opencode/profiles/*.json</code> y cambiar a una ruta de compatibilidad más segura que preserva el prompt activo de <code>gentle-orchestrator</code> en lugar de sobrescribirlo. Se activa con <code>--sdd-profile-strategy external-single-active</code>.</p>
+
+<h2 id="pi">Pi y el harness <code>gentle-pi</code></h2>
+<div class="note">
+  <b>Pi se administra por paquetes, no solo se configura</b>
+  <p>Seleccionar Pi instala el harness de primera clase <code>gentle-pi</code>, que es dueño de la persona, los controles de modelo, los assets de SDD, las cadenas y el cableado de memoria dentro de Pi.</p>
+</div>
+
+<h3>Instalación</h3>
+<p>Pi tiene que estar instalado y disponible como <code>pi</code> en el <code>PATH</code>. Después:</p>
+<pre>gentle-ai install --agent pi
+pi</pre>
+<p>Si Pi es el único agente seleccionado, el instalador igual provisiona el componente real de Engram, pero saltea las preguntas de persona, selección de componentes del ecosistema y Strict TDD, porque <code>gentle-pi</code> es dueño de esas decisiones adentro de Pi.</p>
+
+<h3>Paquetes que instala</h3>
+<pre>pi install npm:gentle-pi
+pi install npm:gentle-engram
+pi install npm:pi-mcp-adapter
+npm exec --yes --package gentle-engram@latest -- pi-engram init
+pi install npm:pi-subagents-j0k3r
+pi install npm:@juicesharp/rpiv-ask-user-question
+pi install npm:pi-web-access
+pi install npm:@juicesharp/rpiv-todo
+pi install npm:pi-btw</pre>
+
+<div class="tblwrap">
+<table>
+<thead><tr><th>Paquete</th><th>Qué agrega</th></tr></thead>
+<tbody>
+<tr><td><code>gentle-pi</code></td><td>Persona Gentleman, flujo SDD/OpenSpec, soporte de TDD estricto, política de seguridad, skills, prompts, agentes SDD y cadenas SDD</td></tr>
+<tr><td><code>gentle-engram</code></td><td>Integración de Pi con la memoria de sesión de Engram y sus herramientas MCP. <strong>No es el binario de Engram</strong></td></tr>
+<tr><td><code>pi-mcp-adapter</code></td><td>Permite que Pi exponga servidores MCP, incluido Engram, a través del runtime MCP de Pi</td></tr>
+<tr><td><code>pi-engram init</code></td><td>Inicializa la forma de config MCP de Engram para Pi, propiedad de <code>gentle-engram</code></td></tr>
+<tr><td><code>pi-subagents-j0k3r</code></td><td>Descubre y corre agentes SDD desde <code>.pi/agents/</code></td></tr>
+<tr><td><code>@juicesharp/rpiv-ask-user-question</code></td><td>Permite que los agentes hijos de Pi le pidan aclaraciones a la sesión activa del usuario</td></tr>
+<tr><td><code>pi-web-access</code>, <code>@juicesharp/rpiv-todo</code>, <code>pi-btw</code></td><td>Acceso web, seguimiento de tareas y soporte de flujo acompañante</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Comandos de Pi</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Comando</th><th>Qué hace</th></tr></thead>
+<tbody>
+<tr><td><code>/gentle-ai:status</code></td><td>Muestra el estado de paquetes, assets SDD, OpenSpec y configuración de modelos</td></tr>
+<tr><td><code>/gentleman:persona</code></td><td>Cambia entre las personas <code>gentleman</code> y <code>neutral</code></td></tr>
+<tr><td><code>/gentleman:models</code></td><td>Abre el modal nativo de Pi para asignación de modelos</td></tr>
+<tr><td><code>/sdd-init</code></td><td>Inicializa o refresca <code>openspec/config.yaml</code></td></tr>
+<tr><td><code>/gentle-ai:install-sdd</code></td><td>Reinstala assets SDD sin sobrescribir archivos locales</td></tr>
+<tr><td><code>/gentle-ai:install-sdd --force</code></td><td>Fuerza el refresco de los assets SDD instalados, reemplazando copias locales</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>/gentle-ai:persona</code> y <code>/gentle-ai:models</code> siguen funcionando como alias de compatibilidad.</p>
+
+<h3>Asignación de modelos recomendada</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Tipo de agente</th><th>Forma de modelo recomendada</th></tr></thead>
+<tbody>
+<tr><td>Exploración, propuesta, archive</td><td>Rápido y barato suele alcanzar</td></tr>
+<tr><td>Spec, diseño, tareas</td><td>Modelo de razonamiento fuerte, porque estas fases moldean la implementación</td></tr>
+<tr><td>Apply</td><td>Modelo de código fuerte con uso confiable de herramientas</td></tr>
+<tr><td>Verify / agentes de revisión</td><td>Modelo fuerte con contexto fresco. La verificación se beneficia de la independencia</td></tr>
+<tr><td>Agentes utilitarios chicos</td><td>Heredan el modelo activo salvo que se vuelvan un cuello de botella</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Archivos de proyecto</h3>
+<p>En un <code>session_start</code> normal, <code>gentle-pi</code> copia assets locales del proyecto sin sobrescribir ediciones locales:</p>
+<pre>.pi/agents/sdd-*.md
+.pi/chains/sdd-*.chain.md
+.pi/gentle-ai/support/strict-tdd.md
+.pi/gentle-ai/support/strict-tdd-verify.md</pre>
+<div class="warn">
+  <b>Sobre <code>pi -ns</code></b>
+  <p>Arrancar Pi con <code>pi -ns</code> saltea la carga de skills y los hooks de inicio. Es útil para una sesión limpia o más rápida, pero también significa que el trabajo de arranque de <code>gentle-pi</code> — chequeo de assets y refresco del registro de skills — no corre automáticamente.</p>
+</div>
+
+<h3>Solución de problemas</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Síntoma</th><th>Solución</th></tr></thead>
+<tbody>
+<tr><td>Gentle AI dice que falta Pi</td><td>Instalá Pi primero y asegurate de que <code>pi</code> esté en el <code>PATH</code></td></tr>
+<tr><td>Faltan agentes SDD en Pi</td><td>Arrancá Pi normalmente en el proyecto para que corra <code>session_start</code>, o corré <code>/gentle-ai:install-sdd</code></td></tr>
+<tr><td>La persona no cambió al instante</td><td>Corré <code>/reload</code> o iniciá una sesión nueva de Pi</td></tr>
+<tr><td>Querés quitar un override de modelo</td><td>Abrí <code>/gentleman:models</code> y elegí <em>Inherit active/default model</em></td></tr>
+<tr><td>Faltan herramientas de memoria o <code>/mcp</code></td><td>Volvé a correr <code>gentle-ai install --agent pi</code> y revisá <code>/gentle-ai:status</code></td></tr>
+<tr><td><code>gentle-engram</code> instalado pero Engram no disponible</td><td>Volvé a correr <code>gentle-ai install --agent pi</code> para que se provisione el componente real de Engram</td></tr>
+</tbody>
+</table>
+</div>
+
+<hr>
+
+<h2 id="cli">Referencia de CLI</h2>
+
+<h3>TUI interactiva</h3>
+<pre>gentle-ai</pre>
+<p>La TUI Bubbletea te guía por selección de agentes, componentes, skills, presets y flujos de desinstalación administrada. Antes de modificar cualquier archivo administrado, Gentle AI crea un snapshot de backup.</p>
+
+<h3><code>install</code></h3>
+<pre># Ecosistema completo para varios agentes
+gentle-ai install \
+  --agent claude-code,opencode,gemini-cli \
+  --preset full-gentleman
+
+# Setup mínimo para Cursor
+gentle-ai install --agent cursor --preset minimal
+
+# Elegir componentes y skills específicos
+gentle-ai install \
+  --agent claude-code \
+  --component engram,sdd,skills,context7,persona,permissions \
+  --skill go-testing,skill-creator,branch-pr,issue-creation \
+  --persona gentleman
+
+# Vista previa sin aplicar cambios
+gentle-ai install --dry-run --agent claude-code,opencode --preset full-gentleman</pre>
+<p>Al instalar un solo agente con <code>--agent X</code>, Gentle AI <strong>fusiona</strong> el agente nuevo en la lista <code>installed_agents</code> existente de <code>state.json</code> y <strong>preserva</strong> cualquier <code>model_assignments</code> existente. No sobrescribe el estado completo.</p>
+
+<h4>Flags de <code>install</code></h4>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Flag</th><th>Descripción</th></tr></thead>
+<tbody>
+<tr><td><code>--agent</code>, <code>--agents</code></td><td>Agentes a configurar, separados por coma</td></tr>
+<tr><td><code>--component</code>, <code>--components</code></td><td>Componentes a instalar, separados por coma</td></tr>
+<tr><td><code>--skill</code>, <code>--skills</code></td><td>Skills a instalar, separadas por coma</td></tr>
+<tr><td><code>--persona</code></td><td><code>gentleman</code>, <code>neutral</code> o <code>custom</code></td></tr>
+<tr><td><code>--preset</code></td><td><code>full-gentleman</code>, <code>ecosystem-only</code>, <code>minimal</code> o <code>custom</code></td></tr>
+<tr><td><code>--sdd-mode</code></td><td>Modo del orquestador SDD: <code>single</code> o <code>multi</code></td></tr>
+<tr><td><code>--scope</code></td><td><code>global</code> (default) o <code>workspace</code></td></tr>
+<tr><td><code>--dry-run</code></td><td>Vista previa del plan sin aplicar cambios</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3><code>sync</code></h3>
+<p>Refresca los assets administrados a la versión actual. Corrélo después de reemplazar o actualizar el binario, incluso con <code>brew upgrade</code>, <code>gentle-ai upgrade</code> o <code>go install</code>. <strong>No</strong> reinstala binarios: solo actualiza contenido de prompts, skills, configs MCP y orquestadores SDD.</p>
+<pre>gentle-ai sync --dry-run                          # Vista previa del alcance
+gentle-ai sync                                     # Agentes registrados en state.json
+gentle-ai sync --agent claude-code --agent opencode # Solo agentes específicos</pre>
+<div class="imp">
+  <b>Alcance de sync</b>
+  <p><code>gentle-ai sync</code> actualiza los agentes registrados como instalados por Gentle AI, <strong>no todos los directorios de config de agentes de tu máquina</strong>. La selección se guarda en <code>~/.gentle-ai/state.json</code>. Previsualizá el alcance activo con <code>gentle-ai sync --dry-run</code>.</p>
+</div>
+<p>Sync es seguro e idempotente: correrlo dos veces no produce cambios la segunda vez. No soporta <code>--component</code>; para los componentes opt-in excluidos del alcance por defecto se usan <code>--include-permissions</code> e <code>--include-theme</code>.</p>
+
+<h4>Flags de <code>sync</code></h4>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Flag</th><th>Descripción</th></tr></thead>
+<tbody>
+<tr><td><code>--agent</code>, <code>--agents</code></td><td>Agentes a sincronizar (default: todos los instalados)</td></tr>
+<tr><td><code>--skill</code>, <code>--skills</code></td><td>Skills a sincronizar</td></tr>
+<tr><td><code>--sdd-mode</code></td><td><code>single</code> o <code>multi</code></td></tr>
+<tr><td><code>--strict-tdd</code></td><td>Activa el modo Strict TDD para los agentes SDD</td></tr>
+<tr><td><code>--profile</code></td><td>Crear o actualizar un perfil SDD: <code>nombre:proveedor/modelo</code></td></tr>
+<tr><td><code>--profile-phase</code></td><td>Sobrescribir una fase específica: <code>nombre:fase:proveedor/modelo</code></td></tr>
+<tr><td><code>--sdd-profile-strategy</code></td><td><code>generated-multi</code> o <code>external-single-active</code></td></tr>
+<tr><td><code>--include-permissions</code></td><td>Incluir la sincronización de permisos (opt-in)</td></tr>
+<tr><td><code>--include-theme</code></td><td>Incluir la sincronización del tema (opt-in)</td></tr>
+<tr><td><code>--dry-run</code></td><td>Vista previa del plan sin aplicar cambios</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3><code>uninstall</code></h3>
+<p>Quita <strong>solo la configuración administrada por Gentle AI</strong> de uno o más agentes. No desinstala paquetes ni binarios externos. Antes de aplicar cualquier cambio se crea un snapshot de backup.</p>
+<pre>gentle-ai uninstall --agent claude-code --agent opencode
+gentle-ai uninstall --agent claude-code --component sdd,persona,context7
+gentle-ai uninstall --all
+gentle-ai uninstall --agent cursor --component skills --yes</pre>
+<p>Si no se pasa <code>--component</code> en una desinstalación parcial, se quitan todos los componentes desinstalables administrados del conjunto de agentes seleccionado.</p>
+
+<h3><code>update</code> / <code>upgrade</code></h3>
+<pre>gentle-ai update    # Chequea si hay una versión más nueva
+gentle-ai upgrade   # Actualiza al último release</pre>
+<p>Después de cualquier actualización o reemplazo manual del binario, corré <code>gentle-ai sync</code>.</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Situación</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Terminal interactiva (TTY)</td><td>Siempre pregunta <code>Apply now? [Y/n]</code>. Enter vacío acepta</td></tr>
+<tr><td>No-TTY (CI, pipe, script)</td><td>Auto-rechaza. Nunca se cuelga</td></tr>
+<tr><td><code>GENTLE_AI_YES=1</code></td><td>Auto-acepta sin preguntar. La variable la heredan los subprocesos, así que conviene acotarla a una sola invocación</td></tr>
+<tr><td><code>GENTLE_AI_NO_SELF_UPDATE=1</code></td><td>Saltea por completo el chequeo de auto-actualización</td></tr>
+</tbody>
+</table>
+</div>
+<p>Si GitHub limita por tasa los chequeos de actualización, exportá <code>GITHUB_TOKEN</code> o <code>GH_TOKEN</code> antes de correr <code>update</code>/<code>upgrade</code>.</p>
+
+<h3><code>doctor</code></h3>
+<pre>gentle-ai doctor</pre>
+<p>Diagnóstico de salud de solo lectura: no hace ningún cambio en tu configuración.</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Chequeo</th><th>Qué verifica</th></tr></thead>
+<tbody>
+<tr><td>Binarios de herramientas</td><td>Herramientas requeridas presentes en el <code>PATH</code>; detección de shadowing (que resuelva primero el binario equivocado)</td></tr>
+<tr><td>Validez de <code>state.json</code></td><td>Parsea <code>~/.gentle-ai/state.json</code> y reporta problemas de esquema o corrupción</td></tr>
+<tr><td>Alcanzabilidad de Engram MCP</td><td>Confirma que el servidor MCP de Engram responde</td></tr>
+<tr><td>Espacio en disco</td><td>Avisa cuando el espacio disponible es críticamente bajo</td></tr>
+</tbody>
+</table>
+</div>
+<p>Cada chequeo reporta <strong>pass</strong>, <strong>warn</strong> o <strong>fail</strong>, con una sugerencia de remedio opcional. Corré <code>doctor</code> primero cuando algo salga distinto de lo esperado.</p>
+
+<h3>Flujo de trabajo típico</h3>
+<pre># Primera vez: instalar todo
+brew install gentleman-programming/tap/gentle-ai
+gentle-ai install --agent claude-code,cursor --preset full-gentleman
+
+# Después de un release nuevo: actualizar y sincronizar
+brew upgrade gentle-ai
+gentle-ai sync
+
+# Quitar solo la config administrada de SDD y persona de un agente
+gentle-ai uninstall --agent claude-code --component sdd,persona
+
+# Agregar un agente nuevo más adelante
+gentle-ai install --agent windsurf --preset full-gentleman</pre>
+
+<h2 id="backups">Backups y rollback</h2>
+<p>El sistema de backups toma un snapshot de tus archivos de configuración antes de cada install, sync y upgrade. Los backups son comprimidos, deduplicados y podados automáticamente.</p>
+
+<h3>Cómo funciona</h3>
+<ol class="steps">
+<li><strong>Calcula un checksum</strong> de todos los archivos que se van a respaldar.</li>
+<li><strong>Saltea el backup</strong> si sería idéntico al más reciente (deduplicación).</li>
+<li><strong>Crea un snapshot comprimido</strong> (<code>snapshot.tar.gz</code>) con todos tus archivos de config.</li>
+<li><strong>Poda los backups viejos</strong>: mantiene los 5 más recientes y borra el resto.</li>
+</ol>
+
+<h3>Contenido del snapshot</h3>
+<ul>
+<li><code>manifest.json</code> — metadata: origen, timestamp, cantidad de archivos, checksum, estado de pin.</li>
+<li><code>snapshot.tar.gz</code> — archivo comprimido con todos los archivos respaldados.</li>
+<li>Para rutas que no existían antes de la operación, el manifest registra <code>existed=false</code>.</li>
+</ul>
+
+<div class="note">
+  <b>Alcance del backup</b>
+  <p>Los snapshots pre-upgrade y pre-sync cubren únicamente los agentes listados en <code>state.InstalledAgents</code> (<code>~/.gentle-ai/state.json</code>). Los directorios de config de agentes que instalaste fuera de Gentle AI no se incluyen.</p>
+</div>
+
+<h3>Política de retención</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Ajuste</th><th>Default</th><th>Comportamiento</th></tr></thead>
+<tbody>
+<tr><td>Cantidad a mantener</td><td>5</td><td>Se conservan los 5 backups sin pin más recientes</td></tr>
+<tr><td>Backups con pin</td><td>Nunca se borran</td><td>Sobreviven a la poda sin importar el conteo</td></tr>
+<tr><td>Duplicados</td><td>Se saltean</td><td>Si la config no cambió, no se crea un backup nuevo</td></tr>
+<tr><td>Compresión</td><td>Siempre</td><td>Los backups nuevos usan tar.gz (~75% más chicos)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Gestión desde la TUI</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Tecla</th><th>Acción</th></tr></thead>
+<tbody>
+<tr><td><code>j</code> / <code>k</code></td><td>Navegar arriba/abajo</td></tr>
+<tr><td><code>Enter</code></td><td>Restaurar el backup seleccionado</td></tr>
+<tr><td><code>p</code></td><td>Pin/unpin (protege de la poda)</td></tr>
+<tr><td><code>r</code></td><td>Renombrar (agregar una descripción)</td></tr>
+<tr><td><code>d</code></td><td>Borrar</td></tr>
+<tr><td><code>Esc</code></td><td>Volver</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Comportamiento de restauración</h3>
+<ul>
+<li>Si <code>existed=true</code>: restaura el archivo del snapshot a su ruta original.</li>
+<li>Si <code>existed=false</code>: elimina el archivo, revirtiendo archivos creados durante la instalación.</li>
+<li>La restauración es atómica por escritura de archivo: no hay restauraciones parciales.</li>
+<li>Funciona con backups comprimidos (tar.gz) y con los legacy anteriores a v1.16 (directorio <code>files/</code> con copias planas).</li>
+</ul>
+
+<div class="warn">
+  <b>Qué NO cubre el rollback</b>
+  <p>Los paquetes instalados vía <code>brew install</code>, <code>apt-get install</code> o <code>pacman -S</code> <strong>no</strong> se desinstalan durante el rollback. El sistema de snapshots maneja únicamente archivos de configuración. Para deshacer una instalación de paquete, usá el gestor de paquetes de tu plataforma.</p>
+</div>
+
+<h3>Si la verificación falla</h3>
+<ol class="steps">
+<li>Revisá los chequeos fallidos en el reporte de verificación.</li>
+<li>Restaurá desde el último snapshot vía la TUI o <code>gentle-ai restore latest</code>.</li>
+<li>Volvé a correr install con <code>--dry-run</code> para validar el plan.</li>
+<li>Volvé a correr install después de arreglar las dependencias externas.</li>
+</ol>
+
+<h2 id="releases">Verificación de releases</h2>
+<p>Los archivos oficiales de release para macOS y Linux requieren un <code>checksums.txt</code> autenticado. El actualizador integrado verifica su firma Minisign, su binding exacto a <code>Gentleman-Programming/gentle-ai</code> más el tag del release, y el checksum del archivo seleccionado <strong>antes</strong> de reemplazar el binario instalado.</p>
+<p>Los archivos de release tienen un tope de <strong>128 MiB</strong>, incluidas respuestas por chunks o de longitud desconocida. Material de clave faltante, sobredimensionado, malformado, no confiable o de relleno falla de forma cerrada sin cambiar el binario instalado.</p>
+
+<pre>minisign -VQm checksums.txt -x checksums.txt.minisig -P "$GENTLE_AI_MINISIGN_PUBLIC_KEY"
+# Salida esperada: repo=Gentleman-Programming/gentle-ai;tag=vX.Y.Z
+sha256sum --check --strict --ignore-missing checksums.txt</pre>
+
+<div class="warn">
+  <b>No construyas confianza desde una clave que viene al lado de lo que verifica</b>
+  <p>Obtené la clave pública de producción y su huella desde un canal controlado por los mantenedores, y recién después descargá <code>checksums.txt</code> y <code>checksums.txt.minisig</code> del mismo release.</p>
+</div>
+
+<p>Los archivos de Windows y la publicación en Scoop siguen omitidos hasta que se provisione firma Authenticode RSA de confianza pública, ambos ejecutables (amd64 y arm64) estén firmados antes de generar archivos y checksums, y la verificación de release falle si alguno de los dos está sin firmar.</p>
+
+<h2 id="versiones">Política de versiones</h2>
+<p>RDD empezó en <code>gentle-ai</code> <strong>v1.47.0</strong> (2026-07-10), con las primeras transacciones de revisión nativa acotada, y se volvió la ruta estable soportada en <strong>v2.2.0</strong>. El contrato público negociado de revisión se publicó en <strong>v2.1.6</strong>.</p>
+
+<div class="warn">
+  <b>La documentación del repo va atrasada respecto de los releases</b>
+  <p>El README, <code>quickstart.md</code> y <code>trigger-rules.md</code> todavía nombran <code>v2.3.0</code> como estable y <code>v2.4.0-rc.1</code> como prerelease. La lista real de releases dice otra cosa: <strong><code>v2.4.0</code> se publicó como estable el 2026-08-17</strong> y dejó atrás toda la serie de candidatas, que llegó hasta <code>v2.4.0-rc.8</code> (2026-08-14). Esta tabla sigue los releases, no los documentos.</p>
+  <p style="margin-top:8px">Verificado contra <a href="https://github.com/Gentleman-Programming/gentle-ai/releases" target="_blank" rel="noopener">la página de releases</a> el <strong>2026-08-22</strong>. Las versiones se mueven: confirmá siempre con <code>gentle-ai version</code> y con esa página.</p>
+</div>
+
+<div class="tblwrap">
+<table>
+<thead><tr><th>Canal</th><th>Versión</th><th>Instalación</th></tr></thead>
+<tbody>
+<tr><td>Estable</td><td><code>v2.4.0</code> <span class="pill">2026-08-17</span></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@latest</code></td></tr>
+<tr><td>Prerelease</td><td><code>v2.4.0-rc.8</code> <span class="pill">superada</span></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@v2.4.0-rc.8</code></td></tr>
+<tr><td>Desarrollo</td><td><code>main</code></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@main</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>No hay una candidata abierta por delante de <code>v2.4.0</code>: <code>@latest</code> y la última RC apuntan hoy a la misma línea. El instalador administrado sigue la última versión del canal y <strong>no acepta un pin arbitrario</strong> de release. Usá <code>go install</code> cuando la reproducibilidad requiera una versión exacta. Usá <code>@main</code> solo para probar cambios que no forman parte de ningún release.</p>
+
+<p>El instalador administrado en canal beta sigue <code>main</code> y requiere Go 1.25.10+:</p>
+<pre># macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/scripts/install.sh | bash -s -- --channel beta
+
+# Windows (PowerShell)
+$env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@main</pre>
+
+<hr>
+
+<h2 id="glosario">Glosario</h2>
+<dl class="gloss">
+<dt>Candidato <span class="pill">candidate</span></dt>
+<dd>El conjunto exacto de bytes que se va a revisar. Existe antes de que empiece la revisión y queda congelado en START.</dd>
+
+<dt>Linaje <span class="pill">lineage</span></dt>
+<dd>El identificador de una transacción de revisión. Se captura en START y se replica sin cambios en cada llamada posterior. Un linaje quemado nunca se reutiliza.</dd>
+
+<dt>Receipt</dt>
+<dd>La evidencia terminal de una transacción de revisión completada. Es informativa: nunca autoriza la entrega. Al aprobarse, se quema junto con la autoridad.</dd>
+
+<dt>Lente <span class="pill">lens</span></dt>
+<dd>Un revisor de solo lectura que juzga una sola preocupación y emite un JSON estricto. Las cuatro canónicas son Riesgo, Resiliencia, Legibilidad y Confiabilidad (4R).</dd>
+
+<dt>Quema <span class="pill">burn</span></dt>
+<dd>La eliminación de la autoridad exacta y sus artefactos al aprobarse la revisión. No sobrevive ningún receipt, tombstone, testigo ni espejo.</dd>
+
+<dt>Proyección <span class="pill">projection</span></dt>
+<dd>Qué congela START: <code>workspace</code> (todo el espacio de trabajo, default) o <code>staged</code> (exactamente el índice de Git).</dd>
+
+<dt>Gate</dt>
+<dd>Un punto de chequeo nombrado — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code>, <code>release</code>. Son comandos informativos y de compatibilidad: nunca permiten ni bloquean una entrega.</dd>
+
+<dt>Finding causado por el candidato</dt>
+<dd>Un hallazgo que el cambio introdujo. Solo los severos de esta clase pueden bloquear. Los preexistentes se convierten en seguimientos.</dd>
+
+<dt>Presupuesto de corrección</dt>
+<dd>El límite de líneas para la única corrección permitida: <code>min(200, ceil(líneas_originales_cambiadas / 2))</code>. Se congela en START y no se recalcula.</dd>
+
+<dt>Delta-spec</dt>
+<dd>La especificación parcial de un cambio en curso. Al archivar, se fusiona con las specs principales del proyecto.</dd>
+
+<dt>Escalado <span class="pill">escalated</span></dt>
+<dd>El estado de un linaje cuya corrección falló con evidencia. No se inicia otro revisor, refutador, corrección ni validador: requiere un sucesor autorizado vía <code>review recover</code>.</dd>
+</dl>
+
+<h2 id="docs">Documentación oficial</h2>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Tu tarea</th><th>Empezá acá</th></tr></thead>
+<tbody>
+<tr><td>Entender el modelo mental de Gentle AI</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/intended-usage.md" target="_blank" rel="noopener">Intended Usage</a></td></tr>
+<tr><td>Elegir entre ruteo directo, delegado o SDD opcional</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/trigger-rules.md" target="_blank" rel="noopener">Organic Implementation Routing</a></td></tr>
+<tr><td>Entender la arquitectura de RDD</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/architecture/organic-rdd.md" target="_blank" rel="noopener">Organic RDD</a></td></tr>
+<tr><td>Revisar o entregar un cambio de forma segura</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/review-integration.md" target="_blank" rel="noopener">Review Integration Contract</a></td></tr>
+<tr><td>Conocer los límites técnicos de la autoridad de revisión</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/review-authority-threat-model.md" target="_blank" rel="noopener">Review Authority Threat Model</a></td></tr>
+<tr><td>Configurar un agente soportado</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/agents.md" target="_blank" rel="noopener">Agents</a></td></tr>
+<tr><td>Usar el harness de Pi</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/pi.md" target="_blank" rel="noopener">Pi Agent</a></td></tr>
+<tr><td>Versionar artefactos SDD como archivos</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/openspec-config.md" target="_blank" rel="noopener">OpenSpec Config</a></td></tr>
+<tr><td>Encontrar o compartir contexto persistente</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/engram.md" target="_blank" rel="noopener">Engram Commands</a></td></tr>
+<tr><td>Recuperar una instalación</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/rollback.md" target="_blank" rel="noopener">Backup &amp; Rollback</a></td></tr>
+<tr><td>Entender la confianza verificable</td><td><a href="https://the-amazing-gentleman-programming-book.vercel.app/en/book/Chapter21_Verifiable-Trust" target="_blank" rel="noopener">Capítulo 21 — Verifiable Trust</a></td></tr>
+<tr><td>Navegar el código fuente</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai" target="_blank" rel="noopener">Gentleman-Programming/gentle-ai</a></td></tr>
+</tbody>
+</table>
+</div>
+
+<p class="foot">Esta página resume la documentación oficial de Gentle AI. Ante cualquier diferencia, la fuente de verdad son los documentos del repositorio enlazados arriba. Gentle AI se distribuye bajo licencia MIT.</p>
+
