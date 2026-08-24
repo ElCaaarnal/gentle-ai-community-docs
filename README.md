@@ -17,7 +17,18 @@ npm run build
 npm run preview
 ```
 
-Astro writes the production site to `dist/`. Vercel can detect this project and deploy it as a static site without a server adapter.
+Astro writes the production site to `dist/`. The build is plain static output with no server adapter, so any static host serves it.
+
+## Deployment
+
+Deployed on Netlify:
+
+| Setting | Value |
+|---------|-------|
+| Build command | `npm run build` |
+| Publish directory | `dist` |
+
+No adapter, redirects, or serverless functions are required.
 
 ## External runtime dependencies
 
