@@ -1,17 +1,27 @@
+---
+import type { SiteCopy } from '../i18n/site';
+
+interface Props {
+  copy: SiteCopy;
+}
+
+const { copy } = Astro.props;
+---
+
 <div id="progress"></div>
 <header id="topbar">
-  <button id="menuBtn" aria-label="Abrir navegación">☰</button>
+  <button id="menuBtn" aria-label={copy.menu}>☰</button>
   <span class="tb-brand">Gentle<span>-AI</span></span>
-  <button id="searchBtnM" aria-label="Buscar">
+  <button id="searchBtnM" aria-label={copy.search}>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
   </button>
 </header>
 <div id="scrim"></div>
-<button id="toTop" aria-label="Volver arriba">↑</button>
-<div id="searchOverlay" role="dialog" aria-modal="true" aria-label="Buscar en la documentación">
+<button id="toTop" aria-label={copy.backToTop}>↑</button>
+<div id="searchOverlay" role="dialog" aria-modal="true" aria-label={copy.searchDocumentation}>
   <div class="searchbox">
-    <input id="searchInput" type="text" autocomplete="off" spellcheck="false" aria-label="Buscar en la documentación" placeholder="Buscar secciones, comandos, conceptos…" />
-    <div id="searchResults" role="listbox" aria-label="Resultados"></div>
+    <input id="searchInput" type="text" autocomplete="off" spellcheck="false" aria-label={copy.searchDocumentation} placeholder={copy.searchPlaceholder} />
+    <div id="searchResults" role="listbox" aria-label={copy.searchResults}></div>
     <div class="searchfoot">
       <span><kbd>↑</kbd><kbd>↓</kbd> navegar</span>
       <span><kbd>↵</kbd> abrir</span>
@@ -19,4 +29,4 @@
     </div>
   </div>
 </div>
-<a href="#contenido" class="skip">Saltar al contenido</a>
+<a href="#contenido" class="skip">{copy.skipToContent}</a>
