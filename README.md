@@ -27,3 +27,7 @@ The first stable version intentionally preserves two dependencies from the valid
 - Mermaid 11 from jsDelivr for client-side diagram rendering.
 
 Without network access, the site falls back to system fonts and Mermaid diagrams remain as source text.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
