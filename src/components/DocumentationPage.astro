@@ -13,7 +13,7 @@ const copy = site[locale];
   <div class="wrap">
     <Sidebar copy={copy} />
     <main id="contenido" tabindex="-1">
-      <DocumentationContent />
+      <DocumentationContent englishStart={locale === 'en'} />
     </main>
   </div>
   <script src="../scripts/site.js"></script>
