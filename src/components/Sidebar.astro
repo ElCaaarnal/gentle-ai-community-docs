@@ -1,52 +1,32 @@
+---
+import type { SiteCopy } from '../i18n/site';
+
+interface Props {
+  copy: SiteCopy;
+}
+
+const { copy } = Astro.props;
+const isEnglish = copy.lang === 'en';
+---
+
 <aside>
   <p class="brand">Gentle<span>-AI</span></p>
-  <p class="tag">Ecosistema, frameworks y flujos de trabajo para agentes de IA que escriben código.</p>
-  <button class="searchbtn" id="searchBtn" aria-label="Buscar en la documentación">
+  <p class="tag">{copy.tagline}</p>
+  <button class="searchbtn" id="searchBtn" aria-label={copy.searchDocumentation}>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-    Buscar
+    {copy.search}
     <span class="kbd"><kbd>/</kbd></span>
   </button>
-  <nav id="nav" aria-label="Secciones de la documentación">
-    <div class="grp">Empezar</div>
-    <a href="#que-es">Qué es Gentle AI</a>
-    <a href="#instalacion">Instalación</a>
-    <a href="#contexto">Contexto del proyecto</a>
-    <a href="#presets">Componentes y presets</a>
-    <div class="grp">El ecosistema</div>
-    <a href="#engram">Engram · memoria</a>
-    <a href="#sdd">SDD · desarrollo por especificación</a>
-    <a href="#openspec">OpenSpec · config.yaml</a>
-    <a href="#tdd">Strict TDD</a>
-    <a href="#skills">Skills y registro</a>
-    <a href="#personas">Personas</a>
-    <div class="grp">Cómo trabaja el agente</div>
-    <a href="#ruteo">Ruteo orgánico</a>
-    <a href="#delegacion">Reglas de delegación</a>
-    <a href="#estados">Estados públicos</a>
-    <div class="grp">RDD · revisión</div>
-    <a href="#rdd">Qué es RDD</a>
-    <a href="#rdd-control">Prender y apagar RDD</a>
-    <a href="#rdd-ciclo">El ciclo atómico</a>
-    <a href="#rdd-lentes">Riesgo y lentes</a>
-    <a href="#rdd-correccion">Corrección acotada</a>
-    <a href="#rdd-entrega">Entrega y gates</a>
-    <a href="#rdd-limites">Límites de confianza</a>
-    <a href="#rdd-mantenimiento">Mantenimiento del store</a>
-    <div class="grp">Flujos completos</div>
-    <a href="#flujo-organico">Flujo orgánico</a>
-    <a href="#flujo-sdd">Flujo SDD</a>
-    <div class="grp">Agentes</div>
-    <a href="#agentes">Matriz de agentes</a>
-    <a href="#modelos-delegacion">Modelos de delegación</a>
-    <a href="#perfiles">Perfiles OpenCode</a>
-    <a href="#pi">Pi y gentle-pi</a>
-    <div class="grp">Operación</div>
-    <a href="#cli">Referencia de CLI</a>
-    <a href="#backups">Backups y rollback</a>
-    <a href="#releases">Verificación de releases</a>
-    <a href="#versiones">Política de versiones</a>
-    <div class="grp">Referencia</div>
-    <a href="#glosario">Glosario</a>
-    <a href="#docs">Documentación oficial</a>
+  <nav id="nav" aria-label={copy.navigation}>
+    {copy.navigationGroups.map(([label, links]) => (
+      <>
+        <div class="grp">{label}</div>
+        {links.map(([id, linkLabel]) => <a href={`#${id}`}>{linkLabel}</a>)}
+      </>
+    ))}
+  </nav>
+  <nav aria-label={copy.language}>
+    <a href="/" hreflang="en" lang="en" aria-current={isEnglish ? 'page' : undefined}>English</a>
+    <a href="/es/" hreflang="es" lang="es" aria-current={!isEnglish ? 'page' : undefined}>Español</a>
   </nav>
 </aside>
