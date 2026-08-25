@@ -1288,3 +1288,93 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
 </div>
 
 <p>Windows release files and Scoop publication remain omitted until publicly trusted RSA Authenticode signing is provisioned, both executables (amd64 and arm64) are signed before assets and checksums are generated, and release verification fails if either is unsigned.</p>
+
+<h2 id="versiones">Version policy</h2>
+<p>RDD began in <code>gentle-ai</code> <strong>v1.47.0</strong> (2026-07-10) with the first bounded native review transactions, and became the supported stable path in <strong>v2.2.0</strong>. The negotiated public review contract was published in <strong>v2.1.6</strong>.</p>
+
+<div class="warn">
+  <b>Repository documentation is behind the releases</b>
+  <p>The README, <code>quickstart.md</code>, and <code>trigger-rules.md</code> still identify <code>v2.3.0</code> as stable and <code>v2.4.0-rc.1</code> as a prerelease. The release list says otherwise: <strong><code>v2.4.0</code> was published as stable on 2026-08-17</strong>, superseding the candidate series that reached <code>v2.4.0-rc.8</code> (2026-08-14). This table follows releases, not documents.</p>
+  <p style="margin-top:8px">Verified against <a href="https://github.com/Gentleman-Programming/gentle-ai/releases" target="_blank" rel="noopener">the releases page</a> on <strong>2026-08-22</strong>. Versions change: always confirm with <code>gentle-ai version</code> and that page.</p>
+</div>
+
+<div class="tblwrap">
+<table>
+<thead><tr><th>Channel</th><th>Version</th><th>Installation</th></tr></thead>
+<tbody>
+<tr><td>Stable</td><td><code>v2.4.0</code> <span class="pill">2026-08-17</span></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@latest</code></td></tr>
+<tr><td>Prerelease</td><td><code>v2.4.0-rc.8</code> <span class="pill">superseded</span></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@v2.4.0-rc.8</code></td></tr>
+<tr><td>Development</td><td><code>main</code></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@main</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>There is no open candidate ahead of <code>v2.4.0</code>: <code>@latest</code> and the latest RC currently point to the same line. The managed installer follows the newest channel version and <strong>does not accept an arbitrary release pin</strong>. Use <code>go install</code> when reproducibility requires an exact version. Use <code>@main</code> only to test changes that are not part of a release.</p>
+
+<p>The beta-channel managed installer follows <code>main</code> and requires Go 1.25.10+:</p>
+<pre># macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/scripts/install.sh | bash -s -- --channel beta
+
+# Windows (PowerShell)
+$env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@main</pre>
+
+<hr>
+
+<h2 id="glosario">Glossary</h2>
+<dl class="gloss">
+<dt>Candidate <span class="pill">candidate</span></dt>
+<dd>The exact set of bytes to be reviewed. It exists before the review begins and is frozen at START.</dd>
+
+<dt>Lineage <span class="pill">lineage</span></dt>
+<dd>The identifier of a review transaction. It is captured at START and replicated unchanged in every later call. A burned lineage is never reused.</dd>
+
+<dt>Receipt</dt>
+<dd>The terminal evidence of a completed review transaction. It is informative: it never authorizes delivery. On approval, it is burned together with the authority.</dd>
+
+<dt>Lens <span class="pill">lens</span></dt>
+<dd>A read-only reviewer that judges one concern and emits strict JSON. The four canonical lenses are Risk, Resilience, Readability, and Reliability (4R).</dd>
+
+<dt>Burn <span class="pill">burn</span></dt>
+<dd>The removal of the exact authority and its artifacts when a review is approved. No receipt, tombstone, witness, or mirror survives.</dd>
+
+<dt>Projection <span class="pill">projection</span></dt>
+<dd>What START freezes: <code>workspace</code> (the entire workspace, default) or <code>staged</code> (exactly the Git index).</dd>
+
+<dt>Gate</dt>
+<dd>A named checkpoint — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code>, <code>release</code>. These are informative compatibility commands: they never allow or block delivery.</dd>
+
+<dt>Candidate-caused finding</dt>
+<dd>A finding introduced by the change. Only severe findings of this class can block. Pre-existing findings become follow-ups.</dd>
+
+<dt>Correction budget</dt>
+<dd>The line limit for the single permitted correction: <code>min(200, ceil(original_changed_lines / 2))</code>. It is frozen at START and is not recalculated.</dd>
+
+<dt>Delta-spec</dt>
+<dd>The partial specification for a change in progress. At archive time, it is merged into the project's main specs.</dd>
+
+<dt>Escalated <span class="pill">escalated</span></dt>
+<dd>The state of a lineage whose correction failed with evidence. No other reviewer, refuter, correction, or validator starts: it requires an authorized successor through <code>review recover</code>.</dd>
+</dl>
+
+<h2 id="docs">Official documentation</h2>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Your task</th><th>Start here</th></tr></thead>
+<tbody>
+<tr><td>Understand the Gentle AI mental model</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/intended-usage.md" target="_blank" rel="noopener">Intended Usage</a></td></tr>
+<tr><td>Choose direct, delegated, or optional SDD routing</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/trigger-rules.md" target="_blank" rel="noopener">Organic Implementation Routing</a></td></tr>
+<tr><td>Understand the RDD architecture</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/architecture/organic-rdd.md" target="_blank" rel="noopener">Organic RDD</a></td></tr>
+<tr><td>Review or deliver a change safely</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/review-integration.md" target="_blank" rel="noopener">Review Integration Contract</a></td></tr>
+<tr><td>Know the technical limits of review authority</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/review-authority-threat-model.md" target="_blank" rel="noopener">Review Authority Threat Model</a></td></tr>
+<tr><td>Configure a supported agent</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/agents.md" target="_blank" rel="noopener">Agents</a></td></tr>
+<tr><td>Use the Pi harness</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/pi.md" target="_blank" rel="noopener">Pi Agent</a></td></tr>
+<tr><td>Version SDD artifacts as files</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/openspec-config.md" target="_blank" rel="noopener">OpenSpec Config</a></td></tr>
+<tr><td>Find or share persistent context</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/engram.md" target="_blank" rel="noopener">Engram Commands</a></td></tr>
+<tr><td>Recover an installation</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/rollback.md" target="_blank" rel="noopener">Backup &amp; Rollback</a></td></tr>
+<tr><td>Understand verifiable trust</td><td><a href="https://the-amazing-gentleman-programming-book.vercel.app/en/book/Chapter21_Verifiable-Trust" target="_blank" rel="noopener">Chapter 21 — Verifiable Trust</a></td></tr>
+<tr><td>Browse the source code</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai" target="_blank" rel="noopener">Gentleman-Programming/gentle-ai</a></td></tr>
+</tbody>
+</table>
+</div>
+
+<p class="foot">This page summarizes the official Gentle AI documentation. If there is any discrepancy, the linked repository documents above are the source of truth. Gentle AI is distributed under the MIT License.</p>
