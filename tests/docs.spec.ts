@@ -125,3 +125,25 @@ test('complete workflows use localized server-rendered headings with equivalent 
   expect(englishTopology.map(topology)).toEqual(spanishTopology.map(topology));
   await context.close();
 });
+
+test('agents and Pi use localized headings with matching canonical IDs', async ({ page }) => {
+  const sections = ['agentes', 'modelos-delegacion', 'perfiles', 'pi'];
+  const subsections = ['soporte-de-sdd-multi-modo', 'notas-por-agente', 'instalacion-2', 'paquetes-que-instala', 'comandos-de-pi', 'asignacion-de-modelos-recomendada', 'archivos-de-proyecto', 'solucion-de-problemas'];
+  const pathLiterals = ['~/.codex/<nombre>.config.toml', '~/.cursor/agents/sdd-{fase}.md'];
+
+  for (const route of ['/', '/es/']) {
+    await page.goto(route);
+    expect(await page.locator('h2').evaluateAll((headings, ids) => ids.every((id) => headings.some((heading) => heading.id === id)), sections)).toBe(true);
+    expect(await page.locator('h3').evaluateAll((headings, ids) => ids.every((id) => headings.some((heading) => heading.id === id)), subsections)).toBe(true);
+    expect(await page.locator('[id]').evaluateAll((elements) => new Set(elements.map((element) => element.id)).size === elements.length)).toBe(true);
+    expect(await page.locator('h2').evaluateAll((headings) => headings.findIndex((heading) => heading.id === 'pi') < headings.findIndex((heading) => heading.id === 'cli'))).toBe(true);
+    for (const literal of pathLiterals) await expect(page.locator('code').filter({ hasText: literal })).toHaveCount(1);
+  }
+
+  await page.goto('/');
+  await expect(page.locator('h2#agentes')).toContainText('Supported agent matrix');
+  await expect(page.locator('h3#instalacion-2')).toContainText('Installation');
+  await page.goto('/es/');
+  await expect(page.locator('h2#agentes')).toContainText('Matriz de agentes compatibles');
+  await expect(page.locator('h3#instalacion-2')).toContainText('Instalación');
+});

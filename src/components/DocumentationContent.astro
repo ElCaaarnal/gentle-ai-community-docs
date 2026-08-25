@@ -878,9 +878,10 @@ flowchart TD
 
 </>}
 
+{!englishStart && <>
 <hr>
 
-<h2 id="agentes">Matriz de agentes soportados</h2>
+<h2 id="agentes">Matriz de agentes compatibles</h2>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Agente</th><th>ID</th><th>Skills</th><th>MCP</th><th>Delegación</th><th>Ruta de config</th></tr></thead>
@@ -905,14 +906,14 @@ flowchart TD
 </table>
 </div>
 
-<h3>Soporte de SDD multi-modo</h3>
+<h3 id="soporte-de-sdd-multi-modo">Compatibilidad con SDD multimodo</h3>
 <p><strong>Todos</strong> los agentes soportan el orquestador de SDD y SDD de modo único. El <strong>multi-modo</strong> — asignar modelos distintos a cada fase de SDD — lo soportan:</p>
 <ul>
 <li><strong>OpenCode</strong> y <strong>Kilo Code</strong>, a través del overlay multi-modo compatible con OpenCode.</li>
 <li><strong>Kiro IDE</strong>, a través del frontmatter <code>model:</code> de subagentes nativos.</li>
 <li><strong>Pi</strong>, donde el multi-modo es propiedad de los paquetes: <code>gentle-pi</code> instala agentes y cadenas SDD en <code>.pi/agents/</code> y <code>.pi/chains/</code>, y los overrides de modelo viven en esos archivos o pasos de cadena.</li>
 </ul>
-<p>Todos los demás corren en <strong>modo único</strong>: el orquestador maneja todo con el modelo que el agente ya está usando. El modo único no es un downgrade: es el default más simple y funciona bien. El multi-modo sirve cuando querés deliberadamente hacer tradeoffs de costo, velocidad o razonamiento por fase.</p>
+<p>Todos los demás se ejecutan en <strong>modo único</strong>: el orquestador gestiona todo con el modelo que el agente ya está usando. El modo único no es una limitación: es la opción predeterminada más simple y funciona bien. El modo multimodo es útil cuando se desea equilibrar deliberadamente el costo, la velocidad o el razonamiento por fase.</p>
 
 <h2 id="modelos-delegacion">Modelos de delegación</h2>
 <div class="tblwrap">
@@ -927,7 +928,7 @@ flowchart TD
 </table>
 </div>
 
-<h3>Notas por agente</h3>
+<h3 id="notas-por-agente">Notas por agente</h3>
 
 <h4>Claude Code</h4>
 <ul>
@@ -944,7 +945,7 @@ flowchart TD
 <li>La ejecución en background administrada se configura con <code>--opencode-background-subagents=auto|on|off</code> o la variable <code>GENTLE_AI_OPENCODE_BACKGROUND_SUBAGENTS</code>. La precedencia de CLI es: flag, entorno no vacío, estado administrado previo, y después <code>auto</code>.</li>
 <li>Los jobs en background son locales al proceso y no durables, no tienen aislamiento de filesystem, y no deben usarse para fases dependientes ni escritores paralelos en un mismo worktree.</li>
 <li>Los modelos custom de <code>opencode.json</code> deben declarar <code>tool_call: true</code> explícitamente para aparecer como opciones seleccionables con capacidad SDD.</li>
-<li>Requisito para multi-modo: primero conectá tus proveedores de IA, después corré <code>opencode models --refresh</code>.</li>
+<li>Requisito para multimodo: primero conecte sus proveedores de IA y después ejecute <code>opencode models --refresh</code>.</li>
 <li>Gentle AI pone el sharing de agentes SDD en <code>disabled</code> por defecto, por privacidad; los valores de <code>share</code> ya administrados por el usuario, como <code>manual</code> o <code>auto</code>, se preservan.</li>
 </ul>
 
@@ -980,7 +981,7 @@ flowchart TD
 
 <h4>Hermes</h4>
 <ul>
-<li><strong>Detect-only</strong>: Gentle AI no puede instalar Hermes. Instalalo manualmente primero y después corré <code>gentle-ai install --agent hermes</code>.</li>
+<li><strong>Detect-only</strong>: Gentle AI no puede instalar Hermes. Instálelo manualmente primero y después ejecute <code>gentle-ai install --agent hermes</code>.</li>
 <li>La delegación efímera se ajusta en <code>~/.hermes/config.yaml</code> bajo la clave <code>delegation</code>: <code>max_spawn_depth</code> (2), <code>max_concurrent_children</code> (4), <code>max_iterations</code>, <code>child_timeout_seconds</code>, <code>inherit_mcp_toolsets</code> (false) y <code>subagent_auto_approve</code> (false).</li>
 <li>Los toolsets, servidores MCP y skills <strong>no</strong> se heredan automáticamente del padre: hay que pasarlos explícitamente en la misión.</li>
 <li>La salida del worker se trata como auto-reporte: hay que verificar escrituras de archivos, resultados de tests, URLs y efectos externos antes de reportar éxito.</li>
@@ -998,10 +999,10 @@ gentle-ai sync --profile-phase cheap:sdd-design:anthropic/claude-sonnet-4-202505
 gentle-ai sync \
   --profile cheap:openrouter/qwen/qwen3-30b-a3b:free \
   --profile premium:anthropic/claude-sonnet-4-20250514</pre>
-<p>Después de crear un perfil, abrí OpenCode y presioná <strong>Tab</strong> para cambiar entre <code>gentle-orchestrator</code> y tus perfiles custom.</p>
+<p>Después de crear un perfil, abra OpenCode y presione <strong>Tab</strong> para cambiar entre <code>gentle-orchestrator</code> y sus perfiles personalizados.</p>
 <div class="tblwrap">
 <table>
-<thead><tr><th>Lo que necesitás</th><th>Usá esto</th></tr></thead>
+<thead><tr><th>Lo que necesita</th><th>Use esto</th></tr></thead>
 <tbody>
 <tr><td>Conductor SDD por defecto</td><td><code>gentle-orchestrator</code></td></tr>
 <tr><td>Configuraciones legacy</td><td><code>sdd-orchestrator</code> se migra a <code>gentle-orchestrator</code> al sincronizar</td></tr>
@@ -1009,7 +1010,7 @@ gentle-ai sync \
 </tbody>
 </table>
 </div>
-<p>Si preferís un <strong>gestor de perfiles en runtime</strong> que mantenga los perfiles fuera de <code>opencode.json</code>, Gentle AI también lo soporta: durante el sync, OpenCode puede autodetectar archivos de perfil externos en <code>~/.config/opencode/profiles/*.json</code> y cambiar a una ruta de compatibilidad más segura que preserva el prompt activo de <code>gentle-orchestrator</code> en lugar de sobrescribirlo. Se activa con <code>--sdd-profile-strategy external-single-active</code>.</p>
+<p>Si prefiere un <strong>gestor de perfiles en runtime</strong> que mantenga los perfiles fuera de <code>opencode.json</code>, Gentle AI también lo admite: durante el sync, OpenCode puede detectar automáticamente archivos de perfil externos en <code>~/.config/opencode/profiles/*.json</code> y cambiar a una ruta de compatibilidad más segura que preserva el prompt activo de <code>gentle-orchestrator</code> en lugar de sobrescribirlo. Se activa con <code>--sdd-profile-strategy external-single-active</code>.</p>
 
 <h2 id="pi">Pi y el harness <code>gentle-pi</code></h2>
 <div class="note">
@@ -1017,13 +1018,13 @@ gentle-ai sync \
   <p>Seleccionar Pi instala el harness de primera clase <code>gentle-pi</code>, que es dueño de la persona, los controles de modelo, los assets de SDD, las cadenas y el cableado de memoria dentro de Pi.</p>
 </div>
 
-<h3>Instalación</h3>
-<p>Pi tiene que estar instalado y disponible como <code>pi</code> en el <code>PATH</code>. Después:</p>
+<h3 id="instalacion-2">Instalación</h3>
+<p>Pi debe estar instalado y disponible como <code>pi</code> en el <code>PATH</code>. Después:</p>
 <pre>gentle-ai install --agent pi
 pi</pre>
-<p>Si Pi es el único agente seleccionado, el instalador igual provisiona el componente real de Engram, pero saltea las preguntas de persona, selección de componentes del ecosistema y Strict TDD, porque <code>gentle-pi</code> es dueño de esas decisiones adentro de Pi.</p>
+<p>Si Pi es el único agente seleccionado, el instalador igualmente provisiona el componente real de Engram, pero omite las preguntas sobre persona, selección de componentes del ecosistema y Strict TDD, porque <code>gentle-pi</code> gestiona esas decisiones dentro de Pi.</p>
 
-<h3>Paquetes que instala</h3>
+<h3 id="paquetes-que-instala">Paquetes que instala</h3>
 <pre>pi install npm:gentle-pi
 pi install npm:gentle-engram
 pi install npm:pi-mcp-adapter
@@ -1049,7 +1050,7 @@ pi install npm:pi-btw</pre>
 </table>
 </div>
 
-<h3>Comandos de Pi</h3>
+<h3 id="comandos-de-pi">Comandos de Pi</h3>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Comando</th><th>Qué hace</th></tr></thead>
@@ -1065,7 +1066,7 @@ pi install npm:pi-btw</pre>
 </div>
 <p><code>/gentle-ai:persona</code> y <code>/gentle-ai:models</code> siguen funcionando como alias de compatibilidad.</p>
 
-<h3>Asignación de modelos recomendada</h3>
+<h3 id="asignacion-de-modelos-recomendada">Asignación de modelos recomendada</h3>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Tipo de agente</th><th>Forma de modelo recomendada</th></tr></thead>
@@ -1079,31 +1080,33 @@ pi install npm:pi-btw</pre>
 </table>
 </div>
 
-<h3>Archivos de proyecto</h3>
-<p>En un <code>session_start</code> normal, <code>gentle-pi</code> copia assets locales del proyecto sin sobrescribir ediciones locales:</p>
+<h3 id="archivos-de-proyecto">Archivos del proyecto</h3>
+<p>En un <code>session_start</code> normal, <code>gentle-pi</code> copia recursos locales del proyecto sin sobrescribir ediciones locales:</p>
 <pre>.pi/agents/sdd-*.md
 .pi/chains/sdd-*.chain.md
 .pi/gentle-ai/support/strict-tdd.md
 .pi/gentle-ai/support/strict-tdd-verify.md</pre>
 <div class="warn">
   <b>Sobre <code>pi -ns</code></b>
-  <p>Arrancar Pi con <code>pi -ns</code> saltea la carga de skills y los hooks de inicio. Es útil para una sesión limpia o más rápida, pero también significa que el trabajo de arranque de <code>gentle-pi</code> — chequeo de assets y refresco del registro de skills — no corre automáticamente.</p>
+  <p>Iniciar Pi con <code>pi -ns</code> omite la carga de skills y los hooks de inicio. Es útil para una sesión limpia o más rápida, pero también significa que el trabajo de inicio de <code>gentle-pi</code> — comprobación de recursos y actualización del registro de skills — no se ejecuta automáticamente.</p>
 </div>
 
-<h3>Solución de problemas</h3>
+<h3 id="solucion-de-problemas">Solución de problemas</h3>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Síntoma</th><th>Solución</th></tr></thead>
 <tbody>
-<tr><td>Gentle AI dice que falta Pi</td><td>Instalá Pi primero y asegurate de que <code>pi</code> esté en el <code>PATH</code></td></tr>
-<tr><td>Faltan agentes SDD en Pi</td><td>Arrancá Pi normalmente en el proyecto para que corra <code>session_start</code>, o corré <code>/gentle-ai:install-sdd</code></td></tr>
-<tr><td>La persona no cambió al instante</td><td>Corré <code>/reload</code> o iniciá una sesión nueva de Pi</td></tr>
-<tr><td>Querés quitar un override de modelo</td><td>Abrí <code>/gentleman:models</code> y elegí <em>Inherit active/default model</em></td></tr>
-<tr><td>Faltan herramientas de memoria o <code>/mcp</code></td><td>Volvé a correr <code>gentle-ai install --agent pi</code> y revisá <code>/gentle-ai:status</code></td></tr>
-<tr><td><code>gentle-engram</code> instalado pero Engram no disponible</td><td>Volvé a correr <code>gentle-ai install --agent pi</code> para que se provisione el componente real de Engram</td></tr>
+<tr><td>Gentle AI indica que falta Pi</td><td>Instale Pi primero y asegúrese de que <code>pi</code> esté en el <code>PATH</code></td></tr>
+<tr><td>Faltan agentes SDD en Pi</td><td>Inicie Pi normalmente en el proyecto para que ejecute <code>session_start</code>, o ejecute <code>/gentle-ai:install-sdd</code></td></tr>
+<tr><td>La persona no cambió de inmediato</td><td>Ejecute <code>/reload</code> o inicie una sesión nueva de Pi</td></tr>
+<tr><td>Desea quitar una anulación de modelo</td><td>Abra <code>/gentleman:models</code> y elija <em>Inherit active/default model</em></td></tr>
+<tr><td>Faltan herramientas de memoria o <code>/mcp</code></td><td>Ejecute de nuevo <code>gentle-ai install --agent pi</code> y revise <code>/gentle-ai:status</code></td></tr>
+<tr><td><code>gentle-engram</code> está instalado, pero Engram no está disponible</td><td>Ejecute de nuevo <code>gentle-ai install --agent pi</code> para provisionar el componente real de Engram</td></tr>
 </tbody>
 </table>
 </div>
+
+</>}
 
 <hr>
 

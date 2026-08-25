@@ -862,3 +862,230 @@ flowchart TD
     style P fill:#49443C,stroke:#FF9E3B,color:#DCD7BA
     style T fill:#43242B,stroke:#D27E99,color:#DCD7BA
 </div>
+
+<hr>
+
+<h2 id="agentes">Supported agent matrix</h2>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Agent</th><th>ID</th><th>Skills</th><th>MCP</th><th>Delegation</th><th>Config path</th></tr></thead>
+<tbody>
+<tr><td>Claude Code</td><td><code>claude-code</code></td><td>Yes</td><td>Yes</td><td>Full (Task tool)</td><td><code>~/.claude</code></td></tr>
+<tr><td>OpenCode</td><td><code>opencode</code></td><td>Yes</td><td>Yes</td><td>Full (multi-mode overlay)</td><td><code>~/.config/opencode</code></td></tr>
+<tr><td>Kilo Code</td><td><code>kilocode</code></td><td>Yes</td><td>Yes</td><td>Full (multi-mode overlay)</td><td><code>~/.config/kilo</code></td></tr>
+<tr><td>Gemini CLI</td><td><code>gemini-cli</code></td><td>Yes</td><td>Yes</td><td>Full (experimental)</td><td><code>~/.gemini</code></td></tr>
+<tr><td>Cursor</td><td><code>cursor</code></td><td>Yes</td><td>Yes</td><td>Full (native sub-agents)</td><td><code>~/.cursor</code></td></tr>
+<tr><td>VS Code Copilot</td><td><code>vscode-copilot</code></td><td>Yes</td><td>Yes</td><td>Full (runSubagent)</td><td><code>~/.copilot</code> + user profile</td></tr>
+<tr><td>Codex</td><td><code>codex</code></td><td>Yes</td><td>Yes</td><td>Native multi-agent (default; single-agent fallback)</td><td><code>~/.codex</code></td></tr>
+<tr><td>Windsurf</td><td><code>windsurf</code></td><td>Yes (native)</td><td>Yes</td><td>Single-agent</td><td><code>~/.codeium/windsurf</code></td></tr>
+<tr><td>Antigravity</td><td><code>antigravity</code></td><td>Yes (native)</td><td>Yes</td><td>Single-agent + Mission Control</td><td><code>~/.gemini/antigravity</code></td></tr>
+<tr><td>Kimi Code</td><td><code>kimi</code></td><td>Yes</td><td>Yes</td><td>Full (native custom agents)</td><td><code>~/.kimi</code></td></tr>
+<tr><td>Qwen Code</td><td><code>qwen-code</code></td><td>Yes</td><td>Yes</td><td>Full (native sub-agents)</td><td><code>~/.qwen</code></td></tr>
+<tr><td>Kiro IDE</td><td><code>kiro-ide</code></td><td>Yes</td><td>Yes</td><td>Full (native sub-agents)</td><td><code>~/.kiro</code></td></tr>
+<tr><td>OpenClaw</td><td><code>openclaw</code></td><td>Yes</td><td>Yes</td><td>Single-agent</td><td><code>~/.openclaw</code></td></tr>
+<tr><td>Trae</td><td><code>trae-ide</code></td><td>Yes</td><td>Yes</td><td>Single-agent</td><td><code>~/.trae</code></td></tr>
+<tr><td>Pi</td><td><code>pi</code></td><td>Yes</td><td>Yes</td><td>Full (package sub-agents)</td><td><code>~/.pi</code></td></tr>
+<tr><td>Hermes</td><td><code>hermes</code></td><td>Yes</td><td>Yes</td><td>Full (ephemeral delegate_task)</td><td><code>~/.hermes</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="soporte-de-sdd-multi-modo">Multi-mode SDD support</h3>
+<p><strong>All</strong> agents support the SDD orchestrator and single-mode SDD. <strong>Multi-mode</strong> — assigning different models to each SDD phase — is supported by:</p>
+<ul>
+<li><strong>OpenCode</strong> and <strong>Kilo Code</strong>, through the OpenCode-compatible multi-mode overlay.</li>
+<li><strong>Kiro IDE</strong>, through native sub-agent <code>model:</code> frontmatter.</li>
+<li><strong>Pi</strong>, where multi-mode is a package property: <code>gentle-pi</code> installs SDD agents and chains in <code>.pi/agents/</code> and <code>.pi/chains/</code>, and model overrides live in those files or chain steps.</li>
+</ul>
+<p>All other agents run in <strong>single mode</strong>: the orchestrator handles everything with the model the agent is already using. Single mode is not a downgrade: it is the simplest default and works well. Multi-mode is useful when you deliberately want to trade off cost, speed, or reasoning by phase.</p>
+
+<h2 id="modelos-delegacion">Delegation models</h2>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Model</th><th>How it works</th><th>Agents</th></tr></thead>
+<tbody>
+<tr><td><strong>Full (sub-agents)</strong></td><td>Each SDD phase runs in an isolated context window through native delegation, package sub-agents, or an OpenCode-compatible overlay. The orchestrator coordinates; sub-agents execute</td><td>Claude Code, OpenCode, Kilo Code, Gemini CLI, Cursor, VS Code Copilot, Kimi Code, Kiro IDE, Qwen Code, Pi</td></tr>
+<tr><td><strong>Full (delegate_task)</strong></td><td>The orchestrator uses Hermes's native <code>delegate_task</code> primitive to create ephemeral workers in fresh context windows. Workers receive only a self-contained mission; the parent receives only their final summary</td><td>Hermes</td></tr>
+<tr><td><strong>Native multi-agent</strong></td><td>The orchestrator delegates through the agent's native collaboration tools when they are configured and available, with inline execution as a graceful fallback</td><td>Codex</td></tr>
+<tr><td><strong>Single-agent</strong></td><td>All SDD phases run inline in the same conversation. The orchestrator IS the executor. Engram provides persistence between phases</td><td>Windsurf, Antigravity, OpenClaw, Trae</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="notas-por-agente">Notes by agent</h3>
+
+<h4>Claude Code</h4>
+<ul>
+<li>Sub-agents through the native Task tool with isolated context windows.</li>
+<li>MCP servers configured as plugins in <code>~/.claude/mcp/</code>.</li>
+<li>Output styles in <code>~/.claude/output-styles/</code>.</li>
+<li>System prompt through Markdown sections in <code>~/.claude/CLAUDE.md</code>.</li>
+</ul>
+
+<h4>OpenCode</h4>
+<ul>
+<li>Full multi-agent overlay with 11 named agents in <code>opencode.json</code>: <code>gentle-orchestrator</code> plus 10 SDD phase agents.</li>
+<li>Slash commands for SDD phases (<code>/sdd-new</code>, <code>/sdd-explore</code>, etc.).</li>
+<li>Managed background execution is configured with <code>--opencode-background-subagents=auto|on|off</code> or <code>GENTLE_AI_OPENCODE_BACKGROUND_SUBAGENTS</code>. CLI precedence is: flag, non-empty environment, prior managed state, then <code>auto</code>.</li>
+<li>Background jobs are process-local and non-durable, have no filesystem isolation, and must not be used for dependent phases or parallel writers in the same worktree.</li>
+<li>Custom models in <code>opencode.json</code> must explicitly declare <code>tool_call: true</code> to appear as selectable SDD-capable options.</li>
+<li>Multi-mode requirement: connect your AI providers first, then run <code>opencode models --refresh</code>.</li>
+<li>Gentle AI sets SDD agent sharing to <code>disabled</code> by default for privacy; user-managed <code>share</code> values such as <code>manual</code> or <code>auto</code> are preserved.</li>
+</ul>
+
+<h4>Codex</h4>
+<ul>
+<li>Native CLI agent with TOML configuration in <code>~/.codex/config.toml</code>.</li>
+<li>Model-selection profiles written as separate files in <code>~/.codex/&lt;nombre&gt;.config.toml</code>. GPT-5.6 defaults require Codex &gt;= 0.144.0.</li>
+<li>The three lanes are divided by what the phase actually does: <code>sdd-strong</code> reasons about supplied context, <code>sdd-mid</code> writes code in an agentic loop where effort matters more than raw model strength, and <code>sdd-cheap</code> performs structured transcription with short context and verifiable output — so it buys effort instead of a larger model.</li>
+<li>Multi-agent delegation is enabled by default: <code>features.multi_agent = true</code>, <code>agents.max_threads = 4</code>, and <code>agents.max_depth = 2</code> are written. If configuration or native tools are unavailable, orchestration gracefully falls back to inline single-agent execution.</li>
+</ul>
+
+<h4>Cursor</h4>
+<ul>
+<li>Native sub-agents in <code>~/.cursor/agents/sdd-&#123;fase&#125;.md</code> (10 files). Cursor Agent delegates automatically to the correct sub-agent according to the YAML frontmatter <code>description</code> field.</li>
+<li><code>sdd-explore</code> and <code>sdd-verify</code> run with <code>readonly: false</code> so they can inspect code and run verification commands.</li>
+<li>Skills in <code>~/.cursor/skills/</code>, system prompt in <code>~/.cursor/rules/gentle-ai.mdc</code>, MCP in <code>~/.cursor/mcp.json</code>.</li>
+</ul>
+
+<h4>Kiro IDE</h4>
+<ul>
+<li>Detection: the <code>kiro</code> binary on the <code>PATH</code>. A configuration directory alone does not mark Kiro as installed.</li>
+<li>Steering file at <code>~/.kiro/steering/gentle-ai.md</code> with <code>inclusion: always</code> frontmatter.</li>
+<li>MCP configuration is always at a separate root: <code>~/.kiro/settings/mcp.json</code>.</li>
+<li>Kiro's native specs flow: <code>.kiro/specs/&lt;feature&gt;/requirements.md</code>, <code>design.md</code>, <code>tasks.md</code>, with approval gates before the apply and archive phases.</li>
+<li>Manual installation only from <a href="https://kiro.dev/downloads" target="_blank" rel="noopener">kiro.dev/downloads</a>.</li>
+</ul>
+
+<h4>Windsurf</h4>
+<ul>
+<li>Runs as a single agent and uses native features: <strong>Plan Mode</strong> (persistent plan documents that can be @mentioned between sessions, ideal for spec and design artifacts), <strong>Code Mode</strong>, and <strong>native workflows</strong> (<code>sdd-new</code> available in <code>.windsurf/workflows/sdd-new.md</code>).</li>
+<li>The orchestrator routes tasks through Small/Medium/Large decision paths.</li>
+</ul>
+
+<h4>Hermes</h4>
+<ul>
+<li><strong>Detect-only</strong>: Gentle AI cannot install Hermes. Install it manually first, then run <code>gentle-ai install --agent hermes</code>.</li>
+<li>Ephemeral delegation is adjusted in <code>~/.hermes/config.yaml</code> under the <code>delegation</code> key: <code>max_spawn_depth</code> (2), <code>max_concurrent_children</code> (4), <code>max_iterations</code>, <code>child_timeout_seconds</code>, <code>inherit_mcp_toolsets</code> (false), and <code>subagent_auto_approve</code> (false).</li>
+<li>Toolsets, MCP servers, and skills are <strong>not</strong> inherited automatically from the parent: pass them explicitly in the mission.</li>
+<li>Worker output is treated as self-report: verify file writes, test results, URLs, and external effects before reporting success.</li>
+</ul>
+
+<h2 id="perfiles">OpenCode SDD profiles</h2>
+<p>They let you assign different models to different SDD phases: a powerful one for design, a fast one for implementation, and an inexpensive one for exploration. OpenCode uses <code>gentle-orchestrator</code> as the base SDD conductor.</p>
+<pre># Create a "cheap" profile with a free model for every phase
+gentle-ai sync --profile cheap:openrouter/qwen/qwen3-30b-a3b:free
+
+# Override the design phase with a stronger model
+gentle-ai sync --profile-phase cheap:sdd-design:anthropic/claude-sonnet-4-20250514
+
+# Create several profiles in one command
+gentle-ai sync \
+  --profile cheap:openrouter/qwen/qwen3-30b-a3b:free \
+  --profile premium:anthropic/claude-sonnet-4-20250514</pre>
+<p>After creating a profile, open OpenCode and press <strong>Tab</strong> to switch between <code>gentle-orchestrator</code> and your custom profiles.</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>What you need</th><th>Use this</th></tr></thead>
+<tbody>
+<tr><td>Default SDD conductor</td><td><code>gentle-orchestrator</code></td></tr>
+<tr><td>Legacy configurations</td><td><code>sdd-orchestrator</code> migrates to <code>gentle-orchestrator</code> during sync</td></tr>
+<tr><td>Named model profiles</td><td><code>sdd-orchestrator-cheap</code>, <code>sdd-orchestrator-premium</code>, etc.</td></tr>
+</tbody>
+</table>
+</div>
+<p>If you prefer a <strong>runtime profile manager</strong> that keeps profiles outside <code>opencode.json</code>, Gentle AI also supports it: during sync, OpenCode can auto-detect external profile files in <code>~/.config/opencode/profiles/*.json</code> and switch to a safer compatibility path that preserves the active <code>gentle-orchestrator</code> prompt instead of overwriting it. Enable it with <code>--sdd-profile-strategy external-single-active</code>.</p>
+
+<h2 id="pi">Pi and the <code>gentle-pi</code> harness</h2>
+<div class="note">
+  <b>Pi is managed through packages, not only configured</b>
+  <p>Selecting Pi installs the first-class <code>gentle-pi</code> harness, which owns the persona, model controls, SDD assets, chains, and memory wiring inside Pi.</p>
+</div>
+
+<h3 id="instalacion-2">Installation</h3>
+<p>Pi must be installed and available as <code>pi</code> on the <code>PATH</code>. Then:</p>
+<pre>gentle-ai install --agent pi
+pi</pre>
+<p>If Pi is the only selected agent, the installer still provisions the real Engram component, but skips persona, ecosystem-component selection, and Strict TDD questions because <code>gentle-pi</code> owns those decisions inside Pi.</p>
+
+<h3 id="paquetes-que-instala">Packages it installs</h3>
+<pre>pi install npm:gentle-pi
+pi install npm:gentle-engram
+pi install npm:pi-mcp-adapter
+npm exec --yes --package gentle-engram@latest -- pi-engram init
+pi install npm:pi-subagents-j0k3r
+pi install npm:@juicesharp/rpiv-ask-user-question
+pi install npm:pi-web-access
+pi install npm:@juicesharp/rpiv-todo
+pi install npm:pi-btw</pre>
+
+<div class="tblwrap">
+<table>
+<thead><tr><th>Package</th><th>What it adds</th></tr></thead>
+<tbody>
+<tr><td><code>gentle-pi</code></td><td>Gentleman persona, SDD/OpenSpec flow, Strict TDD support, security policy, skills, prompts, SDD agents, and SDD chains</td></tr>
+<tr><td><code>gentle-engram</code></td><td>Pi integration with Engram session memory and its MCP tools. <strong>It is not the Engram binary</strong></td></tr>
+<tr><td><code>pi-mcp-adapter</code></td><td>Lets Pi expose MCP servers, including Engram, through Pi's MCP runtime</td></tr>
+<tr><td><code>pi-engram init</code></td><td>Initializes Engram's MCP configuration form for Pi, owned by <code>gentle-engram</code></td></tr>
+<tr><td><code>pi-subagents-j0k3r</code></td><td>Discovers and runs SDD agents from <code>.pi/agents/</code></td></tr>
+<tr><td><code>@juicesharp/rpiv-ask-user-question</code></td><td>Lets Pi child agents ask the active user session for clarification</td></tr>
+<tr><td><code>pi-web-access</code>, <code>@juicesharp/rpiv-todo</code>, <code>pi-btw</code></td><td>Web access, task tracking, and companion-flow support</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="comandos-de-pi">Pi commands</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Command</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td><code>/gentle-ai:status</code></td><td>Shows package, SDD asset, OpenSpec, and model configuration status</td></tr>
+<tr><td><code>/gentleman:persona</code></td><td>Switches between the <code>gentleman</code> and <code>neutral</code> personas</td></tr>
+<tr><td><code>/gentleman:models</code></td><td>Opens Pi's native model-assignment modal</td></tr>
+<tr><td><code>/sdd-init</code></td><td>Initializes or refreshes <code>openspec/config.yaml</code></td></tr>
+<tr><td><code>/gentle-ai:install-sdd</code></td><td>Reinstalls SDD assets without overwriting local files</td></tr>
+<tr><td><code>/gentle-ai:install-sdd --force</code></td><td>Forces a refresh of installed SDD assets, replacing local copies</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>/gentle-ai:persona</code> and <code>/gentle-ai:models</code> continue to work as compatibility aliases.</p>
+
+<h3 id="asignacion-de-modelos-recomendada">Recommended model assignment</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Agent type</th><th>Recommended model shape</th></tr></thead>
+<tbody>
+<tr><td>Explore, propose, archive</td><td>Fast and inexpensive is usually enough</td></tr>
+<tr><td>Spec, design, tasks</td><td>Strong reasoning model, because these phases shape implementation</td></tr>
+<tr><td>Apply</td><td>Strong coding model with reliable tool use</td></tr>
+<tr><td>Verify / review agents</td><td>Strong model with fresh context. Verification benefits from independence</td></tr>
+<tr><td>Small utility agents</td><td>Inherit the active model unless they become a bottleneck</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="archivos-de-proyecto">Project files</h3>
+<p>During a normal <code>session_start</code>, <code>gentle-pi</code> copies local project assets without overwriting local edits:</p>
+<pre>.pi/agents/sdd-*.md
+.pi/chains/sdd-*.chain.md
+.pi/gentle-ai/support/strict-tdd.md
+.pi/gentle-ai/support/strict-tdd-verify.md</pre>
+<div class="warn">
+  <b>About <code>pi -ns</code></b>
+  <p>Starting Pi with <code>pi -ns</code> skips skill loading and startup hooks. It is useful for a clean or faster session, but it also means that <code>gentle-pi</code>'s startup work — asset checking and skill-registry refresh — does not run automatically.</p>
+</div>
+
+<h3 id="solucion-de-problemas">Troubleshooting</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Symptom</th><th>Solution</th></tr></thead>
+<tbody>
+<tr><td>Gentle AI says Pi is missing</td><td>Install Pi first and make sure <code>pi</code> is on the <code>PATH</code></td></tr>
+<tr><td>SDD agents are missing in Pi</td><td>Start Pi normally in the project so it runs <code>session_start</code>, or run <code>/gentle-ai:install-sdd</code></td></tr>
+<tr><td>The persona did not change immediately</td><td>Run <code>/reload</code> or start a new Pi session</td></tr>
+<tr><td>You want to remove a model override</td><td>Open <code>/gentleman:models</code> and choose <em>Inherit active/default model</em></td></tr>
+<tr><td>Memory tools or <code>/mcp</code> are missing</td><td>Run <code>gentle-ai install --agent pi</code> again and check <code>/gentle-ai:status</code></td></tr>
+<tr><td><code>gentle-engram</code> installed but Engram is unavailable</td><td>Run <code>gentle-ai install --agent pi</code> again so the real Engram component is provisioned</td></tr>
+</tbody>
+</table>
+</div>
