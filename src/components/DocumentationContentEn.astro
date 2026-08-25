@@ -507,3 +507,285 @@ gentle-ai skill-registry list --json   # machine-readable, including description
 </table>
 </div>
 <p>A question is necessary only when the answer changes requested scope, destructive or irreversible impact, permission or security exposure, verification cost or external side effects, accepted residual risk, or delivery.</p>
+
+<hr>
+
+<h2 id="rdd">RDD — Receipt-Driven Development</h2>
+<p>RDD reviews a completed candidate <strong>without taking ownership of delivery</strong>. It is deliberately small: native code freezes a worktree candidate, coordinates bounded review, burns completed authority, and returns control to the human.</p>
+
+<h3 id="el-modelo-en-tres-frases">The model in three sentences</h3>
+<div class="cards">
+  <div class="card"><h4>Review follows the work</h4><p>The candidate exists before review begins. The parent asks native STATUS to preflight only the current worktree.</p></div>
+  <div class="card"><h4>Native code owns the mechanics</h4><p>Go derives risk, frozen trees, lenses, provider bindings, admission, refutation, one bounded correction, repository evidence, and targeted validation.</p></div>
+  <div class="card"><h4>The human owns delivery</h4><p>Approval never commits, pushes, opens a PR, or overrides repository policy.</p></div>
+</div>
+
+<div class="imp">
+  <b>The switch is a switch, and it starts off</b>
+  <p>RDD is <strong>opt-in</strong>. Until someone runs <code>gentle-ai review mode enable --scope global</code>, it does not govern the candidate. Nothing blocks or conditions delivery: ordinary repository policy applies. Enabling RDD revalidates the current candidate instead of resuming old obligations.</p>
+</div>
+
+<h2 id="rdd-control">Turning RDD on and off</h2>
+<pre>gentle-ai review mode status --cwd &lt;repo&gt;
+gentle-ai review mode enable --scope global --cwd &lt;repo&gt;
+gentle-ai review mode disable --cwd &lt;repo&gt;
+gentle-ai review mode disable --scope clone --cwd &lt;repo&gt;
+gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
+
+<div class="tblwrap">
+<table>
+<thead><tr><th>Command</th><th>Effect</th></tr></thead>
+<tbody>
+<tr><td><code>review mode status</code></td><td>Reports the global source, local clone source, deciding source, and effective mode — without mutating anything</td></tr>
+<tr><td><code>review mode enable --scope global</code></td><td>Enables RDD globally for future candidates. <strong>It is the only command that turns it on</strong></td></tr>
+<tr><td><code>review mode disable</code></td><td>Disables RDD globally</td></tr>
+<tr><td><code>review mode disable --scope clone</code></td><td>Disables it only for this clone; no other clone inherits the override</td></tr>
+<tr><td><code>review mode enable --scope clone</code></td><td>Clears this clone's disabled override. <strong>It does not turn RDD on by itself</strong></td></tr>
+</tbody>
+</table>
+</div>
+
+<p><strong>Any disabled source wins.</strong> A clone can opt out, but it cannot require review from the user, so global scope is the only way to opt in. With no source expressing an opinion, the effective mode is <code>off</code>, reported as decided by <code>default</code>.</p>
+
+<p>Interactive starts ask before review work, once per clone. Accepting records that choice; <strong>"not now" applies only to that candidate and does not change review mode</strong>. Non-interactive tier-1/tier-2 starts proceed without asking and report how to disable review mode.</p>
+
+<p>While RDD is disabled, work continues through direct inline routing, direct delegation, or optional SDD, without starting, retrying, or reactivating review on its own. Native delivery gates report <code>disabled/unmanaged</code> when no exact receipt applies, and <strong>never fabricate approval</strong>.</p>
+
+<h2 id="rdd-ciclo">The atomic cycle</h2>
+<pre>STATUS without a selector → exact START → bounded collection/finalize → approved + burn → ordinary repository policy</pre>
+
+<h3 id="1-status-sin-selector-solo-hace-preflight">1. STATUS without a selector only performs preflight</h3>
+<p>STATUS without a selector evaluates <strong>only the current worktree candidate</strong> and renders one exact START invocation. It does <strong>not</strong> discover ambient authority, resume another worktree, recover history, or select an old lineage. The parent runs only the returned <code>next_transition</code> and its ordered tokens.</p>
+<pre>gentle-ai review status \
+  --cwd &lt;repo&gt; \
+  --contract gentle-ai.review-integration/v2 \
+  --agent claude-code \
+  --next-transition</pre>
+<p>This prevents historical authority, a sibling worktree, or a stale lifecycle response from directing the current candidate.</p>
+
+<h3 id="2-start-congela-una-transaccion-independiente">2. START freezes an independent transaction</h3>
+<p>START freezes the candidate in a compact transaction explicitly bound to its lineage, worktree, and target. It selects risk and lenses natively. The parent captures the returned <strong>lineage, revision, and target</strong> tokens.</p>
+<p>An exact replay of an active START can return <code>replayed</code>. A genuinely new START is independent. A burned lineage is never reused.</p>
+
+<h3 id="3-las-llamadas-atadas-manejan-la-transaccion">3. Bound calls manage the transaction</h3>
+<p>Every subsequent STATUS, <code>review capture-result</code>, and FINALIZE carries those exact tokens. The parent routes only from the returned <code>next_transition</code>:</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Transition</th><th>Parent action</th></tr></thead>
+<tbody>
+<tr><td><code>execute</code></td><td>Runs the exact operation and ordered arguments, unchanged</td></tr>
+<tr><td><code>collect</code></td><td>Provides only the named input through its exact capture operation, then queries STATUS again</td></tr>
+<tr><td><code>stop</code></td><td>Runs no lifecycle operation. It does not infer recovery from text</td></tr>
+</tbody>
+</table>
+</div>
+<p>A <em>forecast</em> is descriptive, not a route. It is fully reported, but only <code>next_transition</code> is executed.</p>
+
+<h3 id="4-la-aprobacion-quema-la-autoridad">4. Approval burns authority</h3>
+<p>On success, native code reads back terminal approval and then <strong>burns</strong> the exact lineage and its artifacts before returning <code>approved</code>. No terminal receipt, tombstone, witness, mirror, or delivery authority survives. Other lineages and worktrees remain intact.</p>
+
+<div class="warn">
+  <b>An unclean FINALIZE is not approval</b>
+  <p>This includes malformed or empty output, transport failure, post-mutation ambiguity, and the case where terminal authority may already be committed. The parent keeps the exact lineage, revision, and target, queries bound STATUS once, and follows only the returned action. It never falls back to ambient recovery or invents another lineage.</p>
+</div>
+
+<h3 id="continuidad-entre-repositorios">Cross-repository continuity</h3>
+<p>A session rooted in repository A can review a user-explicitly-authorized nested target in unrelated repository B. Go resolves the requested path to B's canonical worktree root; adapters remain opaque and never parse authorization or roots.</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Rule</th><th>Contract</th></tr></thead>
+<tbody>
+<tr><td>Lifecycle root</td><td>Once B is selected, the host keeps canonical B from STATUS through consent, collection, correction, validation, FINALIZE, and burn. A is never a fallback</td></tr>
+<tr><td>Commands</td><td>Provider-issued tokens run unchanged. If a command omits <code>--cwd</code>, it runs with B as its process cwd</td></tr>
+<tr><td>Opaque capture</td><td><code>repository_context</code> may be materialized or captured from another process cwd, but remains bound to B</td></tr>
+<tr><td>Isolation</td><td>Identical lineage text in A and B names independent transactions. Approval burns only B; A remains intact</td></tr>
+<tr><td>Delivery</td><td>Ordinary repository policy and any explicit delivery authorization name B</td></tr>
+</tbody>
+</table>
+</div>
+<p>This lifecycle is available only to <strong>Claude Code, Codex, OpenCode, and Pi</strong>. Unsupported runtimes fail before any repository or authority mutation.</p>
+
+<h2 id="rdd-lentes">Risk and lenses</h2>
+<p>START classifies risk once from repository evidence and <strong>freezes</strong> it. A correction cannot recalculate risk downward to escape review, or upward to create more work.</p>
+
+<div class="tblwrap">
+<table>
+<thead><tr><th>Risk</th><th>Selected lenses</th><th>Behavior</th></tr></thead>
+<tbody>
+<tr><td><strong>Low</strong></td><td>0 lenses</td><td>Structural readback. Silent, without consent question</td></tr>
+<tr><td><strong>Standard</strong></td><td>1 focus lens</td><td>One focused pass, with consent</td></tr>
+<tr><td><strong>High</strong></td><td>Canonical 4R</td><td>Risk, Resilience, Readability, and Reliability, with consent and a cost forecast</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>That 0, 1, or 4 shape is <strong>structural cost control</strong>. A documentation-only change should not pay for four broad model calls. A normal code change benefits from one focused pass. Authentication, payments, service tokens, security-sensitive paths, or a large change deserve four independent perspectives.</p>
+
+<h3 id="las-lentes-son-de-solo-lectura">Lenses are read-only</h3>
+<p>Each selected lens is read-only and separate from authorship. It reads the candidate, judges one concern, emits a strict JSON result, and stops. <strong>No lens edits files, creates a corrector, or advances lifecycle state.</strong> As Chapter 21 says: <em>the jury is not the contractor</em>.</p>
+
+<p>Reviewers receive provider-issued immutable context, not live workspace state. They inspect only provider-bound immutable trees: never the live worktree, index, <code>HEAD</code>, or another review. Candidate bytes must not pass through <code>/tmp</code>, a repository scratch file, or <code>GENTLE_AI_FROZEN_CANDIDATE_CONTEXT</code>.</p>
+
+<h3 id="la-forma-de-un-resultado-de-revisor">The shape of a reviewer result</h3>
+<pre>&#123;
+  "findings": [
+    &#123;
+      "location": "internal/auth/token.go:84",
+      "severity": "CRITICAL",
+      "claim": "the candidate accepts an expired service token",
+      "proof_refs": [
+        "TestExpiredToken passes on base and fails on candidate"
+      ],
+      "evidence_class": "deterministic",
+      "causal_disposition": "introduced"
+    &#125;
+  ],
+  "evidence": [
+    "inspected the complete candidate diff and ran the focused differential test"
+  ]
+&#125;</pre>
+<p>The omission is deliberate: <strong>no finding ID, lens name, hash, or lineage metadata</strong>. The facade already knows which lens result arrived in which selected position. Go fills missing IDs, canonicalizes order, validates required proof, and rejects unknown fields. A model is good at claims and evidence; it is a poor choice for constructing canonical bytes.</p>
+
+<h3 id="evidencia-independiente">Independent evidence</h3>
+<p>Review opinion and verification evidence are different things. A lens can say "the tests look adequate." Evidence says <em>go test ./... succeeded</em>, the build completed, and acceptance examples passed.</p>
+<div class="note">
+  <b>Why independence matters</b>
+  <p>If the same model says "I reviewed the code" and then writes "the tests passed" without a tool result, you have two statements from one interested party. The facade cannot turn narration into truth. It can only bind real evidence bytes that another mechanism produced.</p>
+</div>
+
+<h2 id="rdd-correccion">Bounded correction</h2>
+<p>Only severe findings <strong>caused by the candidate</strong> can block. Pre-existing or base-only findings become follow-ups; unknown findings escalate; WARNING and SUGGESTION remain information.</p>
+
+<p>An ordinary review permits <strong>exactly one correction transaction</strong>. START freezes the correction budget at <code>min(200, ceil(original_changed_lines / 2))</code>.</p>
+
+<ul>
+<li>Before editing, a positive forecast is provided, and work continues only through the provider's returned next transition.</li>
+<li>After the bounded edit, a read-only fix validator runs only when the exact collection input requests it.</li>
+<li><strong>A validator that cannot inspect immutable trees has no verdict.</strong> Report that block instead of submitting failed validation: an inconclusive check recorded as failed irreversibly consumes the single correction attempt.</li>
+<li>Once the attempt is accepted — even with a measured zero-line delta — the ordinary correction is exhausted. A later change requires an authorized successor.</li>
+<li>Later observations are follow-ups, not another correction.</li>
+</ul>
+
+<h2 id="rdd-entrega">Delivery and gates</h2>
+<div class="imp">
+  <b>Review never authorizes delivery</b>
+  <p>The terminal review state is informative. Commit, push, PR, release, and archive follow ordinary repository policy and require their own explicit authorization.</p>
+</div>
+
+<p><code>gentle-ai review validate</code> and its named gates — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code>, and <code>release</code> — are compatibility and information commands. They never discover authority or decide delivery:</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>RDD mode</th><th>Informative result</th></tr></thead>
+<tbody>
+<tr><td>Enabled</td><td><code>invalidated/unmanaged</code></td></tr>
+<tr><td>Disabled</td><td><code>disabled/unmanaged</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>They never permit, approve, block, commit, push, or open a pull request.</p>
+
+<h3 id="proyecciones-del-candidato">Candidate projections</h3>
+<p><code>gentle-ai review start</code> uses the <code>workspace</code> projection by default. For a monorepo or shared worktree, you can review exactly what is in the Git index:</p>
+<pre>git add apps/mi-servicio
+git diff --cached
+gentle-ai review start --projection staged</pre>
+<p>The <code>staged</code> projection freezes the <strong>complete existing index</strong>, including every already-staged path. It excludes unstaged and untracked worktree content, and does not modify the live index or worktree when deriving evidence. It starts review, but does not by itself issue an approved receipt.</p>
+<p>Existing authority never converts automatically between projections. Recovery inherits the predecessor's projection when <code>--projection</code> is omitted.</p>
+
+<h3 id="codigos-de-parada">Stop codes</h3>
+<p>A <code>stop</code> carries exactly one reason code and no executable transition. These are some common codes and their continuation:</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Code</th><th>Continuation</th></tr></thead>
+<tbody>
+<tr><td><code>rdd_disabled</code></td><td>Run the exact <code>gentle-ai review mode enable</code> command rendered by STATUS, then rerun its exact repository-bound STATUS command</td></tr>
+<tr><td><code>corrected_candidate_unavailable</code></td><td>Change the correction candidate and query STATUS again with the captured lineage and target. Do not reuse the pre-correction target</td></tr>
+<tr><td><code>correction_repository_verification_failed</code></td><td>Change the open correction candidate and query STATUS again for fresh repository evidence</td></tr>
+<tr><td><code>unchanged_or_unverified_authority</code></td><td>Terminal. A <code>review start</code> on an unchanged candidate only resumes the same lineage. Change content first</td></tr>
+<tr><td><code>lens_context_budget_exceeded</code></td><td>Terminal. Immutable reviewer context cannot be truncated. Reduce candidate scope and start a new transaction</td></tr>
+<tr><td><code>corrupted_or_unverifiable_authority</code></td><td>Terminal. Authority is unreadable or unsupported. Ask a maintainer to inspect it</td></tr>
+<tr><td><code>manual_intervention_required</code></td><td>Terminal. Authority state is outside the negotiated lifecycle</td></tr>
+<tr><td><code>original_finalize_request_required</code></td><td>Rerun <code>gentle-ai review finalize --lineage &lt;id&gt;</code> with the exact original content-bound payload</td></tr>
+<tr><td><code>native_stop_required</code></td><td>Terminal. The lineage escalated and has no native continuation</td></tr>
+<tr><td><code>empty_base_diff_bootstrap_required</code></td><td>Terminal. The committed base has no reviewable paths</td></tr>
+<tr><td><code>recovery_scope_unchanged</code></td><td>Change the target so its identity differs, then retry the exact returned <code>review recover</code> invocation</td></tr>
+</tbody>
+</table>
+</div>
+<p>For every clone-scoped exit, <code>gentle-ai review mode disable --scope clone --cwd &lt;repo&gt;</code> returns delivery to ordinary repository policy. <strong>No stop code is resolved by changing runtime, provider, or toolchain.</strong></p>
+
+<h2 id="rdd-limites">Trust boundaries</h2>
+<p>The mental model comes from <a href="https://the-amazing-gentleman-programming-book.vercel.app/en/book/Chapter21_Verifiable-Trust" target="_blank" rel="noopener">Chapter 21 — Verifiable Trust</a>:</p>
+<blockquote style="border-left:3px solid var(--accent);margin:18px 0;padding:6px 0 6px 18px;color:var(--muted);font-style:italic">
+"The model judges the candidate. The facade constructs authority. The gate re-derives truth."
+</blockquote>
+<p>The central separation: <strong>Go does deterministic work; the model does judgment work.</strong> The model does not invent a lineage ID, calculate hashes, serialize operation payloads for fifteen state transitions, freeze ledgers by hand, or construct gate contexts.</p>
+
+<div class="note">
+  <b>Why insist on the short path</b>
+  <p>Protocol complexity is a reliability problem. Every manual operation is another instruction that can be buried in token 140,000, discarded by compaction, called in the wrong order, or convincingly narrated without being executed.</p>
+</div>
+
+<h3 id="que-protege-el-modelo-de-amenazas-y-que-no">What the threat model protects — and what it does not</h3>
+<p>The compact review store protects valid authority from <strong>accidental corruption and concurrent writers</strong>. It does <strong>not</strong> claim to authenticate state against a malicious local actor with the same user and filesystem access: without an external trust anchor, that actor can rewrite state, the receipt, the Git repository, or the binary.</p>
+
+<div class="tblwrap">
+<table>
+<thead><tr><th>Scenario</th><th>In scope?</th><th>Required result</th></tr></thead>
+<tbody>
+<tr><td>Truncated, malformed, or semantically invalid state</td><td>Yes</td><td>Validation fails closed; existing authority remains intact</td></tr>
+<tr><td>Interrupted replacement</td><td>Yes</td><td>Atomic replacement and filesystem synchronization preserve either the old valid record or the new one</td></tr>
+<tr><td>Concurrent or stale writer</td><td>Yes</td><td>A lock plus expected revision rejects stale transitions; an exact retry is idempotent</td></tr>
+<tr><td>Repository changes after review</td><td>Yes</td><td>Evidence is re-derived from live Git, and scope or identity changes are reported for review repair</td></tr>
+<tr><td>Terminal authority needs another review</td><td>Yes</td><td><code>review recover</code> requires its scope and state predicates; predecessor state, receipt, journal, and evidence bytes remain immutable</td></tr>
+<tr><td><strong>Malicious local actor with the same user</strong></td><td><strong>No</strong></td><td>No authenticity or tamper-resistance claim is made</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="controles-retenidos">Retained controls</h3>
+<ul>
+<li>Strict schema and semantic validation before accepting or replacing authority.</li>
+<li>Legal-transition validation against the currently locked state and repository-derived evidence.</li>
+<li>Atomic file replacement, with file and directory synchronization where practical.</li>
+<li>A writer lock and expected revision to detect concurrent writers.</li>
+<li>A shared maintenance lock at <code>&lt;git-common-dir&gt;/gentle-ai/REVIEW-MAINTENANCE.lock</code>, outside the replaceable authority subtree. It coordinates only cooperative Gentle AI participants; <strong>it is not a defense against a malicious actor with the same user</strong>.</li>
+<li>Recognition of exact retries for idempotent operations.</li>
+<li>Re-derivation of context from live Git instead of trusting persisted mirrors.</li>
+<li>Checksums only where useful for detecting accidental corruption: <strong>they are not authentication</strong>.</li>
+</ul>
+
+<h3 id="esquemas-de-entrada">Input schemas</h3>
+<p>Versioned JSON schemas can be printed:</p>
+<pre>gentle-ai review schema reviewer
+gentle-ai review schema refuter
+gentle-ai review schema validator
+gentle-ai review schema verification-evidence-record
+gentle-ai review schema final-verification-incident</pre>
+<p>Raw verification evidence remains arbitrary non-empty bytes, but <strong>by itself is never result authority</strong>. Native capture persists a strict <code>gentle-ai.review-verification-evidence/v2</code> record with a closed outcome and immutable candidate, revision, payload, path, and ledger bindings.</p>
+
+<h2 id="rdd-mantenimiento">Review store maintenance</h2>
+<p>Review authority accumulates without limit: every candidate leaves a lineage behind and nothing removes one already delivered, so a long-lived clone eventually has hundreds of lineages and hundreds of megabytes of candidate checkouts.</p>
+
+<div class="tblwrap">
+<table>
+<thead><tr><th>Command</th><th>Effect</th></tr></thead>
+<tbody>
+<tr><td><code>review store-reset --cwd &lt;repo&gt;</code></td><td>Reports by category what a reset would remove and preserve. <strong>It removes nothing</strong></td></tr>
+<tr><td><code>review store-reset --cwd &lt;repo&gt; --confirm</code></td><td>Removes review-lineage state for this clone. <strong>Irreversible</strong></td></tr>
+<tr><td><code>... --confirm --include-in-flight</code></td><td>Also removes reviews that did not reach a terminal state</td></tr>
+<tr><td><code>... --confirm --include-adapter-reviews</code></td><td>Also removes the adapter-written <code>reviews/</code> graph store</td></tr>
+<tr><td><code>review store-reset --cwd &lt;repo&gt; --json</code></td><td>The same machine-readable report</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="warn">
+  <b>Preview is the default</b>
+  <p><code>--confirm</code> is required to remove anything: the operation is irreversible and clone-wide, so the invocation one writes from memory must be the one that only looks. It is clone-scoped and never touches a global or machine location.</p>
+</div>
+
+<p><strong>Removes</strong> <code>candidate-views/</code> and the <code>v1</code>, <code>v2</code>, <code>quarantine</code>, <code>effect-markers</code>, and <code>incidents</code> subtrees of <code>review-transactions/</code>.</p>
+<p><strong>Preserves</strong> the RDD switch — in both <code>review-mode/</code> and the pre-#2882 mirror — together with <code>sdd-runtime/</code>, <code>defect-reports/</code>, <code>review-artifacts/</code>, <code>incidents/</code>, and <code>REVIEW-MAINTENANCE.lock</code>. <strong>Reviews that were off remain off.</strong> The list is allowlisted, so any path the command does not recognize — including one added by a future release — is reported and left in place instead of guessed at.</p>
+<p><strong>Retains</strong> <code>reviews/</code>, the graph store written by the gentle-pi adapter, and removes it only with <code>--include-adapter-reviews</code>. A default run cannot distinguish a dead graph from a live review, and a destructive command does not delete what it cannot guarantee.</p>
+<p>The TUI exposes the same action as <strong>Reset review store</strong> in the main menu, between <em>Manage backups</em> and <em>Managed uninstall</em>, with its confirmation cursor starting on <em>Cancel</em>. The TUI has no equivalent for <code>--include-in-flight</code> or <code>--include-adapter-reviews</code>: when open reviews exist it refuses and prints the CLI invocation, so destroying in-flight work is never one keystroke away.</p>

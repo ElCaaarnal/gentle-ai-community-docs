@@ -520,10 +520,11 @@ gentle-ai skill-registry list --json   # legible por máquina, incluye descripci
 
 <hr>
 
+{!englishStart && <>
 <h2 id="rdd">RDD — Receipt-Driven Development</h2>
 <p>RDD revisa un candidato terminado <strong>sin apropiarse de la entrega</strong>. Es deliberadamente chico: el código nativo congela un candidato de worktree, coordina la revisión acotada, quema la autoridad completada y devuelve el control al humano.</p>
 
-<h3>El modelo en tres frases</h3>
+<h3 id="el-modelo-en-tres-frases">El modelo en tres frases</h3>
 <div class="cards">
   <div class="card"><h4>La revisión sigue al trabajo</h4><p>El candidato existe antes de que empiece la revisión. El padre le pide a STATUS nativo que haga preflight solo del worktree actual.</p></div>
   <div class="card"><h4>Lo nativo es dueño de la mecánica</h4><p>Go deriva riesgo, árboles congelados, lentes, bindings del proveedor, admisión, refutación, una corrección acotada, evidencia del repositorio y validación dirigida.</p></div>
@@ -564,7 +565,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <h2 id="rdd-ciclo">El ciclo atómico</h2>
 <pre>STATUS sin selector → START exacto → colección/finalize acotados → aprobado + quema → política ordinaria del repositorio</pre>
 
-<h3>1. STATUS sin selector solo hace preflight</h3>
+<h3 id="1-status-sin-selector-solo-hace-preflight">1. STATUS sin selector solo hace preflight</h3>
 <p>STATUS sin selector evalúa <strong>únicamente el candidato del worktree actual</strong> y renderiza una invocación START exacta. <strong>No</strong> descubre autoridad ambiente, no retoma otro worktree, no recupera historia ni selecciona un linaje viejo. El padre corre solo la <code>next_transition</code> devuelta y sus tokens ordenados.</p>
 <pre>gentle-ai review status \
   --cwd &lt;repo&gt; \
@@ -573,11 +574,11 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
   --next-transition</pre>
 <p>Esto evita que una autoridad histórica, un worktree hermano o una respuesta de ciclo de vida obsoleta dirijan el candidato actual.</p>
 
-<h3>2. START congela una transacción independiente</h3>
+<h3 id="2-start-congela-una-transaccion-independiente">2. START congela una transacción independiente</h3>
 <p>START congela el candidato en una transacción compacta, explícitamente atada a su linaje, worktree y objetivo. Selecciona riesgo y lentes de forma nativa. El padre captura los tokens de <strong>lineage, revision y target</strong> devueltos.</p>
 <p>Un replay exacto de un START activo puede devolver <code>replayed</code>. Un START genuinamente nuevo es independiente. Un linaje quemado nunca se reutiliza.</p>
 
-<h3>3. Las llamadas atadas manejan la transacción</h3>
+<h3 id="3-las-llamadas-atadas-manejan-la-transaccion">3. Las llamadas atadas manejan la transacción</h3>
 <p>Cada STATUS, <code>review capture-result</code> y FINALIZE posterior lleva esos tokens exactos. El padre rutea únicamente desde la <code>next_transition</code> devuelta:</p>
 <div class="tblwrap">
 <table>
@@ -591,7 +592,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 </div>
 <p>Un <em>forecast</em> es descriptivo, no una ruta. Se relata completo, pero se ejecuta solo <code>next_transition</code>.</p>
 
-<h3>4. La aprobación quema la autoridad</h3>
+<h3 id="4-la-aprobacion-quema-la-autoridad">4. La aprobación quema la autoridad</h3>
 <p>Al tener éxito, el código nativo lee de vuelta la aprobación terminal y después <strong>quema</strong> el linaje exacto y sus artefactos antes de devolver <code>approved</code>. No sobrevive ningún receipt terminal, tombstone, testigo, espejo ni autoridad de entrega. Otros linajes y worktrees quedan intactos.</p>
 
 <div class="warn">
@@ -599,7 +600,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
   <p>Esto incluye salida malformada o vacía, falla de transporte, ambigüedad post-mutación, y el caso en que la autoridad terminal ya pueda estar commiteada. El padre conserva el linaje, revisión y objetivo exactos, consulta STATUS atado una vez, y sigue solo la acción devuelta. Nunca cae en recuperación ambiente ni inventa otro linaje.</p>
 </div>
 
-<h3>Continuidad entre repositorios</h3>
+<h3 id="continuidad-entre-repositorios">Continuidad entre repositorios</h3>
 <p>Una sesión con raíz en el repositorio A puede revisar un objetivo anidado — explícitamente autorizado por el usuario — en un repositorio B no relacionado. Go resuelve la ruta pedida a la raíz canónica de worktree de B; los adaptadores permanecen opacos y nunca parsean autorización ni raíces.</p>
 <div class="tblwrap">
 <table>
@@ -631,12 +632,12 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 
 <p>Esa forma de 0, 1 o 4 es <strong>control estructural de costos</strong>. Un cambio de solo documentación no debería pagar cuatro llamadas amplias al modelo. Un cambio de código normal se beneficia de un pase enfocado. Autenticación, pagos, tokens de servicio, rutas sensibles a seguridad o un cambio grande merecen cuatro perspectivas independientes.</p>
 
-<h3>Las lentes son de solo lectura</h3>
+<h3 id="las-lentes-son-de-solo-lectura">Las lentes son de solo lectura</h3>
 <p>Cada lente seleccionada es de solo lectura y está separada de la autoría. Lee el candidato, juzga una preocupación, emite un resultado JSON estricto y para. <strong>Ninguna lente edita archivos, genera un corrector ni avanza el estado del ciclo de vida.</strong> Como dice el Capítulo 21: <em>el jurado no es el contratista</em>.</p>
 
 <p>Los revisores reciben contexto inmutable emitido por el proveedor, no estado vivo del workspace. Inspeccionan solo los árboles inmutables atados por el proveedor: nunca el worktree vivo, el índice, el <code>HEAD</code> ni otra revisión. Los bytes del candidato no deben pasar por <code>/tmp</code>, un archivo scratch del repositorio ni <code>GENTLE_AI_FROZEN_CANDIDATE_CONTEXT</code>.</p>
 
-<h3>La forma de un resultado de revisor</h3>
+<h3 id="la-forma-de-un-resultado-de-revisor">La forma de un resultado de revisor</h3>
 <pre>&#123;
   "findings": [
     &#123;
@@ -656,7 +657,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 &#125;</pre>
 <p>La omisión es deliberada: <strong>sin ID de finding, sin nombre de lente, sin hash, sin metadata de linaje</strong>. El facade ya sabe qué resultado de lente llegó en qué posición seleccionada. Go completa los IDs faltantes, canonicaliza el orden, valida la prueba requerida y rechaza campos desconocidos. Un modelo es bueno para afirmaciones y evidencia; es una pésima elección para construir bytes canónicos.</p>
 
-<h3>Evidencia independiente</h3>
+<h3 id="evidencia-independiente">Evidencia independiente</h3>
 <p>La opinión de revisión y la evidencia de verificación son cosas distintas. Una lente puede decir "los tests parecen adecuados". La evidencia dice <em>go test ./... salió con éxito</em>, el build completó, los ejemplos de aceptación pasaron.</p>
 <div class="note">
   <b>Por qué importa la independencia</b>
@@ -666,7 +667,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <h2 id="rdd-correccion">Corrección acotada</h2>
 <p>Solo los findings severos <strong>causados por el candidato</strong> pueden bloquear. Los preexistentes o de solo base se convierten en seguimientos; lo desconocido escala; WARNING y SUGGESTION quedan como información.</p>
 
-<p>Una revisión ordinaria permite <strong>exactamente una transacción de corrección</strong>. START congela el presupuesto de corrección en <code>min(200, ceil(líneas_originales_cambiadas / 2))</code>.</p>
+<p>Una revisión ordinaria permite <strong>exactamente una transacción de corrección</strong>. START congela el presupuesto de corrección en <code>min(200, ceil(original_changed_lines / 2))</code>.</p>
 
 <ul>
 <li>Antes de editar se da un forecast positivo, y se continúa solo por la siguiente transición devuelta por el proveedor.</li>
@@ -694,7 +695,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 </div>
 <p>Nunca permiten, aprueban, bloquean, commitean, pushean ni abren un pull request.</p>
 
-<h3>Proyecciones del candidato</h3>
+<h3 id="proyecciones-del-candidato">Proyecciones del candidato</h3>
 <p><code>gentle-ai review start</code> usa por defecto la proyección <code>workspace</code>. Para un monorepo o un worktree compartido, se puede revisar exactamente lo que está en el índice de Git:</p>
 <pre>git add apps/mi-servicio
 git diff --cached
@@ -702,7 +703,7 @@ gentle-ai review start --projection staged</pre>
 <p>La proyección <code>staged</code> congela el <strong>índice existente completo</strong>, incluidas todas las rutas ya stageadas. Excluye el contenido no stageado y sin trackear del worktree, y no modifica el índice ni el worktree vivos al derivar evidencia. Inicia la revisión, pero por sí sola no emite un receipt aprobado.</p>
 <p>Una autoridad existente nunca se convierte automáticamente entre proyecciones. La recuperación hereda la proyección del predecesor cuando se omite <code>--projection</code>.</p>
 
-<h3>Códigos de parada</h3>
+<h3 id="codigos-de-parada">Códigos de parada</h3>
 <p>Un <code>stop</code> lleva exactamente un código de razón y ninguna transición ejecutable. Estos son algunos de los códigos más frecuentes y su continuación:</p>
 <div class="tblwrap">
 <table>
@@ -736,7 +737,7 @@ gentle-ai review start --projection staged</pre>
   <p>La complejidad de protocolo es un problema de confiabilidad. Cada operación manual es otra instrucción que puede quedar enterrada en el token 140.000, ser descartada por compactación, llamarse en el orden equivocado, o narrarse de forma convincente sin haberse ejecutado.</p>
 </div>
 
-<h3>Qué protege el modelo de amenazas — y qué no</h3>
+<h3 id="que-protege-el-modelo-de-amenazas-y-que-no">Qué protege el modelo de amenazas — y qué no</h3>
 <p>El store compacto de revisión protege la autoridad válida de <strong>corrupción accidental y escritores concurrentes</strong>. <strong>No</strong> pretende autenticar el estado contra un actor local malicioso con el mismo usuario y acceso al sistema de archivos: sin un ancla de confianza externa, ese actor puede reescribir el estado, el receipt, el repositorio Git o el binario.</p>
 
 <div class="tblwrap">
@@ -753,7 +754,7 @@ gentle-ai review start --projection staged</pre>
 </table>
 </div>
 
-<h3>Controles retenidos</h3>
+<h3 id="controles-retenidos">Controles retenidos</h3>
 <ul>
 <li>Validación estricta de esquema y semántica antes de aceptar o reemplazar autoridad.</li>
 <li>Validación de transiciones legales contra el estado actualmente bloqueado y la evidencia derivada del repositorio.</li>
@@ -765,7 +766,7 @@ gentle-ai review start --projection staged</pre>
 <li>Checksums solo donde son útiles para detectar corrupción accidental: <strong>no son autenticación</strong>.</li>
 </ul>
 
-<h3>Esquemas de entrada</h3>
+<h3 id="esquemas-de-entrada">Esquemas de entrada</h3>
 <p>Se pueden imprimir los esquemas JSON versionados:</p>
 <pre>gentle-ai review schema reviewer
 gentle-ai review schema refuter
@@ -799,6 +800,7 @@ gentle-ai review schema final-verification-incident</pre>
 <p><strong>Preserva</strong> el interruptor de RDD — tanto en <code>review-mode/</code> como en el espejo previo a #2882 — junto con <code>sdd-runtime/</code>, <code>defect-reports/</code>, <code>review-artifacts/</code>, <code>incidents/</code> y <code>REVIEW-MAINTENANCE.lock</code>. <strong>Las revisiones que estaban apagadas siguen apagadas.</strong> La lista es una lista de permitidos, así que cualquier ruta que el comando no reconozca — incluida una que agregue un release futuro — se reporta y se deja en su lugar en lugar de adivinar.</p>
 <p><strong>Retiene</strong> <code>reviews/</code>, el store de grafo que escribe el adaptador de gentle-pi, y solo lo elimina con <code>--include-adapter-reviews</code>. Una corrida por defecto no puede distinguir un grafo muerto de una revisión viva, y un comando destructivo no borra lo que no puede garantizar.</p>
 <p>La TUI expone la misma acción como <strong>Reset review store</strong> en el menú principal, entre <em>Manage backups</em> y <em>Managed uninstall</em>, con el cursor de confirmación arrancando en <em>Cancel</em>. La TUI no tiene equivalente de <code>--include-in-flight</code> ni <code>--include-adapter-reviews</code>: cuando existen revisiones abiertas se niega e imprime la invocación de CLI, para que destruir trabajo en vuelo nunca esté a una sola tecla de distancia.</p>
+</>}
 
 <hr>
 
