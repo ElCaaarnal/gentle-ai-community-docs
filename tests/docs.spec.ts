@@ -85,3 +85,21 @@ test('agent behavior uses localized headings with matching canonical IDs', async
   await expect(page.locator('h2#ruteo')).toContainText('Ruteo orgánico de implementación');
   await expect(page.locator('h3#las-tres-rutas')).toContainText('Las tres rutas');
 });
+
+test('RDD uses localized headings with matching canonical IDs', async ({ page }) => {
+  const sections = ['rdd', 'rdd-control', 'rdd-ciclo', 'rdd-lentes', 'rdd-correccion', 'rdd-entrega', 'rdd-limites', 'rdd-mantenimiento'];
+  const subsections = ['el-modelo-en-tres-frases', '1-status-sin-selector-solo-hace-preflight', '2-start-congela-una-transaccion-independiente', '3-las-llamadas-atadas-manejan-la-transaccion', '4-la-aprobacion-quema-la-autoridad', 'continuidad-entre-repositorios', 'las-lentes-son-de-solo-lectura', 'la-forma-de-un-resultado-de-revisor', 'evidencia-independiente', 'proyecciones-del-candidato', 'codigos-de-parada', 'que-protege-el-modelo-de-amenazas-y-que-no', 'controles-retenidos', 'esquemas-de-entrada'];
+
+  for (const route of ['/', '/es/']) {
+    await page.goto(route);
+    expect(await page.locator('h2').evaluateAll((headings, ids) => ids.every((id) => headings.some((heading) => heading.id === id)), sections)).toBe(true);
+    expect(await page.locator('h3').evaluateAll((headings, ids) => ids.every((id) => headings.some((heading) => heading.id === id)), subsections)).toBe(true);
+  }
+
+  await page.goto('/');
+  await expect(page.locator('h2#rdd')).toContainText('Receipt-Driven Development');
+  await expect(page.locator('h3#el-modelo-en-tres-frases')).toContainText('The model in three sentences');
+  await page.goto('/es/');
+  await expect(page.locator('h2#rdd')).toContainText('RDD — Receipt-Driven Development');
+  await expect(page.locator('h3#el-modelo-en-tres-frases')).toContainText('El modelo en tres frases');
+});
