@@ -524,7 +524,7 @@ nav a:focus-visible, .subnav a:focus-visible{outline-offset:-2px}
 .skip:focus{top:12px;text-decoration:none}
 
 /* el banner declara proporción para que no salte al cargar */
-.hero img{aspect-ratio:1672/941}
+.hero img{aspect-ratio:1600/689}
 
 .language-switcher{display:flex;gap:8px;margin:24px 11px 0}
 .language-switcher a{padding:7px 9px;border:1px solid var(--line);border-radius:6px}
