@@ -51,3 +51,21 @@ test('getting started uses localized headings with matching canonical IDs', asyn
   await page.goto('/es/');
   await expect(page.locator('h2#que-es')).toContainText('Qué es Gentle AI');
 });
+
+test('ecosystem uses localized headings with matching canonical IDs', async ({ page }) => {
+  const sections = ['engram', 'sdd', 'openspec', 'tdd', 'skills'];
+  const subsections = ['comandos-del-dia-a-dia', 'gestion-de-proyectos', 'como-funciona-la-deteccion-de-proyecto', 'compartir-con-el-equipo', 'herramientas-mcp-principales', 'las-diez-fases', 'donde-viven-los-artefactos', 'sub-agentes-mas-inteligentes-de-lo-que-parecen', 'que-se-puede-personalizar', 'que-fases-lo-referencian', 'ejemplo-de-estructura', 'inconsistencias-conocidas', 'dos-capas-de-skills', 'el-registro-de-skills'];
+
+  for (const route of ['/', '/es/']) {
+    await page.goto(route);
+    expect(await page.locator('h2').evaluateAll((headings, ids) => ids.every((id) => headings.some((heading) => heading.id === id)), sections)).toBe(true);
+    expect(await page.locator('h3').evaluateAll((headings, ids) => ids.every((id) => headings.some((heading) => heading.id === id)), subsections)).toBe(true);
+  }
+
+  await page.goto('/');
+  await expect(page.locator('h2#engram')).toContainText('persistent memory');
+  await expect(page.locator('h2#skills')).toContainText('skill registry');
+  await page.goto('/es/');
+  await expect(page.locator('h2#engram')).toContainText('memoria persistente');
+  await expect(page.locator('h2#skills')).toContainText('registro de skills');
+});
