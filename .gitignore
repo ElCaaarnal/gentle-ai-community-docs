@@ -18,8 +18,13 @@ dist/
 *.log
 npm-debug.log*
 
+# Test output
+test-results/
+playwright-report/
+
 # Local tooling and authoring artifacts — not part of the published project
 .codegraph/
+.pi/
 .atl/
 .claude/
 openspec/
