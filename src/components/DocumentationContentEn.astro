@@ -789,3 +789,76 @@ gentle-ai review schema final-verification-incident</pre>
 <p><strong>Preserves</strong> the RDD switch — in both <code>review-mode/</code> and the pre-#2882 mirror — together with <code>sdd-runtime/</code>, <code>defect-reports/</code>, <code>review-artifacts/</code>, <code>incidents/</code>, and <code>REVIEW-MAINTENANCE.lock</code>. <strong>Reviews that were off remain off.</strong> The list is allowlisted, so any path the command does not recognize — including one added by a future release — is reported and left in place instead of guessed at.</p>
 <p><strong>Retains</strong> <code>reviews/</code>, the graph store written by the gentle-pi adapter, and removes it only with <code>--include-adapter-reviews</code>. A default run cannot distinguish a dead graph from a live review, and a destructive command does not delete what it cannot guarantee.</p>
 <p>The TUI exposes the same action as <strong>Reset review store</strong> in the main menu, between <em>Manage backups</em> and <em>Managed uninstall</em>, with its confirmation cursor starting on <em>Cancel</em>. The TUI has no equivalent for <code>--include-in-flight</code> or <code>--include-adapter-reviews</code>: when open reviews exist it refuses and prints the CLI invocation, so destroying in-flight work is never one keystroke away.</p>
+
+<hr>
+
+<h2 id="flujo-organico">Complete organic workflow</h2>
+<p>The agent chooses the smallest useful route, and RDD enters at the end over the frozen candidate.</p>
+<div class="mermaid">
+flowchart TD
+    A["The user requests a change"] --> B&#123;"Implementation<br/>route"&#125;
+    B -->|"decide/verify<br/>1-3 files"| C["Inline direct"]
+    B -->|"explore 4+ files<br/>or write 2+ non-trivial ones"| D["Delegated direct<br/>(one bounded worker)"]
+    C --> E["Implementation + tests"]
+    D --> E
+    E --> F&#123;"Is RDD enabled?<br/>(user opt-in)"&#125;
+    F -->|"off (default)"| Z["Ordinary delivery<br/>reports disabled/unmanaged"]
+    F -->|"enabled"| G["review status --next-transition<br/>(provider-negotiated route)"]
+    G --> H&#123;"Risk frozen<br/>at START"&#125;
+    H -->|"low"| I["Structural reading<br/>0 lenses - silent"]
+    H -->|"standard"| J["1 focus lens<br/>+ consent"]
+    H -->|"high"| K["Canonical 4R + consent<br/>+ cost forecast"]
+    J --> L["Reviewers inspect<br/>the immutable candidate"]
+    K --> L
+    L --> M&#123;"Severe findings<br/>caused by the candidate?"&#125;
+    I --> N["Result: approved<br/>(informative)"]
+    M -->|"no"| N
+    M -->|"yes"| O["One bounded correction<br/>(frozen budget)"]
+    O --> P["Fix validator<br/>(read-only)"]
+    P -->|"passes"| N
+    P -->|"fails with evidence"| Q["Escalation"]
+    P -->|"no diff access"| R["Inconclusive: the attempt<br/>is not consumed"]
+    R --> P
+    Q --> S["review recover<br/>(authorized successor)"]
+    N --> T["Ordinary repository<br/>policy"]
+    T --> U["Commit → Push → PR"]
+    Z --> U
+
+    style N fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
+    style Q fill:#49443C,stroke:#FF9E3B,color:#DCD7BA
+    style U fill:#43242B,stroke:#D27E99,color:#DCD7BA
+    style Z fill:#1F1F28,stroke:#54546D,color:#727169
+</div>
+
+<h2 id="flujo-sdd">Complete SDD workflow</h2>
+<p>First come durable planning artifacts, then apply, independent verification, and an optional RDD review offer. Archiving and delivery follow ordinary repository policy.</p>
+<div class="mermaid">
+flowchart TD
+    A["sdd-new / sdd-explore<br/>(or sdd-ff to advance planning)"] --> B["Explore<br/>investigate code and approaches"]
+    B --> C["Propose<br/>intent - scope - approach"]
+    C --> D&#123;"Does the user approve<br/>the proposal?"&#125;
+    D -->|"no"| B
+    D -->|"yes"| E["Spec<br/>requirements + scenarios"]
+    E --> F["Design<br/>architecture decisions"]
+    F --> G["Tasks<br/>ordered checklist"]
+    G --> H["Apply<br/>the sub-agent implements<br/>against the specs"]
+    H --> Q["Verify<br/>independent verification against<br/>spec - design - tasks"]
+    Q -->|"fails"| H
+    Q -->|"passes"| I["Optional RDD review offer"]
+    I --> J&#123;"Risk"&#125;
+    J -->|"low"| K["Structural reading"]
+    J -->|"standard / high"| L["1 lens or canonical 4R + consent"]
+    L --> M&#123;"Severe findings?"&#125;
+    M -->|"yes"| N["One bounded correction<br/>+ fix validator"]
+    M -->|"no"| O["Result: approved<br/>(informative)"]
+    K --> O
+    N -->|"validates"| O
+    N -->|"fails"| P["Escalation → recover"]
+    O --> R["Archive<br/>merges delta specs - closes the cycle"]
+    R --> S["Ordinary repository policy"]
+    S --> T["Commit → Push → PR"]
+
+    style O fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
+    style P fill:#49443C,stroke:#FF9E3B,color:#DCD7BA
+    style T fill:#43242B,stroke:#D27E99,color:#DCD7BA
+</div>

@@ -103,3 +103,25 @@ test('RDD uses localized headings with matching canonical IDs', async ({ page })
   await expect(page.locator('h2#rdd')).toContainText('RDD — Receipt-Driven Development');
   await expect(page.locator('h3#el-modelo-en-tres-frases')).toContainText('El modelo en tres frases');
 });
+
+test('complete workflows use localized server-rendered headings with equivalent Mermaid topology', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  const ids = ['flujo-organico', 'flujo-sdd'];
+  const topology = (source: string | null) => source?.replace(/"[^"]*"/g, '""').trim();
+
+  await expectNoRedirect(page, '/');
+  for (const id of ids) await expect(page.locator(`h2#${id}`)).toHaveCount(1);
+  await expect(page.locator('h2#flujo-organico')).toContainText('Complete organic workflow');
+  await expect(page.locator('h2#flujo-sdd')).toContainText('Complete SDD workflow');
+  const englishTopology = await Promise.all(ids.map((id) => page.locator(`h2#${id} + p + .mermaid`).textContent()));
+
+  await expectNoRedirect(page, '/es/');
+  for (const id of ids) await expect(page.locator(`h2#${id}`)).toHaveCount(1);
+  await expect(page.locator('h2#flujo-organico')).toContainText('Flujo orgánico completo');
+  await expect(page.locator('h2#flujo-sdd')).toContainText('Flujo SDD completo');
+  const spanishTopology = await Promise.all(ids.map((id) => page.locator(`h2#${id} + p + .mermaid`).textContent()));
+
+  expect(englishTopology.map(topology)).toEqual(spanishTopology.map(topology));
+  await context.close();
+});
