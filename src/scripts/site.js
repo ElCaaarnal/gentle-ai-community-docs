@@ -24,6 +24,34 @@ mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{
   var main = document.querySelector('main');
   var aside = document.querySelector('aside');
   var navLinks = [].slice.call(document.querySelectorAll('#nav > a'));
+  var copy = JSON.parse(main.dataset.siteCopy || '{}');
+
+  function fragmentTarget(){
+    if(!location.hash) return null;
+    try {
+      var id = decodeURIComponent(location.hash.slice(1));
+      var target = id && document.getElementById(id);
+      return target && target.id === id ? target : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function preserveLocaleFragment(){
+    var target = fragmentTarget();
+    document.querySelectorAll('[data-locale-link]').forEach(function(link){
+      var base = link.getAttribute('href').split('#')[0];
+      link.setAttribute('href', target ? base + '#' + target.id : base);
+    });
+  }
+
+  function focusCanonicalFragment(){
+    var target = fragmentTarget();
+    preserveLocaleFragment();
+    if(!target) return;
+    target.setAttribute('tabindex', '-1');
+    requestAnimationFrame(function(){ target.focus({preventScroll:true}); });
+  }
 
   function slug(t){
     return t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
@@ -42,7 +70,7 @@ mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{
     }
     var a = document.createElement('a');
     a.className = 'anchor'; a.href = '#' + h.id; a.textContent = '#';
-    a.setAttribute('aria-label','Enlace a esta sección');
+    a.setAttribute('aria-label',copy.sectionLink);
     h.appendChild(a);
   });
 
@@ -134,7 +162,7 @@ mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{
         .slice(0, 24).map(function(r){ return r.e; });
     }
     if(!hits.length){
-      results.innerHTML = '<div class="empty">Sin resultados</div>';
+      results.innerHTML = '<div class="empty">' + copy.noResults + '</div>';
       return;
     }
     sel = 0;
@@ -201,11 +229,11 @@ mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{
     pre.parentNode.insertBefore(wrap, pre);
     wrap.appendChild(pre);
     var b = document.createElement('button');
-    b.className = 'copy'; b.textContent = 'copiar';
+    b.className = 'copy'; b.textContent = copy.copyCode;
     b.addEventListener('click', function(){
       navigator.clipboard.writeText(pre.textContent).then(function(){
-        b.textContent = 'copiado'; b.classList.add('done');
-        setTimeout(function(){ b.textContent = 'copiar'; b.classList.remove('done'); }, 1400);
+        b.textContent = copy.copiedCode; b.classList.add('done');
+        setTimeout(function(){ b.textContent = copy.copyCode; b.classList.remove('done'); }, 1400);
       });
     });
     wrap.appendChild(b);
@@ -315,5 +343,7 @@ mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{
   scrim.addEventListener('click', function(){ drawer(false); });
   aside.addEventListener('click', function(e){ if(e.target.tagName === 'A') drawer(false); });
 
+  window.addEventListener('hashchange', focusCanonicalFragment);
+  focusCanonicalFragment();
   onScroll();
 })();

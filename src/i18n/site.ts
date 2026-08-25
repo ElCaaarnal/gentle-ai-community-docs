@@ -1,6 +1,6 @@
 export type Locale = 'en' | 'es';
 type NavigationGroup = readonly [string, readonly [string, string][]];
-export type SiteCopy = { lang: Locale; title: string; description: string; tagline: string; menu: string; search: string; searchDocumentation: string; searchPlaceholder: string; searchResults: string; skipToContent: string; backToTop: string; navigation: string; language: string; navigationGroups: readonly NavigationGroup[] };
+export type SiteCopy = { lang: Locale; title: string; description: string; tagline: string; menu: string; search: string; searchDocumentation: string; searchPlaceholder: string; searchResults: string; searchNavigate: string; searchOpen: string; searchClose: string; noResults: string; sectionLink: string; copyCode: string; copiedCode: string; skipToContent: string; backToTop: string; navigation: string; language: string; navigationGroups: readonly NavigationGroup[] };
 
 const navigation = {
   en: [
@@ -31,13 +31,13 @@ export const site: Record<Locale, SiteCopy> = {
     title: 'Gentle AI Documentation',
     description: 'Gentle AI documentation: installation, supported agents, Engram, SDD, OpenSpec, Strict TDD, skills, and bounded review (RDD).',
     tagline: 'An ecosystem, frameworks, and workflows for AI coding agents.',
-    menu: 'Open navigation', search: 'Search', searchDocumentation: 'Search documentation', searchPlaceholder: 'Search sections, commands, concepts…', searchResults: 'Results', skipToContent: 'Skip to content', backToTop: 'Back to top', navigation: 'Documentation sections', language: 'Language', navigationGroups: navigation.en,
+    menu: 'Open navigation', search: 'Search', searchDocumentation: 'Search documentation', searchPlaceholder: 'Search sections, commands, concepts…', searchResults: 'Results', searchNavigate: 'navigate', searchOpen: 'open', searchClose: 'close', noResults: 'No results', sectionLink: 'Link to this section', copyCode: 'Copy', copiedCode: 'Copied', skipToContent: 'Skip to content', backToTop: 'Back to top', navigation: 'Documentation sections', language: 'Language', navigationGroups: navigation.en,
   },
   es: {
     lang: 'es',
     title: 'Documentación de Gentle AI',
     description: 'Documentación de Gentle AI: instalación, agentes soportados, Engram, SDD, OpenSpec, Strict TDD, skills y revisión acotada (RDD).',
     tagline: 'Ecosistema, frameworks y flujos de trabajo para agentes de IA que escriben código.',
-    menu: 'Abrir navegación', search: 'Buscar', searchDocumentation: 'Buscar en la documentación', searchPlaceholder: 'Buscar secciones, comandos, conceptos…', searchResults: 'Resultados', skipToContent: 'Saltar al contenido', backToTop: 'Volver arriba', navigation: 'Secciones de la documentación', language: 'Idioma', navigationGroups: navigation.es,
+    menu: 'Abrir navegación', search: 'Buscar', searchDocumentation: 'Buscar en la documentación', searchPlaceholder: 'Buscar secciones, comandos, conceptos…', searchResults: 'Resultados', searchNavigate: 'navegar', searchOpen: 'abrir', searchClose: 'cerrar', noResults: 'Sin resultados', sectionLink: 'Enlace a esta sección', copyCode: 'Copiar', copiedCode: 'Copiado', skipToContent: 'Saltar al contenido', backToTop: 'Volver arriba', navigation: 'Secciones de la documentación', language: 'Idioma', navigationGroups: navigation.es,
   },
 };

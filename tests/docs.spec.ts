@@ -20,7 +20,7 @@ test('locale links have usable no-JavaScript base routes without redirects', asy
   await context.close();
 });
 
-test.fail('a valid H2 or H3 fragment survives a locale switch and receives focus', async ({ page }) => {
+test('a valid H2 or H3 fragment survives a locale switch and receives focus', async ({ page }) => {
   await page.goto('/#rdd-ciclo');
   await page.getByRole('link', { name: 'Español', exact: true }).click();
 
@@ -34,6 +34,31 @@ test('unknown or encoded fragments fall back to a usable alternate route and mai
 
   await expect(page).toHaveURL(/\/es\/$/);
   await expect(page.locator('main')).toBeVisible();
+});
+
+test('locale pages isolate prose and expose locale-correct SEO and language controls', async ({ page }) => {
+  const locales = [
+    { path: '/', lang: 'en', canonical: 'https://docs-gentle-ai.netlify.app/', title: 'Gentle AI Documentation', current: 'English', inactive: 'Español', unwanted: ['Documentación de Gentle AI', 'Qué es Gentle AI', 'Lo primero que hay que entender'] },
+    { path: '/es/', lang: 'es', canonical: 'https://docs-gentle-ai.netlify.app/es/', title: 'Documentación de Gentle AI', current: 'Español', inactive: 'English', unwanted: ['Gentle AI Documentation', 'What is Gentle AI', 'The first thing to understand'] },
+  ];
+
+  for (const locale of locales) {
+    await page.goto(locale.path);
+    await expect(page.locator('html')).toHaveAttribute('lang', locale.lang);
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', locale.canonical);
+    await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute('href', 'https://docs-gentle-ai.netlify.app/');
+    await expect(page.locator('link[rel="alternate"][hreflang="es"]')).toHaveAttribute('href', 'https://docs-gentle-ai.netlify.app/es/');
+    await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute('href', 'https://docs-gentle-ai.netlify.app/');
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', locale.canonical);
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', 'https://docs-gentle-ai.netlify.app/banner.webp');
+    await expect(page.locator('.language-switcher')).toHaveAccessibleName(locale.lang === 'en' ? 'Language' : 'Idioma');
+    await expect(page.getByRole('link', { name: locale.current, exact: true })).toHaveAttribute('aria-current', 'page');
+    await expect(page.getByRole('link', { name: locale.inactive, exact: true })).not.toHaveAttribute('aria-current', 'page');
+    await expect(page.locator('h1')).toContainText(locale.title);
+    expect(await page.locator('[id]').evaluateAll((elements) => new Set(elements.map((element) => element.id)).size === elements.length)).toBe(true);
+    for (const text of locale.unwanted) await expect(page.locator('main')).not.toContainText(text);
+  }
 });
 
 test('getting started uses localized headings with matching canonical IDs', async ({ page }) => {

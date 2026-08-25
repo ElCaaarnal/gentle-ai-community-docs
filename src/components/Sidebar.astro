@@ -25,8 +25,8 @@ const isEnglish = copy.lang === 'en';
       </>
     ))}
   </nav>
-  <nav aria-label={copy.language}>
-    <a href="/" hreflang="en" lang="en" aria-current={isEnglish ? 'page' : undefined}>English</a>
-    <a href="/es/" hreflang="es" lang="es" aria-current={!isEnglish ? 'page' : undefined}>Español</a>
+  <nav class="language-switcher" aria-label={copy.language}>
+    <a data-locale-link href="/" hreflang="en" lang="en" aria-current={isEnglish ? 'page' : undefined}>English</a>
+    <a data-locale-link href="/es/" hreflang="es" lang="es" aria-current={!isEnglish ? 'page' : undefined}>Español</a>
   </nav>
 </aside>
