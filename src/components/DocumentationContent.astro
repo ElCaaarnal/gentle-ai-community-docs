@@ -1108,15 +1108,16 @@ pi install npm:pi-btw</pre>
 
 </>}
 
+{!englishStart && <>
 <hr>
 
 <h2 id="cli">Referencia de CLI</h2>
 
-<h3>TUI interactiva</h3>
+<h3 id="tui-interactiva">TUI interactiva</h3>
 <pre>gentle-ai</pre>
-<p>La TUI Bubbletea te guía por selección de agentes, componentes, skills, presets y flujos de desinstalación administrada. Antes de modificar cualquier archivo administrado, Gentle AI crea un snapshot de backup.</p>
+<p>La TUI Bubbletea guía la selección de agentes, componentes, skills, presets y flujos de desinstalación administrada. Antes de modificar cualquier archivo administrado, Gentle AI crea un snapshot de backup.</p>
 
-<h3><code>install</code></h3>
+<h3 id="install"><code>install</code></h3>
 <pre># Ecosistema completo para varios agentes
 gentle-ai install \
   --agent claude-code,opencode,gemini-cli \
@@ -1153,16 +1154,16 @@ gentle-ai install --dry-run --agent claude-code,opencode --preset full-gentleman
 </table>
 </div>
 
-<h3><code>sync</code></h3>
-<p>Refresca los assets administrados a la versión actual. Corrélo después de reemplazar o actualizar el binario, incluso con <code>brew upgrade</code>, <code>gentle-ai upgrade</code> o <code>go install</code>. <strong>No</strong> reinstala binarios: solo actualiza contenido de prompts, skills, configs MCP y orquestadores SDD.</p>
+<h3 id="sync"><code>sync</code></h3>
+<p>Refresca los assets administrados a la versión actual. Ejecútelo después de reemplazar o actualizar el binario, incluso con <code>brew upgrade</code>, <code>gentle-ai upgrade</code> o <code>go install</code>. <strong>No</strong> reinstala binarios: solo actualiza contenido de prompts, skills, configs MCP y orquestadores SDD.</p>
 <pre>gentle-ai sync --dry-run                          # Vista previa del alcance
 gentle-ai sync                                     # Agentes registrados en state.json
 gentle-ai sync --agent claude-code --agent opencode # Solo agentes específicos</pre>
 <div class="imp">
   <b>Alcance de sync</b>
-  <p><code>gentle-ai sync</code> actualiza los agentes registrados como instalados por Gentle AI, <strong>no todos los directorios de config de agentes de tu máquina</strong>. La selección se guarda en <code>~/.gentle-ai/state.json</code>. Previsualizá el alcance activo con <code>gentle-ai sync --dry-run</code>.</p>
+  <p><code>gentle-ai sync</code> actualiza los agentes registrados como instalados por Gentle AI, <strong>no todos los directorios de config de agentes del equipo</strong>. La selección se guarda en <code>~/.gentle-ai/state.json</code>. Previsualice el alcance activo con <code>gentle-ai sync --dry-run</code>.</p>
 </div>
-<p>Sync es seguro e idempotente: correrlo dos veces no produce cambios la segunda vez. No soporta <code>--component</code>; para los componentes opt-in excluidos del alcance por defecto se usan <code>--include-permissions</code> e <code>--include-theme</code>.</p>
+<p>Sync es seguro e idempotente: ejecutarlo dos veces no produce cambios la segunda vez. No soporta <code>--component</code>; para los componentes opt-in excluidos del alcance por defecto se usan <code>--include-permissions</code> e <code>--include-theme</code>.</p>
 
 <h4>Flags de <code>sync</code></h4>
 <div class="tblwrap">
@@ -1183,7 +1184,7 @@ gentle-ai sync --agent claude-code --agent opencode # Solo agentes específicos<
 </table>
 </div>
 
-<h3><code>uninstall</code></h3>
+<h3 id="uninstall"><code>uninstall</code></h3>
 <p>Quita <strong>solo la configuración administrada por Gentle AI</strong> de uno o más agentes. No desinstala paquetes ni binarios externos. Antes de aplicar cualquier cambio se crea un snapshot de backup.</p>
 <pre>gentle-ai uninstall --agent claude-code --agent opencode
 gentle-ai uninstall --agent claude-code --component sdd,persona,context7
@@ -1191,26 +1192,26 @@ gentle-ai uninstall --all
 gentle-ai uninstall --agent cursor --component skills --yes</pre>
 <p>Si no se pasa <code>--component</code> en una desinstalación parcial, se quitan todos los componentes desinstalables administrados del conjunto de agentes seleccionado.</p>
 
-<h3><code>update</code> / <code>upgrade</code></h3>
+<h3 id="update-upgrade"><code>update</code> / <code>upgrade</code></h3>
 <pre>gentle-ai update    # Chequea si hay una versión más nueva
 gentle-ai upgrade   # Actualiza al último release</pre>
-<p>Después de cualquier actualización o reemplazo manual del binario, corré <code>gentle-ai sync</code>.</p>
+<p>Después de cualquier actualización o reemplazo manual del binario, ejecute <code>gentle-ai sync</code>.</p>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Situación</th><th>Comportamiento</th></tr></thead>
 <tbody>
-<tr><td>Terminal interactiva (TTY)</td><td>Siempre pregunta <code>Apply now? [Y/n]</code>. Enter vacío acepta</td></tr>
-<tr><td>No-TTY (CI, pipe, script)</td><td>Auto-rechaza. Nunca se cuelga</td></tr>
-<tr><td><code>GENTLE_AI_YES=1</code></td><td>Auto-acepta sin preguntar. La variable la heredan los subprocesos, así que conviene acotarla a una sola invocación</td></tr>
-<tr><td><code>GENTLE_AI_NO_SELF_UPDATE=1</code></td><td>Saltea por completo el chequeo de auto-actualización</td></tr>
+<tr><td>Terminal interactiva (TTY)</td><td>Siempre pregunta <code>Apply now? [Y/n]</code>. Un Enter vacío acepta</td></tr>
+<tr><td>No-TTY (CI, pipe, script)</td><td>Rechaza automáticamente. Nunca queda bloqueado</td></tr>
+<tr><td><code>GENTLE_AI_YES=1</code></td><td>Acepta automáticamente sin preguntar. La variable la heredan los subprocesos, por lo que conviene acotarla a una sola invocación</td></tr>
+<tr><td><code>GENTLE_AI_NO_SELF_UPDATE=1</code></td><td>Omite por completo el chequeo de auto-actualización</td></tr>
 </tbody>
 </table>
 </div>
-<p>Si GitHub limita por tasa los chequeos de actualización, exportá <code>GITHUB_TOKEN</code> o <code>GH_TOKEN</code> antes de correr <code>update</code>/<code>upgrade</code>.</p>
+<p>Si GitHub limita por tasa los chequeos de actualización, exporte <code>GITHUB_TOKEN</code> o <code>GH_TOKEN</code> antes de ejecutar <code>update</code>/<code>upgrade</code>.</p>
 
-<h3><code>doctor</code></h3>
+<h3 id="doctor"><code>doctor</code></h3>
 <pre>gentle-ai doctor</pre>
-<p>Diagnóstico de salud de solo lectura: no hace ningún cambio en tu configuración.</p>
+<p>Diagnóstico de salud de solo lectura: no hace ningún cambio en la configuración.</p>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Chequeo</th><th>Qué verifica</th></tr></thead>
@@ -1222,9 +1223,9 @@ gentle-ai upgrade   # Actualiza al último release</pre>
 </tbody>
 </table>
 </div>
-<p>Cada chequeo reporta <strong>pass</strong>, <strong>warn</strong> o <strong>fail</strong>, con una sugerencia de remedio opcional. Corré <code>doctor</code> primero cuando algo salga distinto de lo esperado.</p>
+<p>Cada chequeo reporta <strong>pass</strong>, <strong>warn</strong> o <strong>fail</strong>, con una sugerencia de remedio opcional. Ejecute <code>doctor</code> primero cuando algo sea distinto de lo esperado.</p>
 
-<h3>Flujo de trabajo típico</h3>
+<h3 id="flujo-de-trabajo-tipico">Flujo de trabajo típico</h3>
 <pre># Primera vez: instalar todo
 brew install gentleman-programming/tap/gentle-ai
 gentle-ai install --agent claude-code,cursor --preset full-gentleman
@@ -1240,17 +1241,17 @@ gentle-ai uninstall --agent claude-code --component sdd,persona
 gentle-ai install --agent windsurf --preset full-gentleman</pre>
 
 <h2 id="backups">Backups y rollback</h2>
-<p>El sistema de backups toma un snapshot de tus archivos de configuración antes de cada install, sync y upgrade. Los backups son comprimidos, deduplicados y podados automáticamente.</p>
+<p>El sistema de backups toma un snapshot de los archivos de configuración antes de cada install, sync y upgrade. Los backups son comprimidos, deduplicados y podados automáticamente.</p>
 
-<h3>Cómo funciona</h3>
+<h3 id="como-funciona">Cómo funciona</h3>
 <ol class="steps">
 <li><strong>Calcula un checksum</strong> de todos los archivos que se van a respaldar.</li>
-<li><strong>Saltea el backup</strong> si sería idéntico al más reciente (deduplicación).</li>
-<li><strong>Crea un snapshot comprimido</strong> (<code>snapshot.tar.gz</code>) con todos tus archivos de config.</li>
+<li><strong>Omite el backup</strong> si sería idéntico al más reciente (deduplicación).</li>
+<li><strong>Crea un snapshot comprimido</strong> (<code>snapshot.tar.gz</code>) con todos los archivos de config.</li>
 <li><strong>Poda los backups viejos</strong>: mantiene los 5 más recientes y borra el resto.</li>
 </ol>
 
-<h3>Contenido del snapshot</h3>
+<h3 id="contenido-del-snapshot">Contenido del snapshot</h3>
 <ul>
 <li><code>manifest.json</code> — metadata: origen, timestamp, cantidad de archivos, checksum, estado de pin.</li>
 <li><code>snapshot.tar.gz</code> — archivo comprimido con todos los archivos respaldados.</li>
@@ -1259,23 +1260,23 @@ gentle-ai install --agent windsurf --preset full-gentleman</pre>
 
 <div class="note">
   <b>Alcance del backup</b>
-  <p>Los snapshots pre-upgrade y pre-sync cubren únicamente los agentes listados en <code>state.InstalledAgents</code> (<code>~/.gentle-ai/state.json</code>). Los directorios de config de agentes que instalaste fuera de Gentle AI no se incluyen.</p>
+  <p>Los snapshots pre-upgrade y pre-sync cubren únicamente los agentes listados en <code>state.InstalledAgents</code> (<code>~/.gentle-ai/state.json</code>). Los directorios de config de agentes instalados fuera de Gentle AI no se incluyen.</p>
 </div>
 
-<h3>Política de retención</h3>
+<h3 id="politica-de-retencion">Política de retención</h3>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Ajuste</th><th>Default</th><th>Comportamiento</th></tr></thead>
 <tbody>
 <tr><td>Cantidad a mantener</td><td>5</td><td>Se conservan los 5 backups sin pin más recientes</td></tr>
 <tr><td>Backups con pin</td><td>Nunca se borran</td><td>Sobreviven a la poda sin importar el conteo</td></tr>
-<tr><td>Duplicados</td><td>Se saltean</td><td>Si la config no cambió, no se crea un backup nuevo</td></tr>
-<tr><td>Compresión</td><td>Siempre</td><td>Los backups nuevos usan tar.gz (~75% más chicos)</td></tr>
+<tr><td>Duplicados</td><td>Se omiten</td><td>Si la config no cambió, no se crea un backup nuevo</td></tr>
+<tr><td>Compresión</td><td>Siempre</td><td>Los backups nuevos usan tar.gz (~75% más pequeños)</td></tr>
 </tbody>
 </table>
 </div>
 
-<h3>Gestión desde la TUI</h3>
+<h3 id="gestion-desde-la-tui">Gestión desde la TUI</h3>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Tecla</th><th>Acción</th></tr></thead>
@@ -1290,7 +1291,7 @@ gentle-ai install --agent windsurf --preset full-gentleman</pre>
 </table>
 </div>
 
-<h3>Comportamiento de restauración</h3>
+<h3 id="comportamiento-de-restauracion">Comportamiento de restauración</h3>
 <ul>
 <li>Si <code>existed=true</code>: restaura el archivo del snapshot a su ruta original.</li>
 <li>Si <code>existed=false</code>: elimina el archivo, revirtiendo archivos creados durante la instalación.</li>
@@ -1300,15 +1301,15 @@ gentle-ai install --agent windsurf --preset full-gentleman</pre>
 
 <div class="warn">
   <b>Qué NO cubre el rollback</b>
-  <p>Los paquetes instalados vía <code>brew install</code>, <code>apt-get install</code> o <code>pacman -S</code> <strong>no</strong> se desinstalan durante el rollback. El sistema de snapshots maneja únicamente archivos de configuración. Para deshacer una instalación de paquete, usá el gestor de paquetes de tu plataforma.</p>
+  <p>Los paquetes instalados vía <code>brew install</code>, <code>apt-get install</code> o <code>pacman -S</code> <strong>no</strong> se desinstalan durante el rollback. El sistema de snapshots maneja únicamente archivos de configuración. Para deshacer una instalación de paquete, use el gestor de paquetes de su plataforma.</p>
 </div>
 
-<h3>Si la verificación falla</h3>
+<h3 id="si-la-verificacion-falla">Si la verificación falla</h3>
 <ol class="steps">
-<li>Revisá los chequeos fallidos en el reporte de verificación.</li>
-<li>Restaurá desde el último snapshot vía la TUI o <code>gentle-ai restore latest</code>.</li>
-<li>Volvé a correr install con <code>--dry-run</code> para validar el plan.</li>
-<li>Volvé a correr install después de arreglar las dependencias externas.</li>
+<li>Revise los chequeos fallidos en el reporte de verificación.</li>
+<li>Restaure desde el último snapshot vía la TUI o <code>gentle-ai restore latest</code>.</li>
+<li>Vuelva a ejecutar install con <code>--dry-run</code> para validar el plan.</li>
+<li>Vuelva a ejecutar install después de resolver las dependencias externas.</li>
 </ol>
 
 <h2 id="releases">Verificación de releases</h2>
@@ -1320,11 +1321,13 @@ gentle-ai install --agent windsurf --preset full-gentleman</pre>
 sha256sum --check --strict --ignore-missing checksums.txt</pre>
 
 <div class="warn">
-  <b>No construyas confianza desde una clave que viene al lado de lo que verifica</b>
-  <p>Obtené la clave pública de producción y su huella desde un canal controlado por los mantenedores, y recién después descargá <code>checksums.txt</code> y <code>checksums.txt.minisig</code> del mismo release.</p>
+  <b>No establezca confianza desde una clave que viene junto a lo que verifica</b>
+  <p>Obtenga la clave pública de producción y su huella desde un canal controlado por los mantenedores, y solo después descargue <code>checksums.txt</code> y <code>checksums.txt.minisig</code> del mismo release.</p>
 </div>
 
 <p>Los archivos de Windows y la publicación en Scoop siguen omitidos hasta que se provisione firma Authenticode RSA de confianza pública, ambos ejecutables (amd64 y arm64) estén firmados antes de generar archivos y checksums, y la verificación de release falle si alguno de los dos está sin firmar.</p>
+
+</>}
 
 <h2 id="versiones">Política de versiones</h2>
 <p>RDD empezó en <code>gentle-ai</code> <strong>v1.47.0</strong> (2026-07-10), con las primeras transacciones de revisión nativa acotada, y se volvió la ruta estable soportada en <strong>v2.2.0</strong>. El contrato público negociado de revisión se publicó en <strong>v2.1.6</strong>.</p>
