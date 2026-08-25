@@ -1,19 +1,26 @@
 ---
 import { site, type Locale } from '../i18n/site';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import DocumentationContent from './DocumentationContent.astro';
+import DocumentationContentEn from './DocumentationContentEn.astro';
+import DocumentationContentEs from './DocumentationContentEs.astro';
 import InterfaceChrome from './InterfaceChrome.astro';
 import Sidebar from './Sidebar.astro';
 const { locale } = Astro.props as { locale: Locale };
 const copy = site[locale];
+const runtimeCopy = JSON.stringify({
+  noResults: copy.noResults,
+  sectionLink: copy.sectionLink,
+  copyCode: copy.copyCode,
+  copiedCode: copy.copiedCode,
+});
 ---
 
-<BaseLayout title={copy.title} description={copy.description} lang={copy.lang}>
+<BaseLayout title={copy.title} description={copy.description} lang={copy.lang} locale={locale}>
   <InterfaceChrome copy={copy} />
   <div class="wrap">
     <Sidebar copy={copy} />
-    <main id="contenido" tabindex="-1">
-      <DocumentationContent englishStart={locale === 'en'} />
+    <main id="contenido" tabindex="-1" data-site-copy={runtimeCopy}>
+      {locale === 'en' ? <DocumentationContentEn /> : <DocumentationContentEs />}
     </main>
   </div>
   <script src="../scripts/site.js"></script>

@@ -1,8 +1,7 @@
 ---
-import DocumentationContentEn from './DocumentationContentEn.astro';
-const { englishStart = false } = Astro.props as { englishStart?: boolean };
 ---
-{englishStart ? <DocumentationContentEn /> : <>
+
+{<>
 <section class="hero">
 <img src="/banner.webp" alt="Gentle-AI" width="1672" height="941" fetchpriority="high">
 <h1>Documentación de Gentle AI</h1>
@@ -139,9 +138,7 @@ brew install gentle-ai</pre>
 </table>
 </div>
 <p>La persona se selecciona por separado en su propia pantalla y se aplica de forma independiente del preset.</p>
-</>}
 
-{!englishStart && <>
 <hr>
 
 <h2 id="engram">Engram — memoria persistente</h2>
@@ -442,9 +439,7 @@ El sub-agente ejecuta con la intención original de la skill intacta</pre>
 <pre>gentle-ai skill-registry list          # name&lt;TAB&gt;scope&lt;TAB&gt;path
 gentle-ai skill-registry list --json   # legible por máquina, incluye descripciones</pre>
 <p>La caché usa un fingerprint que incluye la versión de esquema más la ruta, mtime y tamaño de cada <code>SKILL.md</code> descubierto, así que un arranque normal es un cache-hit barato cuando las skills no cambiaron.</p>
-</>}
 
-{!englishStart && <>
 <h2 id="personas">Personas</h2>
 <div class="tblwrap">
 <table>
@@ -516,11 +511,9 @@ gentle-ai skill-registry list --json   # legible por máquina, incluye descripci
 </table>
 </div>
 <p>Una pregunta es necesaria solo cuando la respuesta cambia el alcance pedido, el impacto destructivo o irreversible, la exposición de permisos o seguridad, el costo de verificación o efectos secundarios externos, el riesgo residual aceptado, o la entrega.</p>
-</>}
 
 <hr>
 
-{!englishStart && <>
 <h2 id="rdd">RDD — Receipt-Driven Development</h2>
 <p>RDD revisa un candidato terminado <strong>sin apropiarse de la entrega</strong>. Es deliberadamente chico: el código nativo congela un candidato de worktree, coordina la revisión acotada, quema la autoridad completada y devuelve el control al humano.</p>
 
@@ -800,11 +793,9 @@ gentle-ai review schema final-verification-incident</pre>
 <p><strong>Preserva</strong> el interruptor de RDD — tanto en <code>review-mode/</code> como en el espejo previo a #2882 — junto con <code>sdd-runtime/</code>, <code>defect-reports/</code>, <code>review-artifacts/</code>, <code>incidents/</code> y <code>REVIEW-MAINTENANCE.lock</code>. <strong>Las revisiones que estaban apagadas siguen apagadas.</strong> La lista es una lista de permitidos, así que cualquier ruta que el comando no reconozca — incluida una que agregue un release futuro — se reporta y se deja en su lugar en lugar de adivinar.</p>
 <p><strong>Retiene</strong> <code>reviews/</code>, el store de grafo que escribe el adaptador de gentle-pi, y solo lo elimina con <code>--include-adapter-reviews</code>. Una corrida por defecto no puede distinguir un grafo muerto de una revisión viva, y un comando destructivo no borra lo que no puede garantizar.</p>
 <p>La TUI expone la misma acción como <strong>Reset review store</strong> en el menú principal, entre <em>Manage backups</em> y <em>Managed uninstall</em>, con el cursor de confirmación arrancando en <em>Cancel</em>. La TUI no tiene equivalente de <code>--include-in-flight</code> ni <code>--include-adapter-reviews</code>: cuando existen revisiones abiertas se niega e imprime la invocación de CLI, para que destruir trabajo en vuelo nunca esté a una sola tecla de distancia.</p>
-</>}
 
 <hr>
 
-{!englishStart && <>
 <h2 id="flujo-organico">Flujo orgánico completo</h2>
 <p>El agente elige la ruta más chica útil y RDD entra al final, sobre el candidato congelado.</p>
 <div class="mermaid">
@@ -876,9 +867,7 @@ flowchart TD
     style T fill:#43242B,stroke:#D27E99,color:#DCD7BA
 </div>
 
-</>}
 
-{!englishStart && <>
 <hr>
 
 <h2 id="agentes">Matriz de agentes compatibles</h2>
@@ -1106,9 +1095,7 @@ pi install npm:pi-btw</pre>
 </table>
 </div>
 
-</>}
 
-{!englishStart && <>
 <hr>
 
 <h2 id="cli">Referencia de CLI</h2>

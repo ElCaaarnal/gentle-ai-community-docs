@@ -23,9 +23,9 @@ const { copy } = Astro.props;
     <input id="searchInput" type="text" autocomplete="off" spellcheck="false" aria-label={copy.searchDocumentation} placeholder={copy.searchPlaceholder} />
     <div id="searchResults" role="listbox" aria-label={copy.searchResults}></div>
     <div class="searchfoot">
-      <span><kbd>↑</kbd><kbd>↓</kbd> navegar</span>
-      <span><kbd>↵</kbd> abrir</span>
-      <span><kbd>esc</kbd> cerrar</span>
+      <span><kbd>↑</kbd><kbd>↓</kbd> {copy.searchNavigate}</span>
+      <span><kbd>↵</kbd> {copy.searchOpen}</span>
+      <span><kbd>esc</kbd> {copy.searchClose}</span>
     </div>
   </div>
 </div>

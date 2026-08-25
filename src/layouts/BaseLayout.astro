@@ -5,9 +5,13 @@ interface Props {
   title: string;
   description: string;
   lang: string;
+  locale: 'en' | 'es';
 }
 
-const { title, description, lang } = Astro.props;
+const { title, description, lang, locale } = Astro.props;
+const origin = 'https://docs-gentle-ai.netlify.app';
+const canonical = locale === 'en' ? `${origin}/` : `${origin}/es/`;
+const alternateLocale = locale === 'en' ? 'es_ES' : 'en_US';
 ---
 
 <!doctype html>
@@ -18,9 +22,17 @@ const { title, description, lang } = Astro.props;
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="color-scheme" content="dark" />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="en" href={`${origin}/`} />
+    <link rel="alternate" hreflang="es" href={`${origin}/es/`} />
+    <link rel="alternate" hreflang="x-default" href={`${origin}/`} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="article" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={locale === 'en' ? 'en_US' : 'es_ES'} />
+    <meta property="og:locale:alternate" content={alternateLocale} />
+    <meta property="og:image" content={`${origin}/banner.webp`} />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
