@@ -257,13 +257,6 @@ hr{border:0;border-top:1px solid var(--line);margin:56px 0}
 
 /* ===================== navegación y lectura ===================== */
 
-/* barra de progreso */
-#progress{
-  position:fixed;top:0;left:0;height:2px;width:0;z-index:60;
-  background:linear-gradient(90deg,var(--wave-blue-2),var(--sakura));
-  transition:width .08s linear;
-}
-
 /* atajo + buscador en la barra lateral */
 .searchbtn{
   display:flex;align-items:center;gap:9px;width:100%;

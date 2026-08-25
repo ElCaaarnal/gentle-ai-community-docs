@@ -319,12 +319,9 @@ mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{
     }
   }
 
-  /* ---------- progreso, volver arriba ---------- */
-  var bar = document.getElementById('progress');
+  /* ---------- volver arriba ---------- */
   var top = document.getElementById('toTop');
   function onScroll(){
-    var h = document.documentElement.scrollHeight - window.innerHeight;
-    bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
     top.classList.toggle('show', window.scrollY > 700);
     spy();
   }
