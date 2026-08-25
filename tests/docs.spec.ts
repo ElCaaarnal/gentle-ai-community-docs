@@ -158,6 +158,29 @@ test('complete workflows use localized server-rendered headings with equivalent 
   await context.close();
 });
 
+test('both Mermaid diagrams keep their statement separators and render an SVG', async ({ browser, page }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const sourcePage = await context.newPage();
+
+  for (const route of ['/', '/es/']) {
+    await sourcePage.goto(route);
+    const sources = await sourcePage.locator('.mermaid').evaluateAll((nodes) => nodes.map((node) => node.textContent ?? ''));
+
+    // Mermaid separates flowchart statements by newline, so the build must never collapse them.
+    expect(sources).toHaveLength(2);
+    for (const source of sources) expect(source.trim().split('\n').length).toBeGreaterThan(10);
+
+    await page.goto(route);
+    const diagrams = page.locator('.mermaid');
+    await expect(diagrams).toHaveCount(2);
+    await expect(diagrams.nth(0).locator('svg')).toBeVisible();
+    await expect(diagrams.nth(1).locator('svg')).toBeVisible();
+    await expect(diagrams.filter({ hasText: 'Syntax error' })).toHaveCount(0);
+  }
+
+  await context.close();
+});
+
 test('agents and Pi use localized headings with matching canonical IDs', async ({ page }) => {
   const sections = ['agentes', 'modelos-delegacion', 'perfiles', 'pi'];
   const subsections = ['soporte-de-sdd-multi-modo', 'notas-por-agente', 'instalacion-2', 'paquetes-que-instala', 'comandos-de-pi', 'asignacion-de-modelos-recomendada', 'archivos-de-proyecto', 'solucion-de-problemas'];
