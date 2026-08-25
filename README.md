@@ -1,6 +1,13 @@
 # Gentle AI Community Documentation
 
-Static Spanish-language documentation for the Gentle AI community, built with Astro.
+Static bilingual documentation for the Gentle AI community, built with Astro.
+
+## Documentation routes
+
+- `/` is the authoritative English route.
+- `/es/` is the Spanish route. Keep its meaning, canonical heading IDs, technical literals, and structure aligned with English in the same change.
+
+Both routes publish absolute canonicals, reciprocal `en`/`es`/`x-default` links, localized Open Graph metadata, and sitemap entries.
 
 ## Local development
 
@@ -15,9 +22,20 @@ npm run dev
 npm run check
 npm run build
 npm run preview
+npx playwright test
 ```
 
 Astro writes the production site to `dist/`. The build is plain static output with no server adapter, so any static host serves it.
+
+## Banner asset
+
+The committed banner is generated from its preserved source asset. Regenerate it after an approved source change:
+
+```sh
+npm run generate:banner
+```
+
+The generator verifies the source hash, crop, output dimensions, size, and reproducible bytes.
 
 ## Deployment
 
