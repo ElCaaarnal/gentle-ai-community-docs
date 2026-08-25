@@ -435,3 +435,75 @@ The sub-agent executes with the skill's original intent intact</pre>
 <pre>gentle-ai skill-registry list          # name&lt;TAB&gt;scope&lt;TAB&gt;path
 gentle-ai skill-registry list --json   # machine-readable, including descriptions</pre>
 <p>The cache uses a fingerprint that includes the schema version plus the path, mtime, and size of every discovered <code>SKILL.md</code>, so a normal startup is a cheap cache hit when skills have not changed.</p>
+
+<h2 id="personas">Personas</h2>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Persona</th><th>ID</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td>Gentleman</td><td><code>gentleman</code></td><td>A teaching-oriented mentor persona: it challenges poor practices and explains why</td></tr>
+<tr><td>Neutral</td><td><code>neutral</code></td><td>The same teacher and philosophy, without regional language: warm and professional</td></tr>
+<tr><td>Custom</td><td><code>custom</code></td><td>Keeps your existing persona or configuration unmanaged: Gentle AI does not inject a persona</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>custom</code> is a compatibility and ownership choice, not a persona editor. Use it when you already have persona instructions and want Gentle AI to leave them untouched.</p>
+
+<hr>
+
+<h2 id="ruteo">Organic implementation routing</h2>
+<p>Ask for the outcome. Gentle AI keeps already-understood work inline, delegates only actions that benefit from fresh context, and offers SDD only when durable planning materially reduces uncertainty.</p>
+
+<div class="imp">
+  <b>Every change takes exactly one route</b>
+  <p>File counts, changed lines, size, or perceived risk <strong>never</strong> select SDD by themselves. Only an explicit request or an accepted proposal does.</p>
+</div>
+
+<h3 id="las-tres-rutas">The three routes</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Route</th><th>When it is used</th><th>What happens</th></tr></thead>
+<tbody>
+<tr><td><strong>Direct inline</strong></td><td>Deciding or verifying requires <strong>1 to 3 files</strong>; or the change is <strong>one already-understood mechanical file</strong>, with no research or outstanding design decisions</td><td>The bounded action stays inline</td></tr>
+<tr><td><strong>Direct delegation</strong></td><td>Understanding requires <strong>4 or more files</strong>; reading prepares a write; broad research is needed; or <strong>2 or more non-trivial files</strong> must be written</td><td>Delegate bounded exploration and/or one writer for that action</td></tr>
+<tr><td><strong>Optional SDD</strong></td><td>The work has substantial ambiguity, or durable proposal, specification, design, or task artifacts would materially reduce uncertainty</td><td>SDD is proposed. It is selected only after an explicit request or an accepted proposal</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>File counts describe the <strong>context needed for the current action</strong>, not a risk score or an SDD threshold. Risk may strengthen native verification or review, but never forces SDD.</p>
+
+<p>Delegation also applies per action: tests, builds, installations, and native review actors may use fresh workers without changing the implementation route or creating an SDD run. Direct and delegated work do not create SDD artifacts, phase attempts, or synthetic SDD cycles.</p>
+
+<p>If apparently simple work reveals substantial ambiguity, Gentle AI can offer SDD at the next safe boundary. Declining it leads to safely reduced scope, a justified direct or delegated route, or <strong>Needs your decision</strong> — never silent SDD enrollment.</p>
+
+<h2 id="delegacion">Delegation stop rules</h2>
+<p>The orchestrator must stop acting as a monolithic executor when complexity appears:</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Rule</th><th>Trigger</th></tr></thead>
+<tbody>
+<tr><td><strong>Four-file rule</strong></td><td>Reading 4 or more files to understand a flow requires delegating exploration or running an exploration phase</td></tr>
+<tr><td><strong>Multi-file writing rule</strong></td><td>Touching 2 or more non-trivial files requires one writer, or fresh review before completion</td></tr>
+<tr><td><strong>PR rule</strong></td><td>Review can provide fresh evidence for a commit, push, or PR, but never authorizes delivery</td></tr>
+<tr><td><strong>Incident rule</strong></td><td>After an incorrect cwd, a worktree/Git accident, merge recovery, a confusing test command, or an environment workaround: run a fresh audit before continuing</td></tr>
+<tr><td><strong>Long-session rule</strong></td><td>After about 20 tool calls, 5 exploratory reads, or 2 non-mechanical edits with increasing complexity: pause and delegate, replan, or explain why not</td></tr>
+<tr><td><strong>Fresh-review rule</strong></td><td>Use fresh context for adversarial review of diffs, conflicts, PR preparation, and incidents when the agent platform supports it</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="estados">Public states</h2>
+<p>Normal interaction reports only four states. The user does not choose internal review states, hashes, receipts, or lifecycle transitions.</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>State</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><strong>Working</strong> <span class="pill">working</span></td><td>Implementation can still change</td></tr>
+<tr><td><strong>Checking</strong> <span class="pill">checking</span></td><td>Gentle AI is running the applicable functional test and bounded review</td></tr>
+<tr><td><strong>Ready</strong> <span class="pill">ready</span></td><td>The exact candidate has sufficient evidence for the selected delivery route</td></tr>
+<tr><td><strong>Needs your decision</strong> <span class="pill">needs your decision</span></td><td>Safe automatic convergence is impossible; Gentle AI presents the cause, impact, and concrete options</td></tr>
+</tbody>
+</table>
+</div>
+<p>A question is necessary only when the answer changes requested scope, destructive or irreversible impact, permission or security exposure, verification cost or external side effects, accepted residual risk, or delivery.</p>
