@@ -147,3 +147,32 @@ test('agents and Pi use localized headings with matching canonical IDs', async (
   await expect(page.locator('h2#agentes')).toContainText('Matriz de agentes compatibles');
   await expect(page.locator('h3#instalacion-2')).toContainText('Instalación');
 });
+
+test('operations use localized headings, shared IDs, and literal boundaries', async ({ page }) => {
+  const sections = ['cli', 'backups', 'releases'];
+  const subsections = ['tui-interactiva', 'install', 'sync', 'uninstall', 'update-upgrade', 'doctor', 'flujo-de-trabajo-tipico', 'como-funciona', 'contenido-del-snapshot', 'politica-de-retencion', 'gestion-desde-la-tui', 'comportamiento-de-restauracion', 'si-la-verificacion-falla'];
+  const literals = ['--component sdd,persona,context7', 'nombre:proveedor/modelo', 'nombre:fase:proveedor/modelo', 'checksums.txt', 'checksums.txt.minisig', 'Gentleman-Programming/gentle-ai'];
+
+  for (const route of ['/', '/es/']) {
+    await page.goto(route);
+    expect(await page.locator('h2').evaluateAll((headings, ids) => ids.every((id) => headings.some((heading) => heading.id === id)), sections)).toBe(true);
+    expect(await page.locator('h3').evaluateAll((headings, ids) => ids.every((id) => headings.some((heading) => heading.id === id)), subsections)).toBe(true);
+    expect(await page.locator('[id]').evaluateAll((elements) => new Set(elements.map((element) => element.id)).size === elements.length)).toBe(true);
+    const operationText = await page.locator('h2#cli').evaluate((heading) => {
+      let text = '';
+      for (let node: Element | null = heading; node; node = node.nextElementSibling) {
+        if (node !== heading && node.tagName === 'H2' && (node.id === 'versiones' || node.id === 'glosario')) break;
+        text += node.textContent ?? '';
+      }
+      return text;
+    });
+    for (const literal of literals) expect(operationText).toContain(literal);
+  }
+
+  await page.goto('/');
+  await expect(page.locator('h2#cli')).toContainText('CLI reference');
+  await expect(page.locator('h2#backups')).toContainText('Backups and rollback');
+  await page.goto('/es/');
+  await expect(page.locator('h2#cli')).toContainText('Referencia de CLI');
+  await expect(page.locator('h2#backups')).toContainText('Backups y rollback');
+});

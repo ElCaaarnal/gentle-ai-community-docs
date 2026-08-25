@@ -1089,3 +1089,202 @@ pi install npm:pi-btw</pre>
 </tbody>
 </table>
 </div>
+<hr>
+<h2 id="cli">CLI reference</h2>
+
+<h3 id="tui-interactiva">Interactive TUI</h3>
+<pre>gentle-ai</pre>
+<p>The Bubbletea TUI guides agent, component, skill, preset, and managed-uninstall selection. Before modifying any managed file, Gentle AI creates a backup snapshot.</p>
+<h3 id="install"><code>install</code></h3>
+<pre># Complete ecosystem for several agents
+gentle-ai install \
+  --agent claude-code,opencode,gemini-cli \
+  --preset full-gentleman
+
+# Minimal setup for Cursor
+gentle-ai install --agent cursor --preset minimal
+
+# Choose specific components and skills
+gentle-ai install \
+  --agent claude-code \
+  --component engram,sdd,skills,context7,persona,permissions \
+  --skill go-testing,skill-creator,branch-pr,issue-creation \
+  --persona gentleman
+
+# Preview without applying changes
+gentle-ai install --dry-run --agent claude-code,opencode --preset full-gentleman</pre>
+<p>When installing one agent with <code>--agent X</code>, Gentle AI <strong>merges</strong> the new agent into the existing <code>installed_agents</code> list in <code>state.json</code> and <strong>preserves</strong> any existing <code>model_assignments</code>. It does not overwrite the complete state.</p>
+<h4><code>install</code> flags</h4>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Flag</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><code>--agent</code>, <code>--agents</code></td><td>Agents to configure, separated by commas</td></tr>
+<tr><td><code>--component</code>, <code>--components</code></td><td>Components to install, separated by commas</td></tr>
+<tr><td><code>--skill</code>, <code>--skills</code></td><td>Skills to install, separated by commas</td></tr>
+<tr><td><code>--persona</code></td><td><code>gentleman</code>, <code>neutral</code>, or <code>custom</code></td></tr>
+<tr><td><code>--preset</code></td><td><code>full-gentleman</code>, <code>ecosystem-only</code>, <code>minimal</code>, or <code>custom</code></td></tr>
+<tr><td><code>--sdd-mode</code></td><td>SDD orchestrator mode: <code>single</code> or <code>multi</code></td></tr>
+<tr><td><code>--scope</code></td><td><code>global</code> (default) or <code>workspace</code></td></tr>
+<tr><td><code>--dry-run</code></td><td>Preview the plan without applying changes</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="sync"><code>sync</code></h3>
+<p>Refreshes managed assets to the current version. Run it after replacing or updating the binary, including with <code>brew upgrade</code>, <code>gentle-ai upgrade</code>, or <code>go install</code>. It <strong>does not</strong> reinstall binaries: it only updates prompts, skills, MCP configurations, and SDD orchestrators.</p>
+<pre>gentle-ai sync --dry-run                          # Preview the scope
+gentle-ai sync                                     # Agents registered in state.json
+gentle-ai sync --agent claude-code --agent opencode # Only specific agents</pre>
+<div class="imp">
+  <b>Sync scope</b>
+  <p><code>gentle-ai sync</code> updates agents registered as installed by Gentle AI, <strong>not every agent configuration directory on your machine</strong>. The selection is saved in <code>~/.gentle-ai/state.json</code>. Preview the active scope with <code>gentle-ai sync --dry-run</code>.</p>
+</div>
+<p>Sync is safe and idempotent: running it twice produces no changes the second time. It does not support <code>--component</code>; for opt-in components excluded from the default scope, use <code>--include-permissions</code> and <code>--include-theme</code>.</p>
+<h4><code>sync</code> flags</h4>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Flag</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><code>--agent</code>, <code>--agents</code></td><td>Agents to synchronize (default: all installed agents)</td></tr>
+<tr><td><code>--skill</code>, <code>--skills</code></td><td>Skills to synchronize</td></tr>
+<tr><td><code>--sdd-mode</code></td><td><code>single</code> or <code>multi</code></td></tr>
+<tr><td><code>--strict-tdd</code></td><td>Enable Strict TDD mode for SDD agents</td></tr>
+<tr><td><code>--profile</code></td><td>Create or update an SDD profile: <code>nombre:proveedor/modelo</code></td></tr>
+<tr><td><code>--profile-phase</code></td><td>Override a specific phase: <code>nombre:fase:proveedor/modelo</code></td></tr>
+<tr><td><code>--sdd-profile-strategy</code></td><td><code>generated-multi</code> or <code>external-single-active</code></td></tr>
+<tr><td><code>--include-permissions</code></td><td>Include permission synchronization (opt-in)</td></tr>
+<tr><td><code>--include-theme</code></td><td>Include theme synchronization (opt-in)</td></tr>
+<tr><td><code>--dry-run</code></td><td>Preview the plan without applying changes</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="uninstall"><code>uninstall</code></h3>
+<p>Removes <strong>only configuration managed by Gentle AI</strong> from one or more agents. It does not uninstall external packages or binaries. A backup snapshot is created before any change is applied.</p>
+<pre>gentle-ai uninstall --agent claude-code --agent opencode
+gentle-ai uninstall --agent claude-code --component sdd,persona,context7
+gentle-ai uninstall --all
+gentle-ai uninstall --agent cursor --component skills --yes</pre>
+<p>When <code>--component</code> is omitted from a partial uninstall, all managed uninstallable components are removed from the selected agent set.</p>
+<h3 id="update-upgrade"><code>update</code> / <code>upgrade</code></h3>
+<pre>gentle-ai update    # Check whether a newer version is available
+gentle-ai upgrade   # Update to the latest release</pre>
+<p>After any update or manual binary replacement, run <code>gentle-ai sync</code>.</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Situation</th><th>Behavior</th></tr></thead>
+<tbody>
+<tr><td>Interactive terminal (TTY)</td><td>Always asks <code>Apply now? [Y/n]</code>. An empty Enter accepts</td></tr>
+<tr><td>Non-TTY (CI, pipe, script)</td><td>Automatically declines. It never hangs</td></tr>
+<tr><td><code>GENTLE_AI_YES=1</code></td><td>Automatically accepts without asking. Child processes inherit the variable, so scope it to one invocation</td></tr>
+<tr><td><code>GENTLE_AI_NO_SELF_UPDATE=1</code></td><td>Completely skips the self-update check</td></tr>
+</tbody>
+</table>
+</div>
+<p>If GitHub rate-limits update checks, export <code>GITHUB_TOKEN</code> or <code>GH_TOKEN</code> before running <code>update</code>/<code>upgrade</code>.</p>
+<h3 id="doctor"><code>doctor</code></h3>
+<pre>gentle-ai doctor</pre>
+<p>Read-only health diagnostics: it makes no changes to your configuration.</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Check</th><th>What it verifies</th></tr></thead>
+<tbody>
+<tr><td>Tool binaries</td><td>Required tools are present on the <code>PATH</code>; detects shadowing (the wrong binary resolving first)</td></tr>
+<tr><td><code>state.json</code> validity</td><td>Parses <code>~/.gentle-ai/state.json</code> and reports schema problems or corruption</td></tr>
+<tr><td>Engram MCP reachability</td><td>Confirms that the Engram MCP server responds</td></tr>
+<tr><td>Disk space</td><td>Warns when available space is critically low</td></tr>
+</tbody>
+</table>
+</div>
+<p>Every check reports <strong>pass</strong>, <strong>warn</strong>, or <strong>fail</strong>, with an optional remediation suggestion. Run <code>doctor</code> first when something differs from the expected result.</p>
+<h3 id="flujo-de-trabajo-tipico">Typical workflow</h3>
+<pre># First time: install everything
+brew install gentleman-programming/tap/gentle-ai
+gentle-ai install --agent claude-code,cursor --preset full-gentleman
+
+# After a new release: upgrade and synchronize
+brew upgrade gentle-ai
+gentle-ai sync
+
+# Remove only the managed SDD and persona configuration from one agent
+gentle-ai uninstall --agent claude-code --component sdd,persona
+
+# Add a new agent later
+gentle-ai install --agent windsurf --preset full-gentleman</pre>
+<h2 id="backups">Backups and rollback</h2>
+<p>The backup system takes a snapshot of your configuration files before every install, sync, and upgrade. Backups are compressed, deduplicated, and automatically pruned.</p>
+<h3 id="como-funciona">How it works</h3>
+<ol class="steps">
+<li><strong>Calculates a checksum</strong> for every file to back up.</li>
+<li><strong>Skips the backup</strong> if it would be identical to the most recent one (deduplication).</li>
+<li><strong>Creates a compressed snapshot</strong> (<code>snapshot.tar.gz</code>) with all your configuration files.</li>
+<li><strong>Prunes old backups</strong>: retains the 5 most recent and deletes the rest.</li>
+</ol>
+<h3 id="contenido-del-snapshot">Snapshot contents</h3>
+<ul>
+<li><code>manifest.json</code> — metadata: origin, timestamp, file count, checksum, pin state.</li>
+<li><code>snapshot.tar.gz</code> — compressed archive containing every backed-up file.</li>
+<li>For paths that did not exist before the operation, the manifest records <code>existed=false</code>.</li>
+</ul>
+<div class="note">
+  <b>Backup scope</b>
+  <p>Pre-upgrade and pre-sync snapshots cover only agents listed in <code>state.InstalledAgents</code> (<code>~/.gentle-ai/state.json</code>). Agent configuration directories installed outside Gentle AI are not included.</p>
+</div>
+<h3 id="politica-de-retencion">Retention policy</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Setting</th><th>Default</th><th>Behavior</th></tr></thead>
+<tbody>
+<tr><td>Number to retain</td><td>5</td><td>The 5 most recent unpinned backups are kept</td></tr>
+<tr><td>Pinned backups</td><td>Never deleted</td><td>Survive pruning regardless of count</td></tr>
+<tr><td>Duplicates</td><td>Skipped</td><td>If the configuration did not change, no new backup is created</td></tr>
+<tr><td>Compression</td><td>Always</td><td>New backups use tar.gz (~75% smaller)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="gestion-desde-la-tui">Managing from the TUI</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Key</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><code>j</code> / <code>k</code></td><td>Navigate up/down</td></tr>
+<tr><td><code>Enter</code></td><td>Restore the selected backup</td></tr>
+<tr><td><code>p</code></td><td>Pin/unpin (protects from pruning)</td></tr>
+<tr><td><code>r</code></td><td>Rename (add a description)</td></tr>
+<tr><td><code>d</code></td><td>Delete</td></tr>
+<tr><td><code>Esc</code></td><td>Go back</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="comportamiento-de-restauracion">Restore behavior</h3>
+<ul>
+<li>If <code>existed=true</code>: restores the snapshot file to its original path.</li>
+<li>If <code>existed=false</code>: removes the file, reverting files created during installation.</li>
+<li>Restoration is atomic per file write: there are no partial restores.</li>
+<li>Works with compressed (tar.gz) backups and legacy ones before v1.16 (the <code>files/</code> directory with flat copies).</li>
+</ul>
+<div class="warn">
+  <b>What rollback does NOT cover</b>
+  <p>Packages installed via <code>brew install</code>, <code>apt-get install</code>, or <code>pacman -S</code> are <strong>not</strong> uninstalled during rollback. The snapshot system manages configuration files only. To undo a package installation, use your platform's package manager.</p>
+</div>
+<h3 id="si-la-verificacion-falla">If verification fails</h3>
+<ol class="steps">
+<li>Review the failed checks in the verification report.</li>
+<li>Restore from the latest snapshot through the TUI or <code>gentle-ai restore latest</code>.</li>
+<li>Run install again with <code>--dry-run</code> to validate the plan.</li>
+<li>Run install again after fixing external dependencies.</li>
+</ol>
+
+<h2 id="releases">Release verification</h2>
+<p>Official macOS and Linux release files require an authenticated <code>checksums.txt</code>. The built-in updater verifies its Minisign signature, its exact binding to <code>Gentleman-Programming/gentle-ai</code> plus the release tag, and the selected file checksum <strong>before</strong> replacing the installed binary.</p>
+<p>Release files have a <strong>128 MiB</strong> cap, including chunked or unknown-length responses. Missing, oversized, malformed, untrusted, or padding key material fails closed without changing the installed binary.</p>
+
+<pre>minisign -VQm checksums.txt -x checksums.txt.minisig -P "$GENTLE_AI_MINISIGN_PUBLIC_KEY"
+# Expected output: repo=Gentleman-Programming/gentle-ai;tag=vX.Y.Z
+sha256sum --check --strict --ignore-missing checksums.txt</pre>
+
+<div class="warn">
+  <b>Do not establish trust from a key delivered beside what it verifies</b>
+  <p>Obtain the production public key and its fingerprint from a maintainer-controlled channel, and only then download <code>checksums.txt</code> and <code>checksums.txt.minisig</code> from the same release.</p>
+</div>
+
+<p>Windows release files and Scoop publication remain omitted until publicly trusted RSA Authenticode signing is provisioned, both executables (amd64 and arm64) are signed before assets and checksums are generated, and release verification fails if either is unsigned.</p>
