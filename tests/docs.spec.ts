@@ -176,3 +176,51 @@ test('operations use localized headings, shared IDs, and literal boundaries', as
   await expect(page.locator('h2#cli')).toContainText('Referencia de CLI');
   await expect(page.locator('h2#backups')).toContainText('Backups y rollback');
 });
+
+test('version policy and reference content is localized with exact shared literals', async ({ page }) => {
+  const ids = ['versiones', 'glosario', 'docs'];
+  const versions = ['v1.47.0', 'v2.1.6', 'v2.2.0', 'v2.4.0', 'v2.4.0-rc.8', '2026-07-10', '2026-08-17', '2026-08-14', '2026-08-22'];
+  const formula = 'min(200, ceil(original_changed_lines / 2))';
+  const glossary = ['Candidate', 'Lineage', 'Receipt', 'Lens', 'Burn', 'Projection', 'Gate', 'Candidate-caused finding', 'Correction budget', 'Delta-spec', 'Escalated'];
+  const spanishGlossary = ['Candidato', 'Linaje', 'Receipt', 'Lente', 'Quema', 'Proyección', 'Gate', 'Finding causado por el candidato', 'Presupuesto de corrección', 'Delta-spec', 'Escalado'];
+  const officialLinks = [
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/intended-usage.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/trigger-rules.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/architecture/organic-rdd.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/review-integration.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/review-authority-threat-model.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/agents.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/pi.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/openspec-config.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/engram.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/rollback.md',
+    'https://the-amazing-gentleman-programming-book.vercel.app/en/book/Chapter21_Verifiable-Trust',
+    'https://github.com/Gentleman-Programming/gentle-ai',
+  ];
+
+  for (const route of ['/', '/es/']) {
+    await page.goto(route);
+    for (const id of ids) await expect(page.locator(`h2#${id}`)).toHaveCount(1);
+    for (const literal of [...versions, formula]) await expect(page.locator('main')).toContainText(literal);
+    await expect(page.locator('h2#docs + .tblwrap a')).toHaveCount(officialLinks.length);
+    for (const href of officialLinks) {
+      const link = page.locator(`h2#docs + .tblwrap a[href="${href}"]`);
+      await expect(link).toHaveAttribute('target', '_blank');
+      await expect(link).toHaveAttribute('rel', 'noopener');
+    }
+  }
+
+  await page.goto('/');
+  await expect(page.locator('h2#versiones')).toContainText('Version policy');
+  await expect(page.locator('h2#glosario')).toContainText('Glossary');
+  await expect(page.locator('h2#docs')).toContainText('Official documentation');
+  await expect(page.locator('h2#glosario + dl dt').allTextContents()).resolves.toEqual(glossary.map((term) => expect.stringContaining(term)));
+  await expect(page.locator('main')).not.toContainText('Política de versiones');
+  await expect(page.locator('main')).not.toContainText('Documentación oficial');
+
+  await page.goto('/es/');
+  await expect(page.locator('h2#versiones')).toContainText('Política de versiones');
+  await expect(page.locator('h2#glosario')).toContainText('Glosario');
+  await expect(page.locator('h2#docs')).toContainText('Documentación oficial');
+  await expect(page.locator('h2#glosario + dl dt').allTextContents()).resolves.toEqual(spanishGlossary.map((term) => expect.stringContaining(term)));
+});

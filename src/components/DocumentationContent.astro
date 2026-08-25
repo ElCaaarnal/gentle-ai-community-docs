@@ -1327,15 +1327,13 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
 
 <p>Los archivos de Windows y la publicación en Scoop siguen omitidos hasta que se provisione firma Authenticode RSA de confianza pública, ambos ejecutables (amd64 y arm64) estén firmados antes de generar archivos y checksums, y la verificación de release falle si alguno de los dos está sin firmar.</p>
 
-</>}
-
 <h2 id="versiones">Política de versiones</h2>
 <p>RDD empezó en <code>gentle-ai</code> <strong>v1.47.0</strong> (2026-07-10), con las primeras transacciones de revisión nativa acotada, y se volvió la ruta estable soportada en <strong>v2.2.0</strong>. El contrato público negociado de revisión se publicó en <strong>v2.1.6</strong>.</p>
 
 <div class="warn">
-  <b>La documentación del repo va atrasada respecto de los releases</b>
-  <p>El README, <code>quickstart.md</code> y <code>trigger-rules.md</code> todavía nombran <code>v2.3.0</code> como estable y <code>v2.4.0-rc.1</code> como prerelease. La lista real de releases dice otra cosa: <strong><code>v2.4.0</code> se publicó como estable el 2026-08-17</strong> y dejó atrás toda la serie de candidatas, que llegó hasta <code>v2.4.0-rc.8</code> (2026-08-14). Esta tabla sigue los releases, no los documentos.</p>
-  <p style="margin-top:8px">Verificado contra <a href="https://github.com/Gentleman-Programming/gentle-ai/releases" target="_blank" rel="noopener">la página de releases</a> el <strong>2026-08-22</strong>. Las versiones se mueven: confirmá siempre con <code>gentle-ai version</code> y con esa página.</p>
+  <b>La documentación del repositorio está desactualizada respecto de los releases</b>
+  <p>El README, <code>quickstart.md</code> y <code>trigger-rules.md</code> todavía nombran <code>v2.3.0</code> como estable y <code>v2.4.0-rc.1</code> como prerelease. La lista de releases indica otra cosa: <strong><code>v2.4.0</code> se publicó como estable el 2026-08-17</strong> y dejó atrás toda la serie de candidatas, que llegó hasta <code>v2.4.0-rc.8</code> (2026-08-14). Esta tabla sigue los releases, no los documentos.</p>
+  <p style="margin-top:8px">Verificado contra <a href="https://github.com/Gentleman-Programming/gentle-ai/releases" target="_blank" rel="noopener">la página de releases</a> el <strong>2026-08-22</strong>. Las versiones cambian: confirma siempre con <code>gentle-ai version</code> y con esa página.</p>
 </div>
 
 <div class="tblwrap">
@@ -1349,7 +1347,7 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
 </table>
 </div>
 
-<p>No hay una candidata abierta por delante de <code>v2.4.0</code>: <code>@latest</code> y la última RC apuntan hoy a la misma línea. El instalador administrado sigue la última versión del canal y <strong>no acepta un pin arbitrario</strong> de release. Usá <code>go install</code> cuando la reproducibilidad requiera una versión exacta. Usá <code>@main</code> solo para probar cambios que no forman parte de ningún release.</p>
+<p>No hay una candidata abierta por delante de <code>v2.4.0</code>: <code>@latest</code> y la última RC apuntan hoy a la misma línea. El instalador administrado sigue la última versión del canal y <strong>no acepta un pin arbitrario</strong> de release. Usa <code>go install</code> cuando la reproducibilidad requiera una versión exacta. Usa <code>@main</code> solo para probar cambios que no forman parte de ningún release.</p>
 
 <p>El instalador administrado en canal beta sigue <code>main</code> y requiere Go 1.25.10+:</p>
 <pre># macOS / Linux
@@ -1387,7 +1385,7 @@ $env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentl
 <dd>Un hallazgo que el cambio introdujo. Solo los severos de esta clase pueden bloquear. Los preexistentes se convierten en seguimientos.</dd>
 
 <dt>Presupuesto de corrección</dt>
-<dd>El límite de líneas para la única corrección permitida: <code>min(200, ceil(líneas_originales_cambiadas / 2))</code>. Se congela en START y no se recalcula.</dd>
+<dd>El límite de líneas para la única corrección permitida: <code>min(200, ceil(original_changed_lines / 2))</code>. Se congela en START y no se recalcula.</dd>
 
 <dt>Delta-spec</dt>
 <dd>La especificación parcial de un cambio en curso. Al archivar, se fusiona con las specs principales del proyecto.</dd>
@@ -1399,7 +1397,7 @@ $env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentl
 <h2 id="docs">Documentación oficial</h2>
 <div class="tblwrap">
 <table>
-<thead><tr><th>Tu tarea</th><th>Empezá acá</th></tr></thead>
+<thead><tr><th>Tu tarea</th><th>Empieza aquí</th></tr></thead>
 <tbody>
 <tr><td>Entender el modelo mental de Gentle AI</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/intended-usage.md" target="_blank" rel="noopener">Intended Usage</a></td></tr>
 <tr><td>Elegir entre ruteo directo, delegado o SDD opcional</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/trigger-rules.md" target="_blank" rel="noopener">Organic Implementation Routing</a></td></tr>
@@ -1418,3 +1416,4 @@ $env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentl
 </div>
 
 <p class="foot">Esta página resume la documentación oficial de Gentle AI. Ante cualquier diferencia, la fuente de verdad son los documentos del repositorio enlazados arriba. Gentle AI se distribuye bajo licencia MIT.</p>
+</>}
