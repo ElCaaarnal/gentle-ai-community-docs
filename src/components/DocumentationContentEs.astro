@@ -798,7 +798,7 @@ gentle-ai review schema final-verification-incident</pre>
 
 <h2 id="flujo-organico">Flujo orgánico completo</h2>
 <p>El agente elige la ruta más chica útil y RDD entra al final, sobre el candidato congelado.</p>
-<div class="mermaid">
+<pre class="mermaid">
 flowchart TD
     A["El usuario pide un cambio"] --> B&#123;"Ruta de<br/>implementación"&#125;
     B -->|"decidir/verificar<br/>1-3 archivos"| C["Directa inline"]
@@ -832,11 +832,11 @@ flowchart TD
     style Q fill:#49443C,stroke:#FF9E3B,color:#DCD7BA
     style U fill:#43242B,stroke:#D27E99,color:#DCD7BA
     style Z fill:#1F1F28,stroke:#54546D,color:#727169
-</div>
+</pre>
 
 <h2 id="flujo-sdd">Flujo SDD completo</h2>
 <p>Primero los artefactos durables de planificación, después apply, verificación independiente y una oferta opcional de revisión RDD. El archivado y la entrega siguen la política ordinaria del repositorio.</p>
-<div class="mermaid">
+<pre class="mermaid">
 flowchart TD
     A["sdd-new / sdd-explore<br/>(o sdd-ff para adelantar la planificación)"] --> B["Explorar<br/>investigar código y enfoques"]
     B --> C["Proponer<br/>intención - alcance - enfoque"]
@@ -865,7 +865,7 @@ flowchart TD
     style O fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
     style P fill:#49443C,stroke:#FF9E3B,color:#DCD7BA
     style T fill:#43242B,stroke:#D27E99,color:#DCD7BA
-</div>
+</pre>
 
 
 <hr>

@@ -794,7 +794,7 @@ gentle-ai review schema final-verification-incident</pre>
 
 <h2 id="flujo-organico">Complete organic workflow</h2>
 <p>The agent chooses the smallest useful route, and RDD enters at the end over the frozen candidate.</p>
-<div class="mermaid">
+<pre class="mermaid">
 flowchart TD
     A["The user requests a change"] --> B&#123;"Implementation<br/>route"&#125;
     B -->|"decide/verify<br/>1-3 files"| C["Inline direct"]
@@ -828,11 +828,11 @@ flowchart TD
     style Q fill:#49443C,stroke:#FF9E3B,color:#DCD7BA
     style U fill:#43242B,stroke:#D27E99,color:#DCD7BA
     style Z fill:#1F1F28,stroke:#54546D,color:#727169
-</div>
+</pre>
 
 <h2 id="flujo-sdd">Complete SDD workflow</h2>
 <p>First come durable planning artifacts, then apply, independent verification, and an optional RDD review offer. Archiving and delivery follow ordinary repository policy.</p>
-<div class="mermaid">
+<pre class="mermaid">
 flowchart TD
     A["sdd-new / sdd-explore<br/>(or sdd-ff to advance planning)"] --> B["Explore<br/>investigate code and approaches"]
     B --> C["Propose<br/>intent - scope - approach"]
@@ -861,7 +861,7 @@ flowchart TD
     style O fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
     style P fill:#49443C,stroke:#FF9E3B,color:#DCD7BA
     style T fill:#43242B,stroke:#D27E99,color:#DCD7BA
-</div>
+</pre>
 
 <hr>
 
