@@ -141,6 +141,7 @@ brew install gentle-ai</pre>
 <p>La persona se selecciona por separado en su propia pantalla y se aplica de forma independiente del preset.</p>
 </>}
 
+{!englishStart && <>
 <hr>
 
 <h2 id="engram">Engram — memoria persistente</h2>
@@ -151,7 +152,7 @@ brew install gentle-ai</pre>
   <p>El agente maneja la memoria solo. Los comandos existen para cuando querés inspeccionar, compartir o arreglar tus memorias a mano.</p>
 </div>
 
-<h3>Comandos del día a día</h3>
+<h3 id="comandos-del-dia-a-dia">Comandos del día a día</h3>
 <pre># Navegar memorias visualmente: buscar, filtrar, entrar a cada observación
 engram tui
 
@@ -162,16 +163,16 @@ engram search "refactor de auth"
 engram sync</pre>
 <p><code>engram tui</code> es la forma más rápida de ver qué viene guardando tu agente. Empezá por ahí.</p>
 
-<h3>Gestión de proyectos</h3>
+<h3 id="gestion-de-proyectos">Gestión de proyectos</h3>
 <p>Engram agrupa memorias por nombre de proyecto, autodetectado desde tu remoto de git desde la v1.11.0. A veces un mismo proyecto termina con nombres duplicados ("my-app" vs "My-App" vs "my-app-frontend"). Estos comandos lo arreglan:</p>
 <pre>engram projects list          # Lista todos los proyectos con su conteo de observaciones
 engram projects consolidate   # Fusiona nombres duplicados de forma interactiva</pre>
 <p>El equivalente MCP es <code>mem_merge_projects</code>, que el agente puede llamar directamente cuando detecta deriva de nombres.</p>
 
-<h3>Cómo funciona la detección de proyecto</h3>
+<h3 id="como-funciona-la-deteccion-de-proyecto">Cómo funciona la detección de proyecto</h3>
 <p>Desde la v1.11.0, Engram lee la URL del remoto de git al arrancar, la normaliza a minúsculas y la usa como nombre del proyecto. Si encuentra nombres existentes parecidos, te avisa. Esto previene el problema más común: que el mismo proyecto acumule memorias bajo variantes ligeramente distintas del nombre. Si trabajás fuera de un repo git, Engram usa el nombre del directorio.</p>
 
-<h3>Compartir con el equipo</h3>
+<h3 id="compartir-con-el-equipo">Compartir con el equipo</h3>
 <p>Las memorias de Engram viven localmente por defecto. Para compartirlas vía git:</p>
 <pre># Después de una sesión de trabajo: exportá las memorias a .engram/ en tu repo
 engram sync
@@ -180,7 +181,7 @@ engram sync
 engram sync --import</pre>
 <p>Agregá <code>.engram/</code> al repo y commiteálo. Cuando alguien del equipo clona y corre <code>engram sync --import</code>, obtiene el contexto completo del proyecto. Es especialmente útil para onboarding: quien recién entra arranca con el conocimiento acumulado del equipo.</p>
 
-<h3>Herramientas MCP principales</h3>
+<h3 id="herramientas-mcp-principales">Herramientas MCP principales</h3>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Herramienta</th><th>Qué hace</th></tr></thead>
@@ -210,7 +211,7 @@ engram sync --import</pre>
   <div class="card"><h4>Querés SDD explícitamente</h4><p>Decí "usá sdd" o "hazlo con sdd" y el agente arranca el flujo.</p></div>
 </div>
 
-<h3>Las diez fases</h3>
+<h3 id="las-diez-fases">Las diez fases</h3>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Fase</th><th>Qué hace</th></tr></thead>
@@ -230,7 +231,7 @@ engram sync --import</pre>
 </div>
 <p>A eso se suma <strong>Judgment Day</strong> (<code>judgment-day</code>): revisión adversarial en paralelo donde dos jueces independientes revisan el mismo objetivo.</p>
 
-<h3>Dónde viven los artefactos</h3>
+<h3 id="donde-viven-los-artefactos">Dónde viven los artefactos</h3>
 <p>Los artefactos de SDD pueden persistirse en tres modos:</p>
 <ul>
 <li><strong>Engram</strong> — memoria entre sesiones.</li>
@@ -238,7 +239,7 @@ engram sync --import</pre>
 <li><strong>Híbrido</strong> — ambos.</li>
 </ul>
 
-<h3>Sub-agentes: más inteligentes de lo que parecen</h3>
+<h3 id="sub-agentes-mas-inteligentes-de-lo-que-parecen">Sub-agentes: más inteligentes de lo que parecen</h3>
 <p>Cuando el orquestador delega trabajo a un sub-agente, ese sub-agente no es un ejecutor tonto corriendo un script. Es un agente completo, con su propia sesión, herramientas y contexto.</p>
 <ol class="steps">
 <li><strong>El orquestador los mantiene enfocados.</strong> Resuelve el registro de skills una vez, pasa las rutas relevantes de <code>SKILL.md</code> dentro del prompt de cada sub-agente y le da un rol concreto. Los sub-agentes leen los archivos de skill exactos en lugar de recibir resúmenes generados.</li>
@@ -255,7 +256,7 @@ engram sync --import</pre>
   <p style="margin-top:8px"><strong>Lo que NO es cierto hoy:</strong> no hay un parser o validador del lado de Go que imponga un esquema canónico; no hay un contrato de compatibilidad fuerte que garantice que cada campo documentado se consuma de forma uniforme en todas las fases. La forma exacta se entiende mejor como la convención actual del repo, no como una especificación pública fija.</p>
 </div>
 
-<h3>Qué se puede personalizar</h3>
+<h3 id="que-se-puede-personalizar">Qué se puede personalizar</h3>
 <ul>
 <li>Contexto del proyecto reutilizado entre fases.</li>
 <li>Activación de TDD estricto.</li>
@@ -264,7 +265,7 @@ engram sync --import</pre>
 <li>Caché de capacidades de testing detectadas para los flujos de apply/verify.</li>
 </ul>
 
-<h3>Qué fases lo referencian</h3>
+<h3 id="que-fases-lo-referencian">Qué fases lo referencian</h3>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Fase</th><th>Cómo usa la config</th></tr></thead>
@@ -282,7 +283,7 @@ engram sync --import</pre>
 </table>
 </div>
 
-<h3>Ejemplo de estructura</h3>
+<h3 id="ejemplo-de-estructura">Ejemplo de estructura</h3>
 <p>Combinando el documento de convención compartida, la guía de <code>sdd-init</code> y las referencias de apply/verify, la estructura práctica de nivel superior se ve así:</p>
 <pre>schema: spec-driven
 
@@ -320,7 +321,7 @@ testing:
     framework: "Go standard testing"</pre>
 <p>Tomalo como una síntesis práctica de los campos que la capa de prompts puede leer o emitir hoy, no como una definición estricta de esquema.</p>
 
-<h3>Inconsistencias conocidas</h3>
+<h3 id="inconsistencias-conocidas">Inconsistencias conocidas</h3>
 <p>La forma del archivo todavía no es uniforme. En los ejemplos actuales:</p>
 <ul>
 <li><code>sdd-init</code> muestra <code>rules.apply</code> y <code>rules.verify</code> como listas planas de instrucciones.</li>
@@ -344,7 +345,7 @@ testing:
 
 <h2 id="skills">Skills y registro de skills</h2>
 
-<h3>Dos capas de skills</h3>
+<h3 id="dos-capas-de-skills">Dos capas de skills</h3>
 <p>Gentle AI instala <strong>skills de SDD</strong> y <strong>skills de base</strong> (flujo de trabajo, patrones de testing) directamente en el directorio de skills de tu agente. Están embebidas en el binario y siempre actualizadas. Son 22 archivos de skill.</p>
 <p>Para <strong>skills de código</strong> — React 19, Angular, TypeScript, Tailwind 4, Zod 4, Playwright, etc. — la comunidad mantiene un repositorio aparte: <a href="https://github.com/Gentleman-Programming/Gentleman-Skills" target="_blank" rel="noopener">Gentleman-Programming/Gentleman-Skills</a>. Esas se instalan a mano:</p>
 <pre>git clone https://github.com/Gentleman-Programming/Gentleman-Skills.git
@@ -373,10 +374,11 @@ cp -r Gentleman-Skills/curated/typescript ~/.claude/skills/
 </table>
 </div>
 
-<h3>El registro de skills</h3>
+<h3 id="el-registro-de-skills">El registro de skills</h3>
 <p>El registro es un <strong>índice local del proyecto</strong> que permite que todos los agentes soportados encuentren las mismas skills sin reescribirlas. Guarda nombres, descripciones completas, alcances y rutas exactas de <code>SKILL.md</code>.</p>
 
 <pre>gentle-ai skill-registry refresh
+# Solo si necesitás explícitamente volver a escanear todo:
 gentle-ai skill-registry refresh --force
 gentle-ai skill-registry refresh --cwd /ruta/al/proyecto --quiet</pre>
 
@@ -440,6 +442,7 @@ El sub-agente ejecuta con la intención original de la skill intacta</pre>
 <pre>gentle-ai skill-registry list          # name&lt;TAB&gt;scope&lt;TAB&gt;path
 gentle-ai skill-registry list --json   # legible por máquina, incluye descripciones</pre>
 <p>La caché usa un fingerprint que incluye la versión de esquema más la ruta, mtime y tamaño de cada <code>SKILL.md</code> descubierto, así que un arranque normal es un cache-hit barato cuando las skills no cambiaron.</p>
+</>}
 
 <h2 id="personas">Personas</h2>
 <div class="tblwrap">

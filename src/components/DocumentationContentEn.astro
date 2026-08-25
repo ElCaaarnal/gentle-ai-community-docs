@@ -133,3 +133,305 @@ brew install gentle-ai</pre>
 </table>
 </div>
 <p>The persona is selected separately on its own screen and is applied independently of the preset.</p>
+
+<hr>
+
+<h2 id="engram">Engram — persistent memory</h2>
+<p>Engram is your agent's persistent memory. It stores decisions, discoveries, bug fixes, and context between sessions <strong>automatically</strong>. The agent manages it through MCP tools.</p>
+
+<div class="ok">
+  <b>You do not need to do anything in day-to-day work</b>
+  <p>The agent manages memory on its own. The commands exist for the occasions when you want to inspect, share, or repair your memories manually.</p>
+</div>
+
+<h3 id="comandos-del-dia-a-dia">Everyday commands</h3>
+<pre># Browse memories visually: search, filter, and open each observation
+engram tui
+
+# Search from the terminal without opening the TUI
+engram search "auth refactor"
+
+# Export project memories to .engram/ so they can be committed to Git
+engram sync</pre>
+<p><code>engram tui</code> is the fastest way to see what your agent has been saving. Start there.</p>
+
+<h3 id="gestion-de-proyectos">Project management</h3>
+<p>Since v1.11.0, Engram groups memories by project name, automatically detected from your Git remote. Sometimes one project ends up with duplicate names ("my-app" vs "My-App" vs "my-app-frontend"). These commands resolve that:</p>
+<pre>engram projects list          # List all projects with their observation count
+engram projects consolidate   # Interactively merge duplicate names</pre>
+<p>The MCP equivalent is <code>mem_merge_projects</code>, which the agent can call directly when it detects naming drift.</p>
+
+<h3 id="como-funciona-la-deteccion-de-proyecto">How project detection works</h3>
+<p>Since v1.11.0, Engram reads the Git remote URL at startup, normalizes it to lowercase, and uses it as the project name. If it finds similar existing names, it notifies you. This prevents the most common problem: the same project accumulating memories under slightly different names. Outside a Git repository, Engram uses the directory name.</p>
+
+<h3 id="compartir-con-el-equipo">Sharing with the team</h3>
+<p>By default, memories remain local. To share them through Git:</p>
+<pre># After a work session: export to .engram/ in your repository
+engram sync
+
+# On another machine: import memories after cloning
+engram sync --import</pre>
+<p>Add <code>.engram/</code> to the repository and commit it. When someone clones the repository and runs <code>engram sync --import</code>, they receive the complete project context. This is especially useful for onboarding: new teammates start with the accumulated knowledge.</p>
+
+<h3 id="herramientas-mcp-principales">Core MCP tools</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Tool</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td><code>mem_save</code></td><td>Saves a decision, bug fix, discovery, or convention. From Engram v1.15.3+, it captures the user prompt on a best-effort basis when prompt context already exists for the same project and session</td></tr>
+<tr><td><code>mem_search</code></td><td>Searches memory by words and returns matching observations</td></tr>
+<tr><td><code>mem_context</code></td><td>Retrieves the recent session history (called at session start)</td></tr>
+<tr><td><code>mem_session_summary</code></td><td>Saves an end-of-session summary so the next session has context</td></tr>
+<tr><td><code>mem_get_observation</code></td><td>Retrieves the full, untruncated content of an observation by ID</td></tr>
+<tr><td><code>mem_save_prompt</code></td><td>Saves the user prompt and feeds session activity so a later <code>mem_save</code> can capture and deduplicate it</td></tr>
+</tbody>
+</table>
+</div>
+<p>Advanced tools — <code>mem_update</code>, <code>mem_suggest_topic_key</code>, <code>mem_session_start</code>/<code>mem_session_end</code>, <code>mem_stats</code>, <code>mem_delete</code>, <code>mem_timeline</code>, <code>mem_capture_passive</code>, and <code>mem_merge_projects</code> — are rarely needed, but available.</p>
+
+<div class="note">
+  <b>About <code>capture_prompt</code></b>
+  <p><code>mem_save</code> accepts the optional <code>capture_prompt</code> parameter. Leave it undefined for ordinary human or proactive saves. Use <code>capture_prompt: false</code> only for automated artifacts: SDD proposal, spec, design, task, apply, verify, archive, and init reports; testing-capability caches; onboarding or state artifacts; or skill-registry output. If the MCP server has no prompt context, <code>mem_save</code> still succeeds and does not invent text.</p>
+</div>
+
+<h2 id="sdd">SDD — specification-driven development</h2>
+<p>SDD is a structured planning workflow for substantial features. It has phases, but <strong>you do not need to learn any of them</strong>.</p>
+
+<div class="cards">
+  <div class="card"><h4>Small request</h4><p>The agent does it. No ceremony.</p></div>
+  <div class="card"><h4>Substantial feature</h4><p>The agent suggests SDD to plan it properly: explore the code, propose an approach, design the architecture, and then implement it step by step.</p></div>
+  <div class="card"><h4>You explicitly want SDD</h4><p>Say "use sdd" and the agent starts the workflow.</p></div>
+</div>
+
+<h3 id="las-diez-fases">The ten phases</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Phase</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td><code>sdd-init</code></td><td>Initializes SDD context in a project</td></tr>
+<tr><td><code>sdd-explore</code></td><td>Investigates the code before committing to a change</td></tr>
+<tr><td><code>sdd-propose</code></td><td>Creates the change proposal with intent, scope, and approach</td></tr>
+<tr><td><code>sdd-spec</code></td><td>Writes specifications with requirements and scenarios</td></tr>
+<tr><td><code>sdd-design</code></td><td>Creates the technical design with architectural decisions</td></tr>
+<tr><td><code>sdd-tasks</code></td><td>Breaks the change into ordered implementation tasks</td></tr>
+<tr><td><code>sdd-apply</code></td><td>Implements tasks according to the specs and design</td></tr>
+<tr><td><code>sdd-verify</code></td><td>Validates that the implementation matches the specs</td></tr>
+<tr><td><code>sdd-archive</code></td><td>Synchronizes delta specs with the main specs and archives them</td></tr>
+<tr><td><code>sdd-onboard</code></td><td>Runs an end-to-end guided tour of the real codebase</td></tr>
+</tbody>
+</table>
+</div>
+<p>This is joined by <strong>Judgment Day</strong> (<code>judgment-day</code>): a parallel adversarial review in which two independent judges review the same objective.</p>
+
+<h3 id="donde-viven-los-artefactos">Where artifacts live</h3>
+<p>SDD artifacts can be persisted in three modes:</p>
+<ul>
+<li><strong>Engram</strong> — memory between sessions.</li>
+<li><strong>OpenSpec</strong> — versioned files in the repository.</li>
+<li><strong>Hybrid</strong> — both.</li>
+</ul>
+
+<h3 id="sub-agentes-mas-inteligentes-de-lo-que-parecen">Sub-agents: smarter than they seem</h3>
+<p>When the orchestrator delegates work to a sub-agent, that sub-agent is not a simple script executor. It is a complete agent with its own session, tools, and context.</p>
+<ol class="steps">
+<li><strong>The orchestrator keeps them focused.</strong> It resolves the skill registry once, passes relevant <code>SKILL.md</code> paths in each sub-agent prompt, and gives it a concrete role. Sub-agents read the exact skill files instead of receiving generated summaries.</li>
+<li><strong>They adapt to your project.</strong> An <code>sdd-apply</code> sub-agent working with React receives React patterns. The same sub-agent working with Go receives Go testing conventions. Rules depend on the registry and task context, not a hard-coded list.</li>
+<li><strong>They persist phase artifacts when the backend supports it.</strong> In Engram-backed SDD workflows, phase agents save artifacts before returning. The next phase can continue from the saved proposal, spec, design, tasks, or apply progress — even across sessions.</li>
+</ol>
+
+<h2 id="openspec">OpenSpec — <code>openspec/config.yaml</code></h2>
+<p><code>openspec/config.yaml</code> is a <strong>documented project-level convention</strong> for SDD when you work in <code>openspec</code> or <code>hybrid</code> persistence mode.</p>
+
+<div class="warn">
+  <b>Current convention, not a stable contract</b>
+  <p>Support today is primarily prompt-driven. SDD skills and orchestrator prompts tell agents to read or write this file, and <code>sdd-init</code> shows the forms agents are expected to create.</p>
+  <p style="margin-top:8px"><strong>What is NOT true today:</strong> there is no Go-side parser or validator enforcing a canonical schema, and no strong compatibility contract guarantees that every documented field is consumed consistently in every phase. The exact shape is best understood as the repository's current convention, not a fixed public specification.</p>
+</div>
+
+<h3 id="que-se-puede-personalizar">What you can customize</h3>
+<ul>
+<li>Project context reused between phases.</li>
+<li>Strict TDD activation.</li>
+<li>Phase-specific rules for proposal, specs, design, tasks, apply, verify, and archive.</li>
+<li>Testing-command and coverage overrides used by apply/verify prompts.</li>
+<li>A cache of detected testing capabilities for apply/verify workflows.</li>
+</ul>
+
+<h3 id="que-fases-lo-referencian">Which phases reference it</h3>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Phase</th><th>How it uses the configuration</th></tr></thead>
+<tbody>
+<tr><td><code>sdd-init</code></td><td>In OpenSpec mode, prompt instructions direct the agent to create the file and write the detected <code>context</code>, <code>rules</code>, and <code>testing</code> sections</td></tr>
+<tr><td><code>sdd-explore</code></td><td>Reads it as part of context discovery</td></tr>
+<tr><td><code>sdd-propose</code></td><td>Applies <code>rules.proposal</code> when present</td></tr>
+<tr><td><code>sdd-design</code></td><td>Applies <code>rules.design</code> when present</td></tr>
+<tr><td><code>sdd-spec</code></td><td>Applies <code>rules.specs</code> when present</td></tr>
+<tr><td><code>sdd-tasks</code></td><td>Applies <code>rules.tasks</code> when present</td></tr>
+<tr><td><code>sdd-apply</code></td><td>Reads <code>strict_tdd</code>, <code>testing</code>, and <code>rules.apply</code> when present</td></tr>
+<tr><td><code>sdd-verify</code></td><td>Reads <code>strict_tdd</code>, <code>testing</code>, and <code>rules.verify</code> when present</td></tr>
+<tr><td><code>sdd-archive</code></td><td>Applies <code>rules.archive</code> when present</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="ejemplo-de-estructura">Example structure</h3>
+<p>Combining the shared convention document, the <code>sdd-init</code> guide, and apply/verify references, the practical top-level structure looks like this:</p>
+<pre>schema: spec-driven
+
+context: |
+  Tech stack: ...
+  Architecture: ...
+  Testing: ...
+  Style: ...
+
+strict_tdd: true
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+  specs:
+    - Use Given/When/Then for scenarios
+  design:
+    - Document architecture decisions with rationale
+  tasks:
+    - Keep tasks completable in one session
+  apply:
+    - Follow existing code patterns
+  verify:
+    test_command: ""
+    build_command: ""
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
+
+testing:
+  strict_tdd: true
+  detected: "YYYY-MM-DD"
+  runner:
+    command: "go test ./..."
+    framework: "Go standard testing"</pre>
+<p>Treat this as a practical synthesis of fields that the prompt layer can read or emit today, not as a strict schema definition.</p>
+
+<h3 id="inconsistencias-conocidas">Known inconsistencies</h3>
+<p>The file shape is not yet uniform. Current examples show:</p>
+<ul>
+<li><code>sdd-init</code> presents <code>rules.apply</code> and <code>rules.verify</code> as flat instruction lists.</li>
+<li>The shared convention document presents <code>rules.apply</code> with <code>tdd</code> and <code>test_command</code>, and <code>rules.verify</code> with structured override keys.</li>
+<li><code>sdd-apply/strict-tdd.md</code> refers to <code>rules.apply.test_command</code>.</li>
+<li><code>sdd-verify</code> refers to <code>rules.verify.test_command</code>, <code>rules.verify.build_command</code>, and <code>rules.verify.coverage_threshold</code>.</li>
+</ul>
+<p>In other words, <code>rules.apply</code> and <code>rules.verify</code> are currently treated as if they can contain structured keys, while other examples show the same phase rules as flat lists.</p>
+
+<h2 id="tdd">Strict TDD</h2>
+<p>Strict TDD mode is enabled when the project has detectable testing support.</p>
+<ul>
+<li><code>/sdd-init</code> detects the project's testing capabilities and enables Strict TDD when they are available.</li>
+<li>When Strict TDD is active, <strong><code>sdd-apply</code> works test-first</strong>.</li>
+<li><strong><code>sdd-verify</code> audits RED/GREEN evidence</strong> and runs verification.</li>
+<li>The <code>strict_tdd</code> flag in <code>openspec/config.yaml</code> enables or disables it; <code>sdd-init</code>, orchestrator prompts, <code>sdd-apply</code>, and <code>sdd-verify</code> reference it.</li>
+<li>The <code>testing</code> section caches detected capabilities so apply/verify workflows do not need to rediscover them every time.</li>
+<li>It can also be enabled when synchronizing with <code>gentle-ai sync --strict-tdd</code>.</li>
+</ul>
+<p>In Pi, support assets live in <code>.pi/gentle-ai/support/strict-tdd.md</code> and <code>.pi/gentle-ai/support/strict-tdd-verify.md</code>.</p>
+
+<h2 id="skills">Skills and the skill registry</h2>
+
+<h3 id="dos-capas-de-skills">Two skill layers</h3>
+<p>Gentle AI installs <strong>SDD skills</strong> and <strong>base skills</strong> (workflow and testing patterns) directly in your agent's skills directory. They are embedded in the binary and always current. There are 22 skill files.</p>
+<p>For <strong>code skills</strong> — React 19, Angular, TypeScript, Tailwind 4, Zod 4, Playwright, and more — the community maintains a separate repository: <a href="https://github.com/Gentleman-Programming/Gentleman-Skills" target="_blank" rel="noopener">Gentleman-Programming/Gentleman-Skills</a>. Install them manually:</p>
+<pre>git clone https://github.com/Gentleman-Programming/Gentleman-Skills.git
+cp -r Gentleman-Skills/curated/react-19 ~/.claude/skills/
+cp -r Gentleman-Skills/curated/typescript ~/.claude/skills/
+# ... or copy the entire curated/ directory</pre>
+<p>Once installed, the agent detects what you are working on and loads relevant skills automatically. You do not need to activate or invoke them.</p>
+
+<h4>Included base skills</h4>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Skill</th><th>ID</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td>Go Testing</td><td><code>go-testing</code></td><td>Go testing patterns, including Bubbletea TUI testing</td></tr>
+<tr><td>Skill Creator</td><td><code>skill-creator</code></td><td>Creates new skills following the Agent Skills specification</td></tr>
+<tr><td>Skill Improver</td><td><code>skill-improver</code></td><td>Audits and improves existing skills against the repository style guide</td></tr>
+<tr><td>Branch &amp; PR</td><td><code>branch-pr</code></td><td>Pull-request workflow with conventional commits, branch names, and the issue-first rule</td></tr>
+<tr><td>Issue Creation</td><td><code>issue-creation</code></td><td>Workflow for creating issues with bug and feature-request templates</td></tr>
+<tr><td>Skill Registry</td><td><code>skill-registry</code></td><td>Builds an index of installed skills with triggers, scopes, and exact <code>SKILL.md</code> paths</td></tr>
+<tr><td>Chained PR</td><td><code>chained-pr</code></td><td>Plans and creates reviewable chained pull requests</td></tr>
+<tr><td>Cognitive Doc Design</td><td><code>cognitive-doc-design</code></td><td>Writes documentation that reduces review and onboarding cognitive load</td></tr>
+<tr><td>Comment Writer</td><td><code>comment-writer</code></td><td>Writes warm, direct collaboration comments and review replies</td></tr>
+<tr><td>Work Unit Commits</td><td><code>work-unit-commits</code></td><td>Splits implementation into reviewable work units</td></tr>
+<tr><td>RDD Defect Workflow</td><td><code>rdd-defect-workflow</code></td><td>Guides work on RDD defects with truthful evidence and bounded authority</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="el-registro-de-skills">The skill registry</h3>
+<p>The registry is a <strong>local project index</strong> that lets every supported agent find the same skills without rewriting them. It stores names, full descriptions, scopes, and exact <code>SKILL.md</code> paths.</p>
+
+<pre>gentle-ai skill-registry refresh
+
+# Only if you explicitly need to rescan everything:
+gentle-ai skill-registry refresh --force
+gentle-ai skill-registry refresh --cwd /path/to/project --quiet</pre>
+
+<h4>Refresh flow</h4>
+<pre>gentle-ai skill-registry refresh
+   │
+   ├─ Scan project skill roots first
+   │     skills/, .opencode/skills/, .claude/skills/, .github/skills/, ...
+   │
+   ├─ Then scan global agent roots
+   │     ~/.config/opencode/skills/, ~/.claude/skills/, ...
+   │
+   ├─ Deduplicate by skill name
+   │     the project skill takes precedence over the global skill
+   │
+   ├─ Parse frontmatter
+   │     name + full description + path + scope
+   │
+   └─ Write .atl/skill-registry.md + cache</pre>
+
+<h4>Runtime flow</h4>
+<pre>User task
+   │
+   ▼
+The orchestrator reads .atl/skill-registry.md
+   │
+   ▼
+Compares the task and file context against full descriptions
+   │
+   ▼
+Passes exact SKILL.md paths to the sub-agent
+   │
+   ▼
+The sub-agent reads complete skills before working
+   │
+   ▼
+The sub-agent executes with the skill's original intent intact</pre>
+
+<h4>Registry contract</h4>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>Skill</code></td><td>The frontmatter <code>name</code>, or the directory name as a fallback</td></tr>
+<tr><td><code>Trigger / description</code></td><td>The complete <code>description</code>, including folded multiline YAML descriptions</td></tr>
+<tr><td><code>Scope</code></td><td><code>project</code> or <code>user</code></td></tr>
+<tr><td><code>Path</code></td><td>The exact <code>SKILL.md</code> file to load</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="note">
+  <b>Why use an index instead of compact rules</b>
+  <p>Compact summaries were cheaper per delegation, but could distort skills. The index-first design spends tokens only when a sub-agent actually needs a skill and preserves the complete runtime contract.</p>
+</div>
+
+<h4>Excluded skills</h4>
+<p>The registry never indexes <code>_shared</code>, <code>skill-registry</code>, or any <code>sdd-*</code> skill. The first two are internal plumbing; <code>sdd-*</code> skills are managed by the SDD workflow, not the delegator. The exclusion is intentional and silent, so a user skill whose name collides with these prefixes is discarded without warning.</p>
+
+<h4>Inspect without writing</h4>
+<pre>gentle-ai skill-registry list          # name&lt;TAB&gt;scope&lt;TAB&gt;path
+gentle-ai skill-registry list --json   # machine-readable, including descriptions</pre>
+<p>The cache uses a fingerprint that includes the schema version plus the path, mtime, and size of every discovered <code>SKILL.md</code>, so a normal startup is a cheap cache hit when skills have not changed.</p>
