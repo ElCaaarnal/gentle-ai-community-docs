@@ -7,6 +7,11 @@ async function expectNoRedirect(page: import('@playwright/test').Page, path: str
   expect(response?.request().redirectedFrom()).toBeNull();
 }
 
+async function openLocaleSwitcher(page: import('@playwright/test').Page) {
+  const menu = page.locator('#menuBtn');
+  if (await menu.isVisible()) await menu.click();
+}
+
 test('locale links have usable no-JavaScript base routes without redirects', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
@@ -22,6 +27,7 @@ test('locale links have usable no-JavaScript base routes without redirects', asy
 
 test('a valid H2 or H3 fragment survives a locale switch and receives focus', async ({ page }) => {
   await page.goto('/#rdd-ciclo');
+  await openLocaleSwitcher(page);
   await page.getByRole('link', { name: 'Español', exact: true }).click();
 
   await expect(page).toHaveURL(/\/es\/#rdd-ciclo$/);
@@ -30,6 +36,7 @@ test('a valid H2 or H3 fragment survives a locale switch and receives focus', as
 
 test('unknown or encoded fragments fall back to a usable alternate route and main content', async ({ page }) => {
   await page.goto('/#unknown%20fragment');
+  await openLocaleSwitcher(page);
   await page.getByRole('link', { name: 'Español', exact: true }).click();
 
   await expect(page).toHaveURL(/\/es\/$/);
@@ -248,4 +255,44 @@ test('version policy and reference content is localized with exact shared litera
   await expect(page.locator('h2#glosario')).toContainText('Glosario');
   await expect(page.locator('h2#docs')).toContainText('Documentación oficial');
   await expect(page.locator('h2#glosario + dl dt').allTextContents()).resolves.toEqual(spanishGlossary.map((term) => expect.stringContaining(term)));
+});
+
+test('browser matrix keeps locale behavior, search, scrollspy, focus, tables, and visual surfaces stable', async ({ page }, testInfo) => {
+  const locales = [
+    { path: '/', search: 'What is Gentle AI', heading: 'What is Gentle AI', noResults: 'No results' },
+    { path: '/es/', search: 'Qué es Gentle AI', heading: 'Qué es Gentle AI', noResults: 'Sin resultados' },
+  ];
+  const narrow = testInfo.project.name === 'chromium-narrow';
+  const sitemapIndex = await page.request.get('/sitemap-index.xml');
+  expect(sitemapIndex.status()).toBe(200);
+  await expect(sitemapIndex.text()).resolves.toContain('sitemap-0.xml');
+  const sitemap = await page.request.get('/sitemap-0.xml');
+  expect(sitemap.status()).toBe(200);
+  const sitemapText = await sitemap.text();
+  expect(sitemapText).toContain('https://docs-gentle-ai.netlify.app/');
+  expect(sitemapText).toContain('https://docs-gentle-ai.netlify.app/es/');
+
+  for (const locale of locales) {
+    await page.goto(locale.path);
+    await expect(page.locator('.hero img')).toHaveAttribute('src', '/banner.webp');
+    await page.locator(narrow ? '#searchBtnM' : '#searchBtn').click();
+    await expect(page.locator('#searchResults .hit')).not.toHaveCount(0);
+    await page.locator('#searchInput').fill(locale.search);
+    await expect(page.locator('#searchResults .hit')).toContainText(locale.heading);
+    await page.locator('#searchInput').fill('not-a-documentation-match');
+    await expect(page.locator('#searchResults .empty')).toHaveText(locale.noResults);
+    await page.keyboard.press('Escape');
+
+    await page.locator('#rdd').evaluate((heading) => window.scrollTo(0, heading.getBoundingClientRect().top + window.scrollY - 120));
+    await expect(page.locator('#nav > a[href="#rdd"]')).toHaveClass(/active/);
+    await page.goto(`${locale.path}#rdd-ciclo`);
+    await expect(page.locator('#rdd-ciclo')).toBeFocused();
+    await expect(page.locator('.tblwrap td[data-label]').first()).toBeVisible();
+
+    if (narrow) {
+      await expect(page.locator('h2#docs + .tblwrap')).toHaveScreenshot(`narrow-table-${locale.path === '/' ? 'en' : 'es'}.png`, { animations: 'disabled' });
+    } else {
+      await expect(page.locator('.hero')).toHaveScreenshot(`hero-${locale.path === '/' ? 'en' : 'es'}.png`, { animations: 'disabled' });
+    }
+  }
 });
