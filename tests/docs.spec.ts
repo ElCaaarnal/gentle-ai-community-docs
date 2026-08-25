@@ -69,3 +69,19 @@ test('ecosystem uses localized headings with matching canonical IDs', async ({ p
   await expect(page.locator('h2#engram')).toContainText('memoria persistente');
   await expect(page.locator('h2#skills')).toContainText('registro de skills');
 });
+
+test('agent behavior uses localized headings with matching canonical IDs', async ({ page }) => {
+  const ids = ['personas', 'ruteo', 'delegacion', 'estados', 'las-tres-rutas'];
+
+  for (const route of ['/', '/es/']) {
+    await page.goto(route);
+    expect(await page.locator('[id]').evaluateAll((elements, expected) => expected.every((id) => elements.some((element) => element.id === id)), ids)).toBe(true);
+  }
+
+  await page.goto('/');
+  await expect(page.locator('h2#ruteo')).toContainText('Organic implementation routing');
+  await expect(page.locator('h3#las-tres-rutas')).toContainText('The three routes');
+  await page.goto('/es/');
+  await expect(page.locator('h2#ruteo')).toContainText('Ruteo orgánico de implementación');
+  await expect(page.locator('h3#las-tres-rutas')).toContainText('Las tres rutas');
+});

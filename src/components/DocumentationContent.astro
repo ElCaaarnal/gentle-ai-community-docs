@@ -444,6 +444,7 @@ gentle-ai skill-registry list --json   # legible por máquina, incluye descripci
 <p>La caché usa un fingerprint que incluye la versión de esquema más la ruta, mtime y tamaño de cada <code>SKILL.md</code> descubierto, así que un arranque normal es un cache-hit barato cuando las skills no cambiaron.</p>
 </>}
 
+{!englishStart && <>
 <h2 id="personas">Personas</h2>
 <div class="tblwrap">
 <table>
@@ -467,7 +468,7 @@ gentle-ai skill-registry list --json   # legible por máquina, incluye descripci
   <p>El conteo de archivos, las líneas cambiadas, el tamaño o el riesgo percibido <strong>nunca</strong> seleccionan SDD por sí solos. Solo lo hace un pedido explícito o una propuesta aceptada.</p>
 </div>
 
-<h3>Las tres rutas</h3>
+<h3 id="las-tres-rutas">Las tres rutas</h3>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Ruta</th><th>Cuándo se usa</th><th>Qué pasa</th></tr></thead>
@@ -515,6 +516,7 @@ gentle-ai skill-registry list --json   # legible por máquina, incluye descripci
 </table>
 </div>
 <p>Una pregunta es necesaria solo cuando la respuesta cambia el alcance pedido, el impacto destructivo o irreversible, la exposición de permisos o seguridad, el costo de verificación o efectos secundarios externos, el riesgo residual aceptado, o la entrega.</p>
+</>}
 
 <hr>
 
