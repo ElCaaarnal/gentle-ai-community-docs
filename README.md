@@ -46,6 +46,10 @@ Deployed on Netlify:
 | Build command | `npm run build` |
 | Publish directory | `dist` |
 
+These live in `netlify.toml`, which takes precedence over the values held in the Netlify UI. Keep the two in sync.
+
+`netlify.toml` also carries an `ignore` command that cancels the build when a push changed nothing that ships — changes confined to `tests/`, `.github/`, `README.md`, or `LICENSE`. Deploy previews are not metered on the current plan; production deploys are, so a build that would republish identical output is avoided.
+
 No adapter, redirects, or serverless functions are required.
 
 ## External runtime dependencies

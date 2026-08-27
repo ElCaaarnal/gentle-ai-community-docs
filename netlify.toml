@@ -1,0 +1,13 @@
+# Mirrors the build settings held in the Netlify UI. Once this file exists it
+# takes precedence over them, so `command` and `publish` must stay in sync with
+# the values documented in README.md.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+  # Cancel the build when the push changed nothing that ships. `git diff
+  # --quiet` exits 0 when there are no differences outside the excluded paths,
+  # and Netlify cancels a build whose ignore command exits 0 — before installing
+  # dependencies. When $CACHED_COMMIT_REF is unavailable (first build, cleared
+  # cache) the diff fails and the build proceeds, which is the safe direction.
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- ':!tests/**' ':!.github/**' ':!README.md' ':!LICENSE'"
