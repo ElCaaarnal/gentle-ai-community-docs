@@ -85,8 +85,8 @@ test('getting started uses localized headings with matching canonical IDs', asyn
 });
 
 test('ecosystem uses localized headings with matching canonical IDs', async ({ page }) => {
-  const sections = ['engram', 'sdd', 'openspec', 'tdd', 'skills'];
-  const subsections = ['comandos-del-dia-a-dia', 'gestion-de-proyectos', 'como-funciona-la-deteccion-de-proyecto', 'compartir-con-el-equipo', 'herramientas-mcp-principales', 'las-diez-fases', 'donde-viven-los-artefactos', 'sub-agentes-mas-inteligentes-de-lo-que-parecen', 'que-se-puede-personalizar', 'que-fases-lo-referencian', 'ejemplo-de-estructura', 'inconsistencias-conocidas', 'dos-capas-de-skills', 'el-registro-de-skills'];
+  const sections = ['engram', 'sdd', 'sdd-research', 'openspec', 'tdd', 'skills'];
+  const subsections = ['comandos-del-dia-a-dia', 'gestion-de-proyectos', 'como-funciona-la-deteccion-de-proyecto', 'compartir-con-el-equipo', 'herramientas-mcp-principales', 'las-diez-fases', 'donde-viven-los-artefactos', 'sub-agentes-mas-inteligentes-de-lo-que-parecen', 'como-se-declara', 'que-persiste', 'la-compuerta-de-propuesta', 'que-se-puede-personalizar', 'que-fases-lo-referencian', 'ejemplo-de-estructura', 'inconsistencias-conocidas', 'dos-capas-de-skills', 'el-registro-de-skills'];
 
   for (const route of ['/', '/es/']) {
     await page.goto(route);
@@ -96,9 +96,11 @@ test('ecosystem uses localized headings with matching canonical IDs', async ({ p
 
   await page.goto('/');
   await expect(page.locator('h2#engram')).toContainText('persistent memory');
+  await expect(page.locator('h2#sdd-research')).toContainText('evidence lane');
   await expect(page.locator('h2#skills')).toContainText('skill registry');
   await page.goto('/es/');
   await expect(page.locator('h2#engram')).toContainText('memoria persistente');
+  await expect(page.locator('h2#sdd-research')).toContainText('vía de evidencia');
   await expect(page.locator('h2#skills')).toContainText('registro de skills');
 });
 
@@ -158,25 +160,31 @@ test('complete workflows use localized server-rendered headings with equivalent 
   await context.close();
 });
 
-test('both Mermaid diagrams keep their statement separators and render an SVG', async ({ browser, page }) => {
+test('every Mermaid diagram keeps its statement separators and renders an SVG', async ({ browser, page }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const sourcePage = await context.newPage();
+  const perRoute: string[][] = [];
 
   for (const route of ['/', '/es/']) {
     await sourcePage.goto(route);
     const sources = await sourcePage.locator('.mermaid').evaluateAll((nodes) => nodes.map((node) => node.textContent ?? ''));
 
     // Mermaid separates flowchart statements by newline, so the build must never collapse them.
-    expect(sources).toHaveLength(2);
+    expect(sources).toHaveLength(3);
     for (const source of sources) expect(source.trim().split('\n').length).toBeGreaterThan(10);
+    perRoute.push(sources);
 
     await page.goto(route);
     const diagrams = page.locator('.mermaid');
-    await expect(diagrams).toHaveCount(2);
+    await expect(diagrams).toHaveCount(3);
     await expect(diagrams.nth(0).locator('svg')).toBeVisible();
     await expect(diagrams.nth(1).locator('svg')).toBeVisible();
+    await expect(diagrams.nth(2).locator('svg')).toBeVisible();
     await expect(diagrams.filter({ hasText: 'Syntax error' })).toHaveCount(0);
   }
+
+  const topology = (source: string) => source.replace(/"[^"]*"/g, '""').trim();
+  expect(perRoute[0].map(topology)).toEqual(perRoute[1].map(topology));
 
   await context.close();
 });
