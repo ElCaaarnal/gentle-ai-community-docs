@@ -6,7 +6,7 @@
 <img src="/banner.webp" alt="Gentle-AI" width="1600" height="689" fetchpriority="high">
 <h1>Documentación de Gentle AI</h1>
 <p class="lede">Gentle AI equipa a los agentes de IA que ya usás con memoria persistente, desarrollo guiado por especificación, skills curadas, servidores MCP, ruteo de modelos, una persona orientada a la enseñanza y revisión nativa acotada.</p>
-<div class="meta"><span class="chip">Estable <b>v2.4.0</b></span><span class="chip">Última RC <b>v2.4.0-rc.8</b></span><span class="chip">Go <b>1.25.10+</b></span><span class="chip">Licencia <b>MIT</b></span><span class="chip">16 agentes soportados</span></div>
+<div class="meta"><span class="chip">Estable <b>v2.4.0</b></span><span class="chip">Última RC <b>v2.5.0-rc.1</b></span><span class="chip">Go <b>1.25.10+</b></span><span class="chip">Licencia <b>MIT</b></span><span class="chip">16 agentes soportados</span></div>
 </section>
 
 
@@ -1319,8 +1319,8 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
 
 <div class="warn">
   <b>La documentación del repositorio está desactualizada respecto de los releases</b>
-  <p>El README, <code>quickstart.md</code> y <code>trigger-rules.md</code> todavía nombran <code>v2.3.0</code> como estable y <code>v2.4.0-rc.1</code> como prerelease. La lista de releases indica otra cosa: <strong><code>v2.4.0</code> se publicó como estable el 2026-08-17</strong> y dejó atrás toda la serie de candidatas, que llegó hasta <code>v2.4.0-rc.8</code> (2026-08-14). Esta tabla sigue los releases, no los documentos.</p>
-  <p style="margin-top:8px">Verificado contra <a href="https://github.com/Gentleman-Programming/gentle-ai/releases" target="_blank" rel="noopener">la página de releases</a> el <strong>2026-08-22</strong>. Las versiones cambian: confirma siempre con <code>gentle-ai version</code> y con esa página.</p>
+  <p>El README, <code>quickstart.md</code> y <code>trigger-rules.md</code> todavía nombran <code>v2.3.0</code> como estable y <code>v2.4.0-rc.1</code> como prerelease. La lista de releases indica otra cosa: <strong><code>v2.4.0</code> se publicó como estable el 2026-08-17</strong> y dejó atrás toda la serie de candidatas, que llegó hasta <code>v2.4.0-rc.8</code> (2026-08-14). Después, el 2026-08-26, se abrió una nueva línea de candidatas con <strong><code>v2.5.0-rc.1</code></strong>. Esta tabla sigue los releases, no los documentos.</p>
+  <p style="margin-top:8px">Verificado contra <a href="https://github.com/Gentleman-Programming/gentle-ai/releases" target="_blank" rel="noopener">la página de releases</a> el <strong>2026-08-26</strong>. Las versiones cambian: confirma siempre con <code>gentle-ai version</code> y con esa página.</p>
 </div>
 
 <div class="tblwrap">
@@ -1328,13 +1328,13 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
 <thead><tr><th>Canal</th><th>Versión</th><th>Instalación</th></tr></thead>
 <tbody>
 <tr><td>Estable</td><td><code>v2.4.0</code> <span class="pill">2026-08-17</span></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@latest</code></td></tr>
-<tr><td>Prerelease</td><td><code>v2.4.0-rc.8</code> <span class="pill">superada</span></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@v2.4.0-rc.8</code></td></tr>
+<tr><td>Prerelease</td><td><code>v2.5.0-rc.1</code> <span class="pill">2026-08-26</span></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@v2.5.0-rc.1</code></td></tr>
 <tr><td>Desarrollo</td><td><code>main</code></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@main</code></td></tr>
 </tbody>
 </table>
 </div>
 
-<p>No hay una candidata abierta por delante de <code>v2.4.0</code>: <code>@latest</code> y la última RC apuntan hoy a la misma línea. El instalador administrado sigue la última versión del canal y <strong>no acepta un pin arbitrario</strong> de release. Usa <code>go install</code> cuando la reproducibilidad requiera una versión exacta. Usa <code>@main</code> solo para probar cambios que no forman parte de ningún release.</p>
+<p>Hay una línea de candidatas abierta por delante de <code>v2.4.0</code>, así que <code>@latest</code> y la última RC ya no apuntan a la misma línea: <code>@latest</code> sigue resolviendo a estable, y a <code>v2.5.0-rc.1</code> se llega solo con su pin exacto. El instalador administrado sigue la última versión del canal y <strong>no acepta un pin arbitrario</strong> de release, así que usa <code>go install</code> para correr la candidata, o cuando la reproducibilidad requiera una versión exacta. Usa <code>@main</code> solo para probar cambios que no forman parte de ningún release.</p>
 
 <p>El instalador administrado en canal beta sigue <code>main</code> y requiere Go 1.25.10+:</p>
 <pre># macOS / Linux
