@@ -557,6 +557,11 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 
 <h2 id="rdd-ciclo">El ciclo atómico</h2>
 <pre>STATUS sin selector → START exacto → colección/finalize acotados → aprobado + quema → política ordinaria del repositorio</pre>
+<div class="note">
+  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
+  <p>La candidata cierra la revisión en su último evento causal. Un resultado terminal de reviewer, refuter, validator, plan de corrección o zero-lens cierra la transacción y quema su linaje directamente: no hay un paso FINALIZE separado, ni publicación de receipt compacto, ni gate de entrega posterior. El ciclo que se describe abajo es el que corre en <code>v2.4.0</code>, la línea estable actual.</p>
+</div>
+
 
 <h3 id="1-status-sin-selector-solo-hace-preflight">1. STATUS sin selector solo hace preflight</h3>
 <p>STATUS sin selector evalúa <strong>únicamente el candidato del worktree actual</strong> y renderiza una invocación START exacta. <strong>No</strong> descubre autoridad ambiente, no retoma otro worktree, no recupera historia ni selecciona un linaje viejo. El padre corre solo la <code>next_transition</code> devuelta y sus tokens ordenados.</p>
@@ -573,6 +578,11 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 
 <h3 id="3-las-llamadas-atadas-manejan-la-transaccion">3. Las llamadas atadas manejan la transacción</h3>
 <p>Cada STATUS, <code>review capture-result</code> y FINALIZE posterior lleva esos tokens exactos. El padre rutea únicamente desde la <code>next_transition</code> devuelta:</p>
+<div class="note">
+  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
+  <p>FINALIZE deja de ser una de las llamadas atadas. STATUS y <code>review capture-result</code> siguen llevando los tokens exactos; la captura terminal cierra la transacción por sí misma.</p>
+</div>
+
 <div class="tblwrap">
 <table>
 <thead><tr><th>Transición</th><th>Acción del padre</th></tr></thead>
@@ -592,6 +602,11 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
   <b>Un FINALIZE no limpio no es una aprobación</b>
   <p>Esto incluye salida malformada o vacía, falla de transporte, ambigüedad post-mutación, y el caso en que la autoridad terminal ya pueda estar commiteada. El padre conserva el linaje, revisión y objetivo exactos, consulta STATUS atado una vez, y sigue solo la acción devuelta. Nunca cae en recuperación ambiente ni inventa otro linaje.</p>
 </div>
+<div class="note">
+  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
+  <p>Sin paso FINALIZE, esta forma de falla desaparece. El mismo cuidado se aplica a la captura terminal: un resultado malformado, incompleto o no disponible nunca quema autoridad, y el padre emite un único STATUS atado al objetivo en lugar de inventar un linaje.</p>
+</div>
+
 
 <h3 id="continuidad-entre-repositorios">Continuidad entre repositorios</h3>
 <p>Una sesión con raíz en el repositorio A puede revisar un objetivo anidado — explícitamente autorizado por el usuario — en un repositorio B no relacionado. Go resuelve la ruta pedida a la raíz canónica de worktree de B; los adaptadores permanecen opacos y nunca parsean autorización ni raíces.</p>
@@ -675,6 +690,11 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
   <b>La revisión nunca autoriza la entrega</b>
   <p>El estado terminal de revisión es informativo. Commit, push, PR, release y archive siguen la política ordinaria del repositorio y requieren su propia autorización explícita.</p>
 </div>
+<div class="warn">
+  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
+  <p>Los receipts compactos y sus gates de entrega se retiran por completo. La entrega sigue la política ordinaria del repositorio, y ningún estado de receipt retirado cuenta como aprobación. En la candidata, los resultados de gate que se describen abajo ya no aplican.</p>
+</div>
+
 
 <p><code>gentle-ai review validate</code> y sus gates nombrados — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code> y <code>release</code> — son comandos de compatibilidad e información. Nunca descubren autoridad ni deciden la entrega:</p>
 <div class="tblwrap">
@@ -694,6 +714,11 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 git diff --cached
 gentle-ai review start --projection staged</pre>
 <p>La proyección <code>staged</code> congela el <strong>índice existente completo</strong>, incluidas todas las rutas ya stageadas. Excluye el contenido no stageado y sin trackear del worktree, y no modifica el índice ni el worktree vivos al derivar evidencia. Inicia la revisión, pero por sí sola no emite un receipt aprobado.</p>
+<div class="note">
+  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
+  <p>Los receipts compactos se retiran, así que ninguna proyección emite uno. Una proyección sigue eligiendo qué bytes se congelan en START; simplemente no tiene receipt que retener.</p>
+</div>
+
 <p>Una autoridad existente nunca se convierte automáticamente entre proyecciones. La recuperación hereda la proyección del predecesor cuando se omite <code>--projection</code>.</p>
 
 <h3 id="codigos-de-parada">Códigos de parada</h3>
@@ -709,7 +734,7 @@ gentle-ai review start --projection staged</pre>
 <tr><td><code>lens_context_budget_exceeded</code></td><td>Terminal. El contexto inmutable del revisor no se puede truncar. Reducir el alcance del candidato e iniciar una transacción nueva</td></tr>
 <tr><td><code>corrupted_or_unverifiable_authority</code></td><td>Terminal. La autoridad es ilegible o no soportada. Pedirle a un mantenedor que la inspeccione</td></tr>
 <tr><td><code>manual_intervention_required</code></td><td>Terminal. El estado de autoridad está fuera del ciclo de vida negociado</td></tr>
-<tr><td><code>original_finalize_request_required</code></td><td>Volver a correr <code>gentle-ai review finalize --lineage &lt;id&gt;</code> con el payload original exacto atado al contenido</td></tr>
+<tr><td><code>original_finalize_request_required</code> <span class="pill">retirado en v2.5.0-rc.1</span></td><td>Volver a correr <code>gentle-ai review finalize --lineage &lt;id&gt;</code> con el payload original exacto atado al contenido</td></tr>
 <tr><td><code>native_stop_required</code></td><td>Terminal. El linaje escaló y no tiene continuación nativa</td></tr>
 <tr><td><code>empty_base_diff_bootstrap_required</code></td><td>Terminal. La base commiteada no tiene rutas revisables</td></tr>
 <tr><td><code>recovery_scope_unchanged</code></td><td>Cambiar el objetivo para que su identidad difiera, y reintentar la invocación <code>review recover</code> exacta devuelta</td></tr>
@@ -1354,7 +1379,7 @@ $env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentl
 <dd>El identificador de una transacción de revisión. Se captura en START y se replica sin cambios en cada llamada posterior. Un linaje quemado nunca se reutiliza.</dd>
 
 <dt>Receipt</dt>
-<dd>La evidencia terminal de una transacción de revisión completada. Es informativa: nunca autoriza la entrega. Al aprobarse, se quema junto con la autoridad.</dd>
+<dd>La evidencia terminal de una transacción de revisión completada. Es informativa: nunca autoriza la entrega. Al aprobarse, se quema junto con la autoridad. Retirado en <code>v2.5.0-rc.1</code>, donde la revisión cierra en su evento terminal sin publicar ninguno.</dd>
 
 <dt>Lente <span class="pill">lens</span></dt>
 <dd>Un revisor de solo lectura que juzga una sola preocupación y emite un JSON estricto. Las cuatro canónicas son Riesgo, Resiliencia, Legibilidad y Confiabilidad (4R).</dd>
@@ -1366,7 +1391,7 @@ $env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentl
 <dd>Qué congela START: <code>workspace</code> (todo el espacio de trabajo, default) o <code>staged</code> (exactamente el índice de Git).</dd>
 
 <dt>Gate</dt>
-<dd>Un punto de chequeo nombrado — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code>, <code>release</code>. Son comandos informativos y de compatibilidad: nunca permiten ni bloquean una entrega.</dd>
+<dd>Un punto de chequeo nombrado — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code>, <code>release</code>. Son comandos informativos y de compatibilidad: nunca permiten ni bloquean una entrega. Retirado en <code>v2.5.0-rc.1</code> junto con los receipts compactos.</dd>
 
 <dt>Finding causado por el candidato</dt>
 <dd>Un hallazgo que el cambio introdujo. Solo los severos de esta clase pueden bloquear. Los preexistentes se convierten en seguimientos.</dd>
