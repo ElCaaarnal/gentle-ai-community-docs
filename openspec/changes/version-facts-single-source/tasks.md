@@ -23,7 +23,9 @@ Chain strategy: pending
 - `npm run check` — expect 0 errors, 0 warnings, 0 hints
 - `npm run build`
 - `npx playwright test` — expect 28 passed
-- `rg -n "data/versions" tests/` — expect NO matches (static no-import guard)
+- `rg -n "from .[^'\"]*data/versions" tests/` — expect NO matches (static no-import guard).
+  Matches import statements only: a bare path grep also flags the explanatory comment that
+  documents why the import is forbidden, which would pressure authors to delete it.
 
 Do NOT add a `"test"` script to `package.json`.
 
