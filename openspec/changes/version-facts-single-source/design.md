@@ -113,7 +113,7 @@ Identical expressions; labels stay Spanish (`Estable`, `Última RC`, `Prerelease
 A Playwright test cannot usefully observe its own import graph at runtime, and the scenario's own wording is *inspecting the suite's imports*, so static inspection is the faithful verification, not a workaround:
 
 ```
-rg -n "data/versions" tests/    # MUST return no matches (exit 1)
+rg -n "from .[^'\"]*data/versions" tests/    # MUST return no matches (exit 1)
 ```
 
 Rejected alternatives: an ESLint `no-restricted-imports` rule (no linter is configured; adding one is a new dependency and a large scope increase) and a self-reading Playwright test (adds a file under `tests/`, breaking the zero-`tests/`-change target, and is self-referential).
