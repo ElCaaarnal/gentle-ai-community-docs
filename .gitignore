@@ -22,12 +22,11 @@ npm-debug.log*
 test-results/
 playwright-report/
 
-# Local tooling and authoring artifacts — not part of the published project
+# Machine-local caches and session state — regenerable, never authored by hand
 .codegraph/
 .pi/
 .atl/
 .claude/
-openspec/
 docs-gentle-ai/
 
 # OS

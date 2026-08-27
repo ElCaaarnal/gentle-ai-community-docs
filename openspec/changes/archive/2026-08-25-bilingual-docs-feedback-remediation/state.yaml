@@ -1,0 +1,107 @@
+{
+  "schema": "gentle-ai.sdd-preproposal/v1",
+  "revision": 5,
+  "change": "bilingual-docs-feedback-remediation",
+  "exploration": {
+    "outcome": "complete",
+    "openspec_reference": "openspec/changes/bilingual-docs-feedback-remediation/exploration.md",
+    "engram_reference": "sdd/bilingual-docs-feedback-remediation/explore"
+  },
+  "research": {
+    "selected": true,
+    "request": "Produce source-backed evidence for the five selected Astro i18n, multilingual SEO, accessible language navigation, browser and visual verification, and WebP adaptation lanes.",
+    "requested_classes": ["documentation", "open-web"],
+    "admission": "admitted",
+    "outcome": "done",
+    "revision": 2,
+    "source_coverage": {"lanes": 5, "lanes_complete": 5, "sources": 17, "documentation_sources": 4, "open_web_sources": 13},
+    "openspec_evidence_reference": "openspec/changes/bilingual-docs-feedback-remediation/research.md",
+    "engram_evidence_reference": "sdd/bilingual-docs-feedback-remediation/research"
+  },
+  "product_decisions": {
+    "status": "confirmed",
+    "confirmed_reference": "openspec/changes/bilingual-docs-feedback-remediation/exploration.md#confirmed-product-decisions",
+    "confirmed": {
+      "editorial_voice": "neutral-international",
+      "editorial_voice_policy": "Preserve meaning and intent across locales. Use clear international English and Spanish without regionalisms, slang, voseo, or dialect-specific phrasing, while retaining correct grammar, spelling, and orthographic accent marks.",
+      "production_origin": "https://docs-gentle-ai.netlify.app/",
+      "verification_harness": "lightweight-playwright",
+      "translation_governance": "english-authoritative",
+      "social_image_policy": "shared-image"
+    },
+    "pending": [],
+    "raw_editorial_answer": "Preservar intencion, Pero deben ser idiomas neutros, es decir que no lleven acentos o jergas que no puedan entender de otros estados de los paises, ¿se entiende?"
+  },
+  "discovery_prompt": {
+    "status": "completed",
+    "prompt_revision": 1,
+    "context": "Research revision 2 completed all five selected evidence lanes. Proposal admission remains blocked until the maintainer confirms the five product decisions below.",
+    "questions": [
+      {
+        "id": "editorial-voice",
+        "allowed_answers": ["locale-native", "neutral-both", "custom"],
+        "recommended": "locale-native",
+        "consequences": {
+          "locale-native": "Natural English plus the existing Rioplatense Spanish voice; translation preserves meaning and intent rather than literal phrasing.",
+          "neutral-both": "A uniform professional register across both locales, but the existing Spanish copy requires broader editorial normalization.",
+          "custom": "The maintainer supplies a different explicit voice policy."
+        }
+      },
+      {
+        "id": "production-origin",
+        "allowed_answers": ["existing-netlify", "custom-origin", "leave-pending"],
+        "recommended": "existing-netlify",
+        "consequences": {
+          "existing-netlify": "Use https://docs-gentle-ai.netlify.app/ for absolute canonical, hreflang, sitemap, Open Graph, and social-image URLs.",
+          "custom-origin": "Use a maintainer-supplied production origin instead; it must be known before metadata implementation.",
+          "leave-pending": "Keep proposal admission blocked because correct absolute metadata cannot be specified."
+        }
+      },
+      {
+        "id": "verification-harness",
+        "allowed_answers": ["lightweight-playwright", "manual-matrix"],
+        "recommended": "lightweight-playwright",
+        "consequences": {
+          "lightweight-playwright": "Add one Chromium project with a compact two-locale/two-viewport behavioral matrix and only focused visual snapshots; more setup, materially lower regression risk.",
+          "manual-matrix": "Avoid test tooling in this change, but explicitly accept recurring manual verification and residual risk around search, fragments, scrollspy, tables, and locale switching."
+        }
+      },
+      {
+        "id": "translation-governance",
+        "allowed_answers": ["english-authoritative", "coequal-locales", "spanish-authoritative"],
+        "recommended": "english-authoritative",
+        "consequences": {
+          "english-authoritative": "English is the source of truth; every content change updates Spanish in the same work unit and publication requires locale parity.",
+          "coequal-locales": "Both locales are independently authoritative and require explicit cross-locale review, increasing coordination cost and drift risk.",
+          "spanish-authoritative": "Spanish remains the source and English follows, which conflicts with the selected English-default product direction unless intentionally accepted."
+        }
+      },
+      {
+        "id": "social-image-policy",
+        "allowed_answers": ["shared-image", "locale-specific-images"],
+        "recommended": "shared-image",
+        "consequences": {
+          "shared-image": "Both locales use the same adapted banner, minimizing asset and review overhead; best when the image contains no locale-specific text.",
+          "locale-specific-images": "Each locale gets its own social image, improving localized presentation but doubling generation, metadata, and visual-review work."
+        }
+      }
+    ]
+  },
+  "store": {
+    "mode": "hybrid",
+    "openspec_research": "written",
+    "engram_research": "written",
+    "openspec_preproposal": "written",
+    "engram_preproposal": "written",
+    "research_revision_equal": true,
+    "preproposal_revision_equal": true,
+    "readback_equal": true
+  },
+  "proposal_ready": true,
+  "blocked_reason": null,
+  "recovery": {
+    "intent_retained": true,
+    "canonical_desired_content_retained": true,
+    "next_action": "The pre-proposal gate is satisfied. Launch sdd-propose only after interactive phase approval."
+  }
+}
