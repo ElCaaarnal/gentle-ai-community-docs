@@ -553,6 +553,11 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 
 <h2 id="rdd-ciclo">The atomic cycle</h2>
 <pre>STATUS without a selector → exact START → bounded collection/finalize → approved + burn → ordinary repository policy</pre>
+<div class="note">
+  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
+  <p>The candidate closes the review at its last causal event. A terminal reviewer, refuter, validator, correction-plan, or zero-lens result closes the transaction and burns its lineage directly — there is no separate FINALIZE step, no compact receipt publication, and no delivery gate afterwards. The cycle described below is the one that runs on <code>v2.4.0</code>, the current stable line.</p>
+</div>
+
 
 <h3 id="1-status-sin-selector-solo-hace-preflight">1. STATUS without a selector only performs preflight</h3>
 <p>STATUS without a selector evaluates <strong>only the current worktree candidate</strong> and renders one exact START invocation. It does <strong>not</strong> discover ambient authority, resume another worktree, recover history, or select an old lineage. The parent runs only the returned <code>next_transition</code> and its ordered tokens.</p>
@@ -569,6 +574,11 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 
 <h3 id="3-las-llamadas-atadas-manejan-la-transaccion">3. Bound calls manage the transaction</h3>
 <p>Every subsequent STATUS, <code>review capture-result</code>, and FINALIZE carries those exact tokens. The parent routes only from the returned <code>next_transition</code>:</p>
+<div class="note">
+  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
+  <p>FINALIZE is no longer one of the bound calls. STATUS and <code>review capture-result</code> still carry the exact tokens; the terminal capture itself closes the transaction.</p>
+</div>
+
 <div class="tblwrap">
 <table>
 <thead><tr><th>Transition</th><th>Parent action</th></tr></thead>
@@ -588,6 +598,11 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
   <b>An unclean FINALIZE is not approval</b>
   <p>This includes malformed or empty output, transport failure, post-mutation ambiguity, and the case where terminal authority may already be committed. The parent keeps the exact lineage, revision, and target, queries bound STATUS once, and follows only the returned action. It never falls back to ambient recovery or invents another lineage.</p>
 </div>
+<div class="note">
+  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
+  <p>With no FINALIZE step, this failure shape disappears. The equivalent care applies to the terminal capture instead: a malformed, incomplete, or unavailable result never burns authority, and the parent issues one target-bound STATUS rather than inventing a lineage.</p>
+</div>
+
 
 <h3 id="continuidad-entre-repositorios">Cross-repository continuity</h3>
 <p>A session rooted in repository A can review a user-explicitly-authorized nested target in unrelated repository B. Go resolves the requested path to B's canonical worktree root; adapters remain opaque and never parse authorization or roots.</p>
@@ -671,6 +686,11 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
   <b>Review never authorizes delivery</b>
   <p>The terminal review state is informative. Commit, push, PR, release, and archive follow ordinary repository policy and require their own explicit authorization.</p>
 </div>
+<div class="warn">
+  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
+  <p>Compact receipts and their delivery gates are retired outright. Delivery follows ordinary repository policy, and no retired receipt state counts as an approval. On the candidate, the gate results described below no longer apply.</p>
+</div>
+
 
 <p><code>gentle-ai review validate</code> and its named gates — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code>, and <code>release</code> — are compatibility and information commands. They never discover authority or decide delivery:</p>
 <div class="tblwrap">
@@ -690,6 +710,11 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 git diff --cached
 gentle-ai review start --projection staged</pre>
 <p>The <code>staged</code> projection freezes the <strong>complete existing index</strong>, including every already-staged path. It excludes unstaged and untracked worktree content, and does not modify the live index or worktree when deriving evidence. It starts review, but does not by itself issue an approved receipt.</p>
+<div class="note">
+  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
+  <p>Compact receipts are retired, so no projection issues one. A projection still selects which bytes are frozen at START; it simply has no receipt to withhold.</p>
+</div>
+
 <p>Existing authority never converts automatically between projections. Recovery inherits the predecessor's projection when <code>--projection</code> is omitted.</p>
 
 <h3 id="codigos-de-parada">Stop codes</h3>
@@ -705,7 +730,7 @@ gentle-ai review start --projection staged</pre>
 <tr><td><code>lens_context_budget_exceeded</code></td><td>Terminal. Immutable reviewer context cannot be truncated. Reduce candidate scope and start a new transaction</td></tr>
 <tr><td><code>corrupted_or_unverifiable_authority</code></td><td>Terminal. Authority is unreadable or unsupported. Ask a maintainer to inspect it</td></tr>
 <tr><td><code>manual_intervention_required</code></td><td>Terminal. Authority state is outside the negotiated lifecycle</td></tr>
-<tr><td><code>original_finalize_request_required</code></td><td>Rerun <code>gentle-ai review finalize --lineage &lt;id&gt;</code> with the exact original content-bound payload</td></tr>
+<tr><td><code>original_finalize_request_required</code> <span class="pill">retired in v2.5.0-rc.1</span></td><td>Rerun <code>gentle-ai review finalize --lineage &lt;id&gt;</code> with the exact original content-bound payload</td></tr>
 <tr><td><code>native_stop_required</code></td><td>Terminal. The lineage escalated and has no native continuation</td></tr>
 <tr><td><code>empty_base_diff_bootstrap_required</code></td><td>Terminal. The committed base has no reviewable paths</td></tr>
 <tr><td><code>recovery_scope_unchanged</code></td><td>Change the target so its identity differs, then retry the exact returned <code>review recover</code> invocation</td></tr>
@@ -1329,7 +1354,7 @@ $env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentl
 <dd>The identifier of a review transaction. It is captured at START and replicated unchanged in every later call. A burned lineage is never reused.</dd>
 
 <dt>Receipt</dt>
-<dd>The terminal evidence of a completed review transaction. It is informative: it never authorizes delivery. On approval, it is burned together with the authority.</dd>
+<dd>The terminal evidence of a completed review transaction. It is informative: it never authorizes delivery. On approval, it is burned together with the authority. Retired in <code>v2.5.0-rc.1</code>, where the review closes at its terminal event without publishing one.</dd>
 
 <dt>Lens <span class="pill">lens</span></dt>
 <dd>A read-only reviewer that judges one concern and emits strict JSON. The four canonical lenses are Risk, Resilience, Readability, and Reliability (4R).</dd>
@@ -1341,7 +1366,7 @@ $env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentl
 <dd>What START freezes: <code>workspace</code> (the entire workspace, default) or <code>staged</code> (exactly the Git index).</dd>
 
 <dt>Gate</dt>
-<dd>A named checkpoint — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code>, <code>release</code>. These are informative compatibility commands: they never allow or block delivery.</dd>
+<dd>A named checkpoint — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code>, <code>release</code>. These are informative compatibility commands: they never allow or block delivery. Retired in <code>v2.5.0-rc.1</code> together with compact receipts.</dd>
 
 <dt>Candidate-caused finding</dt>
 <dd>A finding introduced by the change. Only severe findings of this class can block. Pre-existing findings become follow-ups.</dd>
