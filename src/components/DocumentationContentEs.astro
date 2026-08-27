@@ -244,6 +244,56 @@ engram sync --import</pre>
 <li><strong>Persisten artefactos de fase cuando el backend lo soporta.</strong> En flujos SDD respaldados por Engram, los agentes de fase guardan artefactos antes de retornar. La fase siguiente puede continuar desde la propuesta, spec, diseño, tareas o progreso de apply guardados — incluso entre sesiones.</li>
 </ol>
 
+<h2 id="sdd-research">SDD Research — la vía de evidencia</h2>
+<div class="note">
+  <b>Nuevo en <span class="pill">v2.5.0-rc.1</span></b>
+  <p>Esta vía no existe en <code>v2.4.0</code>, la línea estable actual. Las diez fases de arriba no cambian: la investigación se ofrece <em>junto a</em> ellas, nunca insertada entre ellas.</p>
+</div>
+<p>SDD tenía exploración local, pero ninguna vía de primera clase para evidencia externa auditable. La investigación se ofrece inmediatamente después de <code>sdd-explore</code>, y es opcional — pero seleccionarla vuelve obligatorios sus chequeos de admisión y persistencia.</p>
+<pre class="mermaid">
+flowchart TD
+    A["sdd-explore"] --&gt; B&#123;"¿Seleccionar la vía de investigación?"&#125;
+    B --&gt;|"no"| G["Propose"]
+    B --&gt;|"sí"| C["Declarar capacidad<br/>documentation / open-web"]
+    C --&gt; D["Recolectar fuentes<br/>claims - contradicciones - incertidumbre"]
+    D --&gt; E["Persistir el artefacto<br/>OpenSpec - Engram - ambos"]
+    E --&gt; F&#123;"¿Evidencia done - store listo<br/>decisiones confirmadas?"&#125;
+    F --&gt;|"no"| H["Bloqueado<br/>ningún claim validado"]
+    H --&gt; D
+    F --&gt;|"sí"| G
+    G --&gt; I["Spec - Design - Tasks"]
+
+    style G fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
+    style H fill:#43242B,stroke:#D27E99,color:#DCD7BA
+</pre>
+
+<h3 id="como-se-declara">Cómo se declara</h3>
+<p>En instalaciones que exponen el slash command, <code>/sdd-research &lt;preguntas&gt;</code> corre la vía después de que Session Preflight y <code>sdd-init</code> establecieron el cambio activo, las clases de fuente solicitadas, el artifact store y la declaración de capacidad del runtime.</p>
+<p>La investigación acepta <strong>únicamente</strong> la declaración versionada <code>gentle-ai.sdd-research-capability/v1</code>, con un grant exacto para <code>documentation</code> u <code>open-web</code>. Nada más abre la vía.</p>
+
+<h3 id="que-persiste">Qué persiste</h3>
+<p>Escribe un artefacto <code>gentle-ai.sdd-research/v1</code> que registra preguntas, grants, fuentes, mapeos de claim a fuente, contradicciones, incertidumbre, frescura y decisiones de producto separadas y no autoritativas.</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Store</th><th>Ubicación</th><th>Validación</th></tr></thead>
+<tbody>
+<tr><td>OpenSpec</td><td><code>openspec/changes/&#123;change-name&#125;/research.md</code></td><td>Valida el backend seleccionado</td></tr>
+<tr><td>Engram</td><td><code>sdd/&#123;change-name&#125;/research</code></td><td>Valida el backend seleccionado</td></tr>
+<tr><td>Híbrido</td><td>Ambos</td><td>Exige la misma revisión y los mismos bytes en ambos</td></tr>
+</tbody>
+</table>
+</div>
+<p>Una falla de un solo lado en modo híbrido se recupera solo desde la intención pre-escritura retenida y el contenido canónico. Si no, la investigación y la propuesta quedan bloqueadas — el sistema nunca prefiere una copia sobre la otra. Una investigación sin store no puede dejar lista una propuesta.</p>
+
+<h3 id="la-compuerta-de-propuesta">La compuerta de la propuesta</h3>
+<p>Una vez seleccionada la investigación, <code>propose</code> exige evidencia en <code>done</code>, referencias válidas, un backend listo y decisiones de producto confirmadas. Esta es la parte que conviene internalizar: <strong>elegir la vía es opcional, terminarla no</strong>.</p>
+<div class="warn">
+  <b>Qué no produce un claim validado</b>
+  <p>Bash, MCP genérico, acceso de persistencia, herramientas no declaradas, clases de fuente desconocidas, fuentes inválidas, evidencia parcial y admisión fallida. Ninguno crea un claim validado, y ninguno admite una propuesta.</p>
+</div>
+
+<hr>
+
 <h2 id="openspec">OpenSpec — <code>openspec/config.yaml</code></h2>
 <p><code>openspec/config.yaml</code> es una <strong>convención documentada a nivel proyecto</strong> para SDD cuando trabajás en modo de persistencia <code>openspec</code> o <code>hybrid</code>.</p>
 

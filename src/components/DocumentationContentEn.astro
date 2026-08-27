@@ -239,6 +239,56 @@ engram sync --import</pre>
 <li><strong>They persist phase artifacts when the backend supports it.</strong> In Engram-backed SDD workflows, phase agents save artifacts before returning. The next phase can continue from the saved proposal, spec, design, tasks, or apply progress — even across sessions.</li>
 </ol>
 
+<h2 id="sdd-research">SDD Research — the evidence lane</h2>
+<div class="note">
+  <b>New in <span class="pill">v2.5.0-rc.1</span></b>
+  <p>This lane does not exist on <code>v2.4.0</code>, the current stable line. The ten phases above are unchanged: research is offered <em>alongside</em> them, never inserted into them.</p>
+</div>
+<p>SDD had local exploration but no first-class lane for auditable external evidence. Research is offered immediately after <code>sdd-explore</code>, and it is optional — but selecting it makes its admission and persistence checks mandatory.</p>
+<pre class="mermaid">
+flowchart TD
+    A["sdd-explore"] --&gt; B&#123;"Select the research lane?"&#125;
+    B --&gt;|"no"| G["Propose"]
+    B --&gt;|"yes"| C["Declare capability<br/>documentation / open-web"]
+    C --&gt; D["Collect sources<br/>claims - contradictions - uncertainty"]
+    D --&gt; E["Persist the artifact<br/>OpenSpec - Engram - both"]
+    E --&gt; F&#123;"Evidence done - store ready<br/>decisions confirmed?"&#125;
+    F --&gt;|"no"| H["Blocked<br/>no validated claim"]
+    H --&gt; D
+    F --&gt;|"yes"| G
+    G --&gt; I["Spec - Design - Tasks"]
+
+    style G fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
+    style H fill:#43242B,stroke:#D27E99,color:#DCD7BA
+</pre>
+
+<h3 id="como-se-declara">How it is declared</h3>
+<p>On installs that expose the slash command, <code>/sdd-research &lt;questions&gt;</code> runs the lane after Session Preflight and <code>sdd-init</code> have established the active change, the requested source classes, the artifact store, and the runtime capability declaration.</p>
+<p>Research accepts <strong>only</strong> the versioned <code>gentle-ai.sdd-research-capability/v1</code> declaration, with an exact grant for <code>documentation</code> or <code>open-web</code>. Nothing else opens the lane.</p>
+
+<h3 id="que-persiste">What it persists</h3>
+<p>It writes a <code>gentle-ai.sdd-research/v1</code> artifact recording questions, grants, sources, claim-to-source mappings, contradictions, uncertainty, freshness, and separate non-authoritative product choices.</p>
+<div class="tblwrap">
+<table>
+<thead><tr><th>Store</th><th>Location</th><th>Validation</th></tr></thead>
+<tbody>
+<tr><td>OpenSpec</td><td><code>openspec/changes/&#123;change-name&#125;/research.md</code></td><td>Validates the selected backend</td></tr>
+<tr><td>Engram</td><td><code>sdd/&#123;change-name&#125;/research</code></td><td>Validates the selected backend</td></tr>
+<tr><td>Hybrid</td><td>Both</td><td>Requires the same revision and the same bytes in both</td></tr>
+</tbody>
+</table>
+</div>
+<p>A one-sided hybrid failure recovers only from retained pre-write intent and canonical content. Otherwise the research and the proposal stay blocked — the system never prefers one copy over the other. No-store research cannot make a proposal ready.</p>
+
+<h3 id="la-compuerta-de-propuesta">The proposal gate</h3>
+<p>Once research is selected, <code>propose</code> requires <code>done</code> evidence, valid references, a ready backend, and confirmed product decisions. This is the part worth internalizing: <strong>choosing the lane is optional, finishing it is not</strong>.</p>
+<div class="warn">
+  <b>What produces no validated claim</b>
+  <p>Bash, generic MCP, persistence access, undeclared tools, unknown source classes, invalid sources, partial evidence, and failed admission. None of them create a validated claim, and none of them admit a proposal.</p>
+</div>
+
+<hr>
+
 <h2 id="openspec">OpenSpec — <code>openspec/config.yaml</code></h2>
 <p><code>openspec/config.yaml</code> is a <strong>documented project-level convention</strong> for SDD when you work in <code>openspec</code> or <code>hybrid</code> persistence mode.</p>
 
