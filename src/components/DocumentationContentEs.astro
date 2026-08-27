@@ -68,6 +68,11 @@ brew install gentle-ai</pre>
   <b>Windows</b>
   <p>La compilación desde fuente y los tests de CI/runtime siguen soportados, pero la distribución oficial de binarios de Windows y Scoop están temporalmente no disponibles. La instalación y las actualizaciones en Windows requieren Go 1.25.10+ y fallan de forma cerrada hacia la guía de instalación desde fuente: nunca descargan un ejecutable de Gentle AI sin firmar ni ejecutan un script remoto de actualización.</p>
 </div>
+<div class="note">
+  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
+  <p>La candidata publica un asset de release <code>windows_amd64.exe</code>. <code>arm64</code> sigue ausente, y el release estable <code>v2.4.0</code> no publica ningún asset de Windows — verificado contra los assets del release el 2026-08-26.</p>
+</div>
+
 
 <div class="imp">
   <b>Después de cambiar el binario, sincronizá</b>
@@ -107,7 +112,7 @@ brew install gentle-ai</pre>
 <tr><td>Persona</td><td><code>persona</code></td><td>Inyección de la persona Gentleman/neutral administrada, o modo persona custom sin administrar</td></tr>
 <tr><td>Permisos</td><td><code>permissions</code></td><td>Defaults y barreras de seguridad. Se aplica a Claude Code y OpenCode, los dos adaptadores con soporte de overlay de permisos</td></tr>
 <tr><td>GGA</td><td><code>gga</code></td><td>Gentleman Guardian Angel: conmutador de proveedores de IA</td></tr>
-<tr><td>Theme</td><td><code>theme</code></td><td>Overlay del tema Gentleman Kanagawa</td></tr>
+<tr><td>Theme</td><td><code>theme</code></td><td>Overlay del tema Gentleman Kanagawa. <span class="pill">v2.5.0-rc.1</span> instala los temas seleccionables <strong>Gentleman</strong> y <strong>Gentleman-Cute</strong> para Claude Code y OpenCode, sobre cuatro assets gestionados, preservando el tema activo, los ajustes no relacionados y los temas de terceros</td></tr>
 </tbody>
 </table>
 </div>
@@ -549,6 +554,11 @@ gentle-ai skill-registry list --json   # legible por máquina, incluye descripci
 
 <h2 id="estados">Estados públicos</h2>
 <p>La interacción normal reporta solo cuatro estados. El usuario no elige internos de revisión, hashes, receipts ni transiciones de ciclo de vida.</p>
+<div class="note">
+  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
+  <p>La proyección de estado de SDD pasa a ser el contrato limpio <code>gentle-ai.sdd-status/v2</code>. El estado de runtime conserva la verdad de planificación, tareas, verificación, selected-untracked e intentos, y ya no proyecta bindings de revisión activos ni receipts. Los registros históricos de runtime que contienen <code>binding</code>, <code>receipt</code> o <code>binding/set</code> rechazan en lugar de reproducirse.</p>
+</div>
+
 <div class="tblwrap">
 <table>
 <thead><tr><th>Estado</th><th>Significado</th></tr></thead>
@@ -1376,6 +1386,11 @@ gentle-ai install --agent windsurf --preset full-gentleman</pre>
 
 <h2 id="releases">Verificación de releases</h2>
 <p>Los archivos oficiales de release para macOS y Linux requieren un <code>checksums.txt</code> autenticado. El actualizador integrado verifica su firma Minisign, su binding exacto a <code>Gentleman-Programming/gentle-ai</code> más el tag del release, y el checksum del archivo seleccionado <strong>antes</strong> de reemplazar el binario instalado.</p>
+<div class="warn">
+  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
+  <p>La candidata publica <code>SHA256SUMS.txt</code> y <strong>ningún archivo de firma Minisign</strong>. El release estable <code>v2.4.0</code> publica <code>checksums.txt</code> junto con <code>checksums.txt.minisig</code>; la candidata no publica ninguno de los dos. El procedimiento de verificación de abajo, por lo tanto, no tiene contra qué verificar en la candidata, y sus binarios se publican crudos en vez de como archivos <code>.tar.gz</code>. Verificado contra los assets del release el 2026-08-26.</p>
+</div>
+
 <p>Los archivos de release tienen un tope de <strong>128 MiB</strong>, incluidas respuestas por chunks o de longitud desconocida. Material de clave faltante, sobredimensionado, malformado, no confiable o de relleno falla de forma cerrada sin cambiar el binario instalado.</p>
 
 <pre>minisign -VQm checksums.txt -x checksums.txt.minisig -P "$GENTLE_AI_MINISIGN_PUBLIC_KEY"
@@ -1388,6 +1403,11 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
 </div>
 
 <p>Los archivos de Windows y la publicación en Scoop siguen omitidos hasta que se provisione firma Authenticode RSA de confianza pública, ambos ejecutables (amd64 y arm64) estén firmados antes de generar archivos y checksums, y la verificación de release falle si alguno de los dos está sin firmar.</p>
+<div class="note">
+  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
+  <p>Parcialmente superado en la candidata, que publica un <code>windows_amd64.exe</code> de estado de firma desconocido. El ejecutable <code>arm64</code> que nombra este párrafo sigue sin publicarse.</p>
+</div>
+
 
 <h2 id="versiones">Política de versiones</h2>
 <p>RDD empezó en <code>gentle-ai</code> <strong>v1.47.0</strong> (2026-07-10), con las primeras transacciones de revisión nativa acotada, y se volvió la ruta estable soportada en <strong>v2.2.0</strong>. El contrato público negociado de revisión se publicó en <strong>v2.1.6</strong>.</p>

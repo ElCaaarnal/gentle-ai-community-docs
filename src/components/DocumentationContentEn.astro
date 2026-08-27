@@ -63,6 +63,11 @@ brew install gentle-ai</pre>
   <b>Windows</b>
   <p>Building from source and CI/runtime tests remain supported, but official Windows binary distribution and Scoop are temporarily unavailable. Windows installation and updates require Go 1.25.10+ and fail closed to the build-from-source guidance: they never download an unsigned Gentle AI executable or run a remote update script.</p>
 </div>
+<div class="note">
+  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
+  <p>The candidate publishes a <code>windows_amd64.exe</code> release asset. <code>arm64</code> is still absent, and the stable <code>v2.4.0</code> release publishes no Windows asset at all — verified against the release assets on 2026-08-26.</p>
+</div>
+
 
 <div class="imp">
   <b>Synchronize after changing the binary</b>
@@ -102,7 +107,7 @@ brew install gentle-ai</pre>
 <tr><td>Persona</td><td><code>persona</code></td><td>Managed Gentleman/neutral persona injection, or unmanaged custom-persona mode</td></tr>
 <tr><td>Permissions</td><td><code>permissions</code></td><td>Defaults and safety barriers. Applied to Claude Code and OpenCode, the two adapters that support permission overlays</td></tr>
 <tr><td>GGA</td><td><code>gga</code></td><td>Gentleman Guardian Angel: AI provider switcher</td></tr>
-<tr><td>Theme</td><td><code>theme</code></td><td>Gentleman Kanagawa theme overlay</td></tr>
+<tr><td>Theme</td><td><code>theme</code></td><td>Gentleman Kanagawa theme overlay. <span class="pill">v2.5.0-rc.1</span> installs selectable <strong>Gentleman</strong> and <strong>Gentleman-Cute</strong> themes for Claude Code and OpenCode, across four managed assets, preserving the active theme, unrelated settings, and third-party themes</td></tr>
 </tbody>
 </table>
 </div>
@@ -545,6 +550,11 @@ gentle-ai skill-registry list --json   # machine-readable, including description
 
 <h2 id="estados">Public states</h2>
 <p>Normal interaction reports only four states. The user does not choose internal review states, hashes, receipts, or lifecycle transitions.</p>
+<div class="note">
+  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
+  <p>The SDD status projection is now the clean <code>gentle-ai.sdd-status/v2</code> contract. Runtime state keeps planning, task, verification, selected-untracked, and attempt truth, and no longer projects active review bindings or receipts. Historical runtime records containing <code>binding</code>, <code>receipt</code>, or <code>binding/set</code> refuse rather than being replayed.</p>
+</div>
+
 <div class="tblwrap">
 <table>
 <thead><tr><th>State</th><th>Meaning</th></tr></thead>
@@ -1351,6 +1361,11 @@ gentle-ai install --agent windsurf --preset full-gentleman</pre>
 
 <h2 id="releases">Release verification</h2>
 <p>Official macOS and Linux release files require an authenticated <code>checksums.txt</code>. The built-in updater verifies its Minisign signature, its exact binding to <code>Gentleman-Programming/gentle-ai</code> plus the release tag, and the selected file checksum <strong>before</strong> replacing the installed binary.</p>
+<div class="warn">
+  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
+  <p>The candidate ships <code>SHA256SUMS.txt</code> and <strong>no Minisign signature file</strong>. The stable <code>v2.4.0</code> release publishes <code>checksums.txt</code> together with <code>checksums.txt.minisig</code>; the candidate publishes neither. The verification procedure below therefore has nothing to verify against on the candidate, and its binaries are published raw rather than as <code>.tar.gz</code> archives. Verified against the release assets on 2026-08-26.</p>
+</div>
+
 <p>Release files have a <strong>128 MiB</strong> cap, including chunked or unknown-length responses. Missing, oversized, malformed, untrusted, or padding key material fails closed without changing the installed binary.</p>
 
 <pre>minisign -VQm checksums.txt -x checksums.txt.minisig -P "$GENTLE_AI_MINISIGN_PUBLIC_KEY"
@@ -1363,6 +1378,11 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
 </div>
 
 <p>Windows release files and Scoop publication remain omitted until publicly trusted RSA Authenticode signing is provisioned, both executables (amd64 and arm64) are signed before assets and checksums are generated, and release verification fails if either is unsigned.</p>
+<div class="note">
+  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
+  <p>Partially superseded on the candidate, which publishes a signed-status-unknown <code>windows_amd64.exe</code>. The <code>arm64</code> executable named by this paragraph is still not published.</p>
+</div>
+
 
 <h2 id="versiones">Version policy</h2>
 <p>RDD began in <code>gentle-ai</code> <strong>v1.47.0</strong> (2026-07-10) with the first bounded native review transactions, and became the supported stable path in <strong>v2.2.0</strong>. The negotiated public review contract was published in <strong>v2.1.6</strong>.</p>
