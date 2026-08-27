@@ -1,0 +1,73 @@
+schema: spec-driven
+
+context: |
+  Project: Gentle AI Community Documentation.
+  Stack: Astro 7.2.4 static site, TypeScript 5.9 with strict Astro configuration, vanilla JavaScript, and CSS.
+  Architecture: one static route composed from BaseLayout, InterfaceChrome, Sidebar, and DocumentationContent; client behavior lives in src/scripts/site.js.
+  Deployment: static output in dist/ deployed on Netlify; no server adapter, redirects, or serverless functions are required.
+  Conventions: npm scripts, GitHub Flow with short feature branches and pull requests, no direct implementation on main, and English SDD artifacts.
+  Repository state: clean main branch tracking origin/main; initialization does not create feature branches or user-facing changes.
+  Testing: no automated test runner, browser harness, coverage tool, linter, or formatter is configured; npm run check and npm run build are available.
+
+strict_tdd: false
+
+testing:
+  detected: 2026-08-24
+  strict_tdd: false
+  workspace_test_command: null
+  projects:
+    - path: "."
+      stack: Astro 7.2.4 static site, TypeScript 5.9, vanilla JavaScript, and CSS
+      test_command: null
+      framework: null
+      verification_commands:
+        - npm run check
+        - npm run build
+  test_runner:
+    available: false
+    command: null
+    framework: null
+  layers:
+    unit:
+      available: false
+      tool: null
+    integration:
+      available: false
+      tool: null
+    e2e:
+      available: false
+      tool: null
+  coverage:
+    available: false
+    command: null
+  quality_tools:
+    linter:
+      available: false
+      command: null
+    type_checker:
+      available: true
+      command: npm run check
+    formatter:
+      available: false
+      command: null
+
+rules:
+  proposal:
+    - Keep the existing implementation untouched until a change is approved; describe rollback for any risky change.
+  specs:
+    - Use Given/When/Then scenarios and RFC 2119 keywords.
+  design:
+    - Document architecture decisions and their rationale; include diagrams for complex flows.
+  tasks:
+    - Group tasks by phase with hierarchical numbering; keep tasks completable in one session.
+  apply:
+    guidelines:
+      - Follow existing Astro, TypeScript, CSS, and vanilla JavaScript conventions after approval.
+    tdd: false
+    test_command: ""
+  verify:
+    test_command: npm run check
+    build_command: npm run build
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas.
