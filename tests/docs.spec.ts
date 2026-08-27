@@ -234,7 +234,7 @@ test('operations use localized headings, shared IDs, and literal boundaries', as
 
 test('version policy and reference content is localized with exact shared literals', async ({ page }) => {
   const ids = ['versiones', 'glosario', 'docs'];
-  const versions = ['v1.47.0', 'v2.1.6', 'v2.2.0', 'v2.4.0', 'v2.4.0-rc.8', '2026-07-10', '2026-08-17', '2026-08-14', '2026-08-22'];
+  const versions = ['v1.47.0', 'v2.1.6', 'v2.2.0', 'v2.4.0', 'v2.4.0-rc.8', 'v2.5.0-rc.1', '2026-07-10', '2026-08-17', '2026-08-14', '2026-08-26'];
   const formula = 'min(200, ceil(original_changed_lines / 2))';
   const glossary = ['Candidate', 'Lineage', 'Receipt', 'Lens', 'Burn', 'Projection', 'Gate', 'Candidate-caused finding', 'Correction budget', 'Delta-spec', 'Escalated'];
   const spanishGlossary = ['Candidato', 'Linaje', 'Receipt', 'Lente', 'Quema', 'Proyección', 'Gate', 'Finding causado por el candidato', 'Presupuesto de corrección', 'Delta-spec', 'Escalado'];
