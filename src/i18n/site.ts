@@ -5,7 +5,7 @@ export type SiteCopy = { lang: Locale; title: string; description: string; tagli
 const navigation = {
   en: [
     ['Get started', [['que-es', 'What is Gentle AI'], ['instalacion', 'Installation'], ['contexto', 'Project context'], ['presets', 'Components and presets']]],
-    ['The ecosystem', [['engram', 'Engram · memory'], ['sdd', 'SDD · specification-driven development'], ['openspec', 'OpenSpec · config.yaml'], ['tdd', 'Strict TDD'], ['skills', 'Skills and registry'], ['personas', 'Personas']]],
+    ['The ecosystem', [['engram', 'Engram · memory'], ['sdd', 'SDD · specification-driven development'], ['sdd-research', 'SDD Research · evidence lane'], ['openspec', 'OpenSpec · config.yaml'], ['tdd', 'Strict TDD'], ['skills', 'Skills and registry'], ['personas', 'Personas']]],
     ['How the agent works', [['ruteo', 'Organic routing'], ['delegacion', 'Delegation rules'], ['estados', 'Public states']]],
     ['RDD · review', [['rdd', 'What is RDD'], ['rdd-control', 'Enable and disable RDD'], ['rdd-ciclo', 'The atomic cycle'], ['rdd-lentes', 'Risk and lenses'], ['rdd-correccion', 'Bounded correction'], ['rdd-entrega', 'Delivery and gates'], ['rdd-limites', 'Confidence boundaries'], ['rdd-mantenimiento', 'Store maintenance']]],
     ['Complete workflows', [['flujo-organico', 'Organic workflow'], ['flujo-sdd', 'SDD workflow']]],
@@ -15,7 +15,7 @@ const navigation = {
   ],
   es: [
     ['Empezar', [['que-es', 'Qué es Gentle AI'], ['instalacion', 'Instalación'], ['contexto', 'Contexto del proyecto'], ['presets', 'Componentes y presets']]],
-    ['El ecosistema', [['engram', 'Engram · memoria'], ['sdd', 'SDD · desarrollo por especificación'], ['openspec', 'OpenSpec · config.yaml'], ['tdd', 'Strict TDD'], ['skills', 'Skills y registro'], ['personas', 'Personas']]],
+    ['El ecosistema', [['engram', 'Engram · memoria'], ['sdd', 'SDD · desarrollo por especificación'], ['sdd-research', 'SDD Research · evidencia'], ['openspec', 'OpenSpec · config.yaml'], ['tdd', 'Strict TDD'], ['skills', 'Skills y registro'], ['personas', 'Personas']]],
     ['Cómo trabaja el agente', [['ruteo', 'Ruteo orgánico'], ['delegacion', 'Reglas de delegación'], ['estados', 'Estados públicos']]],
     ['RDD · revisión', [['rdd', 'Qué es RDD'], ['rdd-control', 'Prender y apagar RDD'], ['rdd-ciclo', 'El ciclo atómico'], ['rdd-lentes', 'Riesgo y lentes'], ['rdd-correccion', 'Corrección acotada'], ['rdd-entrega', 'Entrega y gates'], ['rdd-limites', 'Límites de confianza'], ['rdd-mantenimiento', 'Mantenimiento del store']]],
     ['Flujos completos', [['flujo-organico', 'Flujo orgánico'], ['flujo-sdd', 'Flujo SDD']]],
