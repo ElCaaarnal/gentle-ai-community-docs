@@ -321,8 +321,18 @@ test('browser matrix keeps locale behavior, search, scrollspy, focus, tables, an
     await expect(page.locator('.tblwrap td[data-label]').first()).toBeVisible();
 
     if (narrow) {
-      await expect(page.locator('h2#docs + .tblwrap')).toHaveScreenshot(`narrow-table-${locale.path === '/' ? 'en' : 'es'}.png`, { animations: 'disabled' });
+      // The card-mode requirement is structural, so assert it directly instead of
+      // photographing it: a pixel capture of this table tracked the text length of
+      // the whole page above it and moved on every unrelated edit.
+      const table = page.locator('h2#docs + .tblwrap table');
+      await expect(table.locator('thead')).toBeHidden();
+      await expect(table.locator('tbody tr').first()).toHaveCSS('display', 'block');
+      const headers = await table.locator('thead th').allTextContents();
+      const labels = await table.locator('tbody tr').first().locator('td').evaluateAll((cells) => cells.map((cell) => cell.getAttribute('data-label')));
+      expect(labels).toEqual(headers.map((header) => header.trim()));
     } else {
+      await expect(page.locator('h2#docs + .tblwrap thead')).toBeVisible();
+      await expect(page.locator('h2#docs + .tblwrap tbody tr').first()).toHaveCSS('display', 'table-row');
       await expect(page.locator('.hero')).toHaveScreenshot(`hero-${locale.path === '/' ? 'en' : 'es'}.png`, { animations: 'disabled' });
     }
   }
