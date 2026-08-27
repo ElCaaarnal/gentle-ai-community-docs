@@ -8,7 +8,7 @@ The stable version, the prerelease version, their release dates, and the prerele
 
 Binding MUST be render-transparent: for a given set of recorded facts, the rendered markup MUST be identical to the literal text it replaces. Version narrative prose MUST NOT be produced by concatenating recorded facts with authored sentences — labels and prose stay authored in each locale, and only the datum is bound. Version-independent install targets (stable `@latest`, development `@main`) MUST remain literal constants and MUST NOT be derived from the module. Delta pills, retirement prose, and immutable historical version references are outside this mechanism's reach and MUST remain authored text.
 
-*Evidence: src/components/DocumentationContentEn.astro:5,1400-1401; src/components/DocumentationContentEs.astro:9,1425-1426*
+*Evidence: src/components/DocumentationContentEn.astro:8,1403-1404; src/components/DocumentationContentEs.astro:10,1426-1427; src/data/versions.ts*
 
 #### Scenario: A release update edits one file
 
