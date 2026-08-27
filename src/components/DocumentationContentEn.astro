@@ -1,8 +1,11 @@
+---
+import { prereleaseInstall, releases } from '../data/versions';
+---
 <section class="hero">
 <img src="/banner.webp" alt="Gentle-AI" width="1600" height="689" fetchpriority="high">
 <h1>Gentle AI Documentation</h1>
 <p class="lede">Gentle AI equips the AI coding agents already on your machine with persistent memory, specification-driven development, curated skills, MCP servers, model routing, a teaching-oriented persona, and native bounded review.</p>
-<div class="meta"><span class="chip">Stable <b>v2.4.0</b></span><span class="chip">Latest RC <b>v2.5.0-rc.1</b></span><span class="chip">Go <b>1.25.10+</b></span><span class="chip">License <b>MIT</b></span><span class="chip">16 supported agents</span></div>
+<div class="meta"><span class="chip">Stable <b>{releases.stable.version}</b></span><span class="chip">Latest RC <b>{releases.prerelease.version}</b></span><span class="chip">Go <b>1.25.10+</b></span><span class="chip">License <b>MIT</b></span><span class="chip">16 supported agents</span></div>
 </section>
 
 <div class="imp">
@@ -1397,8 +1400,8 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
 <table>
 <thead><tr><th>Channel</th><th>Version</th><th>Installation</th></tr></thead>
 <tbody>
-<tr><td>Stable</td><td><code>v2.4.0</code> <span class="pill">2026-08-17</span></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@latest</code></td></tr>
-<tr><td>Prerelease</td><td><code>v2.5.0-rc.1</code> <span class="pill">2026-08-26</span></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@v2.5.0-rc.1</code></td></tr>
+<tr><td>Stable</td><td><code>{releases.stable.version}</code> <span class="pill">{releases.stable.released}</span></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@latest</code></td></tr>
+<tr><td>Prerelease</td><td><code>{releases.prerelease.version}</code> <span class="pill">{releases.prerelease.released}</span></td><td><code>{prereleaseInstall}</code></td></tr>
 <tr><td>Development</td><td><code>main</code></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@main</code></td></tr>
 </tbody>
 </table>
