@@ -70,6 +70,10 @@ This change is behaviour-preserving: the assertion is byte identity, so the base
 - [x] 5.2 `npm run build`, re-hash both files. BOTH hashes MUST equal the Phase 1.3 baseline (spec `docs-content-presentation` scenario 4).
 - [x] 5.3 On any mismatch: `diff` against the saved copies to localize (whitespace at the EN fence boundary is the likely cause). Restore transparency or report a blocker — NEVER regenerate the four hero PNGs.
 - [x] 5.4 `npx playwright test` — 28 passed, no `.png` regeneration.
-- [x] 5.5 `rg -n "data/versions" tests/` — no matches (`docs-browser-verification` scenario 3).
-- [x] 5.6 `git status` / `git diff --stat`: zero changes under `tests/`, zero `.png` changes, total ~35-45 lines.
+- [x] 5.5 `rg -n "from .[^'\"]*data/versions" tests/` — no matches (`docs-browser-verification` scenario 4).
+  Superseded the bare-path form, which matched the comment documenting why the import is forbidden.
+- [x] 5.6 `git status` / `git diff --stat`: zero `.png` changes and byte-identical built HTML.
+  Revised after verification: `tests/docs.spec.ts` gained 17 lines for the region-scoped
+  double-entry assertions. The original "zero changes under `tests/`" wording conflated render
+  transparency (which holds) with suite size (which grew to close a real coverage gap).
 - [x] 5.7 Confirm out-of-reach surfaces are untouched: 14 delta pills, retirement prose, historical versions, warn box, closing paragraph (scenario 5).

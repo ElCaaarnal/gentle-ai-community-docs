@@ -10,7 +10,7 @@ The assertion's value comes from a human having written the expected version ind
 
 Those assertions MUST be scoped to the regions that render bound facts — the hero channel chips and the version-policy channel table. A page-wide assertion cannot satisfy this requirement: the same version identifiers also occur many times in authored prose that the single-source requirement deliberately leaves authored, so a page-wide search still finds the literal after the module has drifted, and passes.
 
-*Evidence: tests/docs.spec.ts:270-283 (authored `bound` facts and the region-scoped assertions). Verified by mutation: changing all four recorded facts in `src/data/versions.ts` fails the assertion at tests/docs.spec.ts:279 and names the received value.*
+*Evidence: tests/docs.spec.ts:247-250 (authored `bound` facts), tests/docs.spec.ts:273-284 (region-scoped assertions). Verified by mutation: changing all four recorded facts in `src/data/versions.ts` fails the assertion at tests/docs.spec.ts:279 and names the received value.*
 
 #### Scenario: Drift between source and expectation fails
 

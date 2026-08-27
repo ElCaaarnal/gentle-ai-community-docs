@@ -1,168 +1,242 @@
 ```yaml
 schema: gentle-ai.verify-result/v1
-evidence_revision: sha256:0a51cb549ac8986f134e33532bd78b6aba50a344d4ac84e35d40eb21397604d6
-verdict: fail
-blockers: 1
-critical_findings: 1
-requirements: 1/2
-scenarios: 6/8
+evidence_revision: sha256:da099157373e36889ff12aa96d32f029c977493e84bccc98ac7518b455a1f3da
+verdict: pass_with_warnings
+blockers: 0
+critical_findings: 0
+requirements: 2/2
+scenarios: 9/9
 test_command: npx playwright test
 test_exit_code: 0
-test_output_hash: sha256:7b30a4e98d51a17bb30688f605e89f7ddbe55754d4f01c282733e103ba600391
+test_output_hash: sha256:21fac98d97306ce0b0272f7813b2b7987dad0c1e2d1187187c890232003134c2
 build_command: npm run build
 build_exit_code: 0
-build_output_hash: sha256:41a603629d187b1ff3b864c8dbf52f6ea8998b0e5b01ff5cf3ab8d0e5beb7e04
+build_output_hash: sha256:132d1fd3ace63a3c1b55a59cffd39e23cd8eb937be5b7ce7c42c28fd23b8f136
 ```
 
 ## Verification Report
 
 **Change**: version-facts-single-source (GitHub issue #30)
-**Version**: N/A
-**Mode**: Standard (Strict TDD ceremony deliberately not applied — the contract is zero changes under `tests/`; Phase 1 baseline capture is the test-first analogue)
-**Branch**: `refactor/version-facts-single-source` @ `acc7872`
-**Base**: `b9da430` (merge-base with `main`); source change is `101a7f3`
+**Mode**: Standard (Strict TDD ceremony not applied as originally contracted; see WARNING-2)
+**Branch**: `refactor/version-facts-single-source` @ `d581915`
+**Base**: merge-base with `main`; source commits `101a7f3` (binding) and `d581915` (assertion remediation)
+**Supersedes**: the `fail` report at this path (verdict `fail`, CRITICAL-1, requirements 1/2, scenarios 6/8)
 
-Every gate below was re-executed by this phase. Nothing is restated from the apply report.
+This is a re-verification. Every gate was re-executed against the working tree at `d581915`.
+Nothing is restated from the apply report or from the prior verification.
+
+### Disposition of CRITICAL-1 — CLOSED
+
+The prior report failed this change because the `docs-browser-verification` delta claimed a
+double-entry property the suite did not have. The only version assertion was the page-wide loop
+at `tests/docs.spec.ts:271`, which asserts each authored literal appears somewhere in `main`.
+The same identifiers also occur in authored prose that the sibling requirement deliberately
+preserves, so all four recorded facts could drift and the assertion still passed.
+
+The remediation was re-proved by independent mutation in a throwaway worktree, not accepted on
+report. All four recorded facts in `src/data/versions.ts` were drifted to `v9.9.9` /
+`v9.9.9-rc.9` / `2099-01-01` / `2099-01-02`, and the version-policy test was re-run:
+
+```
+Error: expect(locator).toContainText(expected) failed
+Locator: locator('.hero .meta')
+Expected substring: "v2.4.0"
+Received string:    "Stable v9.9.9Latest RC v9.9.9-rc.9Go 1.25.10+License MIT16 supported agents"
+  at tests/docs.spec.ts:279:28
+```
+
+Which assertion fails is the point, and it is now the correct one:
+
+| Assertion | Line | Behaviour under full drift |
+|---|---|---|
+| Page-wide literal loop over `main` | 271 | **Still passes** — execution reached line 279, so the loop completed |
+| Region-scoped `.hero .meta` | 279 | **Fails and names the received value** |
+| Region-scoped channel table | 282-284 | Would also fail (proven separately below) |
+
+The root-cause arithmetic is confirmed by literal counts in the built output: `v2.4.0` occurs
+**10 times** per locale in the clean build and **8 times** in the mutated build. Exactly 2 of 10
+occurrences are bound; the other 8 are authored prose. That 8-versus-2 split is precisely why a
+page-wide search cannot detect drift, and it reproduces the original finding independently.
+
+The test aborts at line 279, so the channel-table assertions were verified by extracting the
+`.tblwrap` element text from both built locales:
+
+| Build | Locale | `v2.4.0` | `2026-08-17` | `2026-08-26` | `gentle-ai@v2.5.0-rc.1` |
+|---|---|---|---|---|---|
+| Clean | EN / ES | present | present | present | present |
+| Mutated | EN / ES | absent | absent | absent | absent |
+
+All five region-scoped assertions are drift-sensitive, in both locales. CRITICAL-1 is genuinely
+closed — the suite now has the property the spec claims, rather than the spec claiming a property
+the suite lacked.
+
+### No-import guard — verified in both directions
+
+A guard proved in only one direction is the same defect class as CRITICAL-1, so both were probed.
+Guard: `rg -n "from .[^'\"]*data/versions" tests/`.
+
+| Probe | Expected | Result |
+|---|---|---|
+| `import { releases } from '../src/data/versions';` | match | matched |
+| `import {releases} from "../src/data/versions";` (double quotes) | match | matched |
+| `import { releases } from '../../src/data/versions.ts';` (deeper path, extension) | match | matched |
+| `export { releases } from '../src/data/versions';` (re-export) | match | matched |
+| `// Double-entry against src/data/versions.ts.` (explanatory comment) | no match | no match |
+| `const v = await import('../src/data/versions');` (dynamic) | match | **no match** — see SUGGESTION-1 |
+
+Against the real tree the guard returns no matches (exit 1). Independently, the suite's complete
+import list is a single line: `import { expect, test } from '@playwright/test';` — no version
+module import and nothing derived from it.
 
 ### Completeness
 
 | Metric | Value |
 |--------|-------|
-| Tasks total | 21 |
-| Tasks complete | 21 |
-| Tasks incomplete | 0 |
+| Tasks marked complete | 21/21 |
+| Tasks whose text still matches code state | 19/21 (see WARNING-1, WARNING-2) |
+| Requirements verified | 2/2 |
+| Scenarios verified | 9/9 |
+| CRITICAL | 0 |
+| WARNING | 4 |
+| SUGGESTION | 3 |
 
-`rg -c '^- \[x\] ' tasks.md` = 21, `rg -c '^- \[ \] ' tasks.md` = 0. Task state matches code state: the 21 checkboxes describe exactly the two `.astro` edits, the new module, and the five verification gates, and each was independently reproduced below.
+### Execution Evidence
 
-### Build & Tests Execution
+| Gate | Command | Result |
+|---|---|---|
+| Type check | `npm run check` | 16 files — **0 errors / 0 warnings / 0 hints** |
+| Build | `npm run build` | exit 0, 2 pages |
+| Browser suite | `npx playwright test` | **28 passed** (30.9s), exit 0 |
+| No-import guard | `rg -n "from .[^'\"]*data/versions" tests/` | no matches (exit 1) |
+| Snapshot regeneration | `git status --porcelain -- '*.png'` | 0 changed |
 
-**Type check**: PASS — `npm run check`, exit 0
+The 30.9s suite duration matches the apply-phase baseline of 32.8s. Port 4321 was confirmed free
+before the run and every Playwright invocation was sequential, so the earlier port-contention
+contamination (implausible durations, unrelated Mermaid/heading failures) did not recur. No run
+reported in this document is contaminated.
 
-```text
-Result (16 files):
-- 0 errors
-- 0 warnings
-- 0 hints
-```
+`openspec/config.yaml` remains stale (`test_runner.available: false`, `test_command: null`). The
+authoritative command set from `tasks.md` was used instead, as that file directs.
 
-**Build**: PASS — `npm run build`, exit 0, 2 pages built.
+### Render Transparency — the criterion that did NOT change
 
-**Tests**: PASS — `npx playwright test`, exit 0
+The acceptance criterion of zero changes under `tests/` was deliberately retired, but its
+*purpose* was render transparency. That purpose is intact and was re-derived, not restated:
 
-```text
-28 passed (34.2s)
-```
+| File | Pre-change baseline SHA-256 | Rebuilt at `d581915` | Result |
+|---|---|---|---|
+| `dist/index.html` | `1b63e55b...4d42b5a` | `1b63e55b...4d42b5a` | **identical** |
+| `dist/es/index.html` | `8a80205c...c2652ab` | `8a80205c...c2652ab` | **identical** |
 
-`git status --porcelain` was empty after the run: zero `.png` regenerated.
-
-**Coverage**: Not available — no coverage tool configured. Not a failure.
-
-### Byte-Identity Gate — PASS (independently re-derived)
-
-The apply report asserted these hashes. This phase did not accept them; it rebuilt the pre-change tree from scratch in a detached worktree at `101a7f3^` and re-derived the baseline.
-
-| Build | `dist/index.html` | `dist/es/index.html` |
-|-------|-------------------|----------------------|
-| Pre-change tree (`e7dceae`, no `src/data/`), rebuilt by verify | `1b63e55b…d42b5a` | `8a80205c…c652ab` |
-| Post-change HEAD, run 1 | `1b63e55b…d42b5a` | `8a80205c…c652ab` |
-| Post-change HEAD, run 2 (determinism) | `1b63e55b…d42b5a` | `8a80205c…c652ab` |
-
-Full digests: `1b63e55b057bd3409677d58d1bd2768eca973b34590a07c7ca78600074d42b5a` and `8a80205c9e1b589b0ca7e497106a364276e46171edea3256cd828ecfe2c652ab`. These match the baselines recorded before any edit. Determinism was re-proved at HEAD by two consecutive builds. Render-transparency holds in both locales.
-
-### Binding Completeness — PASS
-
-`rg -o '\{(releases\.[a-z]+\.[a-z]+|prereleaseInstall)\}'` returns **7** for each locale component, **14** total. All fourteen enumerated:
-
-| Locale | Line | Expressions |
-|--------|------|-------------|
-| EN | 8 | `releases.stable.version`, `releases.prerelease.version` |
-| EN | 1403 | `releases.stable.version`, `releases.stable.released` |
-| EN | 1404 | `releases.prerelease.version`, `releases.prerelease.released`, `prereleaseInstall` |
-| ES | 10 | `releases.stable.version`, `releases.prerelease.version` |
-| ES | 1426 | `releases.stable.version`, `releases.stable.released` |
-| ES | 1427 | `releases.prerelease.version`, `releases.prerelease.released`, `prereleaseInstall` |
-
-No fifth-of-seven omission: the count is exact per locale and the mutation experiment below confirmed all seven sites per locale actually move.
-
-### Tag-Hugging Invariant — PASS
-
-Every one of the 14 expressions renders as `>{expr}<`. A scan for any expression not immediately preceded by `>` or not immediately followed by `<` returned no matches (exit 1). No whitespace exists at the new text-node boundaries for Astro's default `compressHTML: true` to collapse, which is the structural reason byte identity holds across both parse modes.
-
-### Zero Collateral — PASS
-
-| Check | Result |
-|-------|--------|
-| `git diff --stat b9da430..HEAD -- tests/` | empty — `tests/` untouched across the whole branch |
-| `git diff --name-only b9da430..HEAD -- '*.png'` | empty — zero snapshots regenerated |
-| Authored source delta | 3 files, +20/-6 = **26 lines** |
-| `rg -n "data/versions" tests/` | no matches, exit 1 |
-
-The source diff is confined to the two frontmatter fences plus the six target lines. `@latest` and `@main` command strings are untouched literals in both locales.
-
-### Behavioral Evidence — mutation experiment
-
-Static inspection cannot prove "a release update edits one file". This phase checked out the implementation commit into a throwaway worktree, changed the four recorded facts (`v2.4.0`→`v2.9.9`, `2026-08-17`→`2026-09-30`, `v2.5.0-rc.1`→`v2.9.0-rc.7`, `2026-08-26`→`2026-10-01`), rebuilt, and diffed against the unmutated build. The worktree was removed afterwards; the repository was never modified and is clean.
-
-Result: **exactly 7 tokens changed per locale, in exactly 2 regions per file** (hero `<div class="meta">` and the channel table). Labels `Stable`/`Estable`, `Latest RC`/`Última RC`, `Prerelease`, `Development`/`Desarrollo`, `Channel`/`Canal` were byte-unchanged. `@latest` and `@main` were byte-unchanged. The prerelease install command repinned to `@v2.9.0-rc.7`. Delta pills stayed at 24 per locale. Old-literal occurrence counts dropped by exactly the bound-site count (`v2.4.0` 10→8, `v2.5.0-rc.1` 19→16, `2026-08-17` 2→1, `2026-08-26` 5→4), leaving all authored historical prose intact.
+Zero `.png` files regenerated; the Linux `workflow_dispatch` baseline ritual remains unnecessary.
+The tag-hugging invariant that makes this structural was re-scanned: 7 bound expressions per
+locale (14 total), **0 violations** of the `>{expr}<` rule in either file.
 
 ### Spec Compliance Matrix
 
-| Requirement | Scenario | Evidence | Result |
-|-------------|----------|----------|--------|
-| Single-source channel version facts | A release update edits one file | Mutation experiment: one edit to `src/data/versions.ts`, both locales' hero chips and channel table re-render, no locale component edited | ✅ COMPLIANT |
-| Single-source channel version facts | The prerelease install pin follows the recorded fact | Mutation experiment: pin became `…@v2.9.0-rc.7` in both locales; `@latest` and `@main` byte-unchanged | ✅ COMPLIANT |
-| Single-source channel version facts | Labels stay authored, only the datum binds | Token-level diff: every label byte-unchanged in both locales; only the datum moved | ✅ COMPLIANT |
-| Single-source channel version facts | Binding does not disturb the hero baseline | Independently re-derived baseline; both files byte-identical; `npx playwright test` 28 passed with zero `.png` regenerated | ✅ COMPLIANT |
-| Single-source channel version facts | Out-of-reach surfaces are untouched | Only 2 regions and 7 tokens per locale changed under mutation; 24 delta pills, retirement prose and historical references intact | ✅ COMPLIANT |
-| Independent version literals | Drift between source and expectation fails | `tests/docs.spec.ts:243` **passed against a fully drifted build** — see CRITICAL-1 | ❌ FAILING |
-| Independent version literals | A release update requires a second, human entry | Suite fails on drift only via the hero pixel snapshot; updating the test literals does not make it pass — see CRITICAL-1 | ❌ FAILING |
-| Independent version literals | The suite does not read the version module | `rg -n "data/versions" tests/` → no matches, exit 1 | ✅ COMPLIANT |
+**docs-content-presentation — Single-source channel version facts (5 scenarios)**
 
-**Compliance summary**: 6/8 scenarios compliant. Requirements fully satisfied: 1/2.
+| # | Scenario | Status | Runtime evidence |
+|---|---|---|---|
+| 1 | A release update edits one file | ✅ PASS | Mutating only `src/data/versions.ts` changed hero chips and channel table in **both** locales; no locale component was edited |
+| 2 | Prerelease install pin follows the recorded fact | ✅ PASS | Mutated build renders `gentle-ai@v9.9.9-rc.9` in both locales; `@latest` and `@main` unchanged |
+| 3 | Labels stay authored, only the datum binds | ✅ PASS | `Stable`/`Latest RC`/`Channel` and `Estable`/`Última RC`/`Canal` survive mutation unchanged; each binding is a complete text node, no concatenated sentence |
+| 4 | Binding does not disturb the hero baseline | ✅ PASS | Byte identity on both built files; 0 snapshots regenerated |
+| 5 | Out-of-reach surfaces are untouched | ✅ PASS | Across clean vs mutated builds: `v2.4.0-rc.8` 1→1, `v2.2.0` 1→1, `v1.47.0` 1→1, `class="pill"` 24→24 per locale |
 
-### Correctness (Static Evidence)
+**docs-browser-verification — Independent version literals (4 scenarios)**
 
-| Requirement | Status | Notes |
-|------------|--------|-------|
-| Single-source channel version facts | ✅ Implemented | `src/data/versions.ts` exports `releases` and `prereleaseInstall` only; `goModulePath` is module-local as designed. 14 bindings, byte-identical render. |
-| Independent version literals | ⚠️ Partially implemented | Scenario 3 holds. Scenarios 1 and 2 assert a drift-detection property the cited evidence does not deliver. |
+| # | Scenario | Status | Runtime evidence |
+|---|---|---|---|
+| 1 | Drift between source and expectation fails | ✅ PASS | Fails at `tests/docs.spec.ts:279` and names the received value |
+| 2 | Page-wide assertion is insufficient | ✅ PASS | Under full drift the page-wide loop at line 271 passed while the region-scoped assertion failed — the trap is demonstrated, not merely asserted |
+| 3 | A release update requires a second, human entry | ✅ PASS | Biconditional proved: fails with drift, and passes (1 passed, 4.5s) **only after** the authored `bound` literals were updated to match |
+| 4 | The suite does not read the version module | ✅ PASS | Guard returns no matches; sole import is `@playwright/test` |
 
-### Coherence (Design)
+All 9 scenarios are covered by an assertion that was observed failing when the behaviour is
+absent, not merely passing when present.
 
-| Decision | Followed? | Notes |
-|----------|-----------|-------|
-| Tag-hugging substitution as the render-transparency mechanism | ✅ Yes | 14/14 sites hug their tags; zero violations; byte identity confirmed |
-| `goModulePath` is module-local, not exported | ✅ Yes | `const goModulePath` — not exported |
-| Stable and development install commands stay fully literal | ✅ Yes | `@latest` and `@main` byte-unchanged under fact mutation |
-| EN frontmatter fence is the only new parse-mode surface | ✅ Yes | 3-line fence with no blank line before `<section class="hero">`; ES import placed between the existing fence lines; `{<>` / `</>}` wrapper untouched |
-| Byte-identity protocol (determinism first, then compare) | ✅ Yes | Re-executed independently, including the determinism precondition |
-| Never regenerate the four hero PNGs | ✅ Yes | Zero `.png` changed on the branch |
+### Assertion Quality
 
-No design deviations found.
+The added assertions were audited for the trivial patterns that make a test worthless.
 
-### Issues Found
+| Check | Result |
+|---|---|
+| Tautologies | None |
+| Assertions not exercising production code | None — all run against the built site |
+| Ghost loops over possibly-empty collections | None — `for (const region of [...])` iterates a 2-element array literal, and each `toContainText` fails on a non-matching locator rather than vacuously passing |
+| Type-only assertions used alone | None |
+| Self-referential expectations | None — `bound` is hand-authored and provably not imported |
+| Implementation-detail coupling | Locators use `.hero .meta` and `h2#versiones ~ .tblwrap`; these are structural selectors, accepted as the only way to scope a region |
 
-**CRITICAL**
+**Assertion quality**: all assertions verify real behaviour. The mutation run is the proof — an
+assertion that cannot fail cannot produce the line-279 failure observed above.
 
-- **CRITICAL-1 — `docs-browser-verification` scenarios 1 and 2 do not hold; the delta would publish a false requirement.**
-  The requirement's cited evidence is `tests/docs.spec.ts:245` (literal list) asserted at `:267` via `expect(page.locator('main')).toContainText(literal)`. That assertion only checks that each *test-authored* literal appears somewhere in `main`. It never checks that the *rendered* channel facts appear in the list.
-  All four pinned literals also occur in the page as authored historical and narrative prose, which the sibling `docs-content-presentation` requirement deliberately mandates stay authored (`v2.4.0` 10 occurrences, `v2.5.0-rc.1` 19, `2026-08-17` 2, `2026-08-26` 5 — only 1–2 of each are bound). Removing the bound occurrence therefore never empties the page of the literal.
-  Reproduced: with all four recorded facts drifted, `npx playwright test -g 'version policy and reference content is localized with exact shared literals'` returned **2 passed**. Scenario 1 ("the assertion for the missing literal fails and names the value") is contradicted by runtime evidence under either reading of "the missing literal".
-  Scenario 2 is contradicted differently. The full suite *does* fail on drift — but at `tests/docs.spec.ts:336`, the hero pixel snapshot (`73 pixels (ratio 0.01) are different`, `chromium-desktop` only; `chromium-narrow` is structural since `b9da430`). That failure is owned by the pre-existing "Focused visual evidence" requirement, not by "Independent version literals". Updating the test literals would not make it pass — regenerating the hero PNG baselines would, and the Linux pair is only reachable through `workflow_dispatch update_snapshots`. So "it passes only once a human has updated the test literals to match" is false.
-  Causality: `tests/` is byte-identical to the base, so this is **not a regression introduced by the code**. It is a defect in the spec delta this candidate would publish. `Independent version literals` is a genuinely new requirement (no collision in `openspec/specs/`), so archiving would write into the living spec a requirement that the codebase does not satisfy. This is distinct from the accepted "no staleness checker" residual risk, which concerns drift against the real upstream release; this one is an internal double-entry property claimed and cited but not delivered.
-  Remedy is a spec correction, not a code change — for example, restate scenarios 1 and 2 to describe what the double-entry actually buys (an independently authored expectation that is not fed by the module), and let the hero snapshot own drift detection; or, if genuine drift detection is wanted, add an assertion that scopes the comparison to the bound sites (`h2#versiones + .tblwrap code`, `.hero .chip b`). The latter enlarges scope beyond this change.
+### Issues
 
-**WARNING**
+#### CRITICAL
 
-- **WARNING-1 — `openspec/config.yaml` is stale and would cause severe under-verification.** It declares `testing_capabilities.test_runner.available: false`, `test_command: null`, `workspace_test_command: null`, and `rules.verify.test_command: npm run check`, though Playwright 1.61.0 has landed and 28 browser assertions exist. A verify phase obeying the config would run only `npm run check` and would never execute the browser suite or the byte-identity gate — that is, it would miss the single most important property of this change. This phase used the authoritative command set recorded in `tasks.md` instead. Confirmed still accurate as described in `design.md` Open Questions; fix belongs in a separate change, as designed.
-- **WARNING-2 — the `rg` no-import guard is not enforced in CI.** `.github/workflows/docs-browser.yml` does not run it, so a future PR could add `import … from '../src/data/versions'` into `tests/` and land, silently converting the double-entry assertion into a tautology. Confirmed still accurately described as accepted residual risk in `design.md`. Follow-up recommended. CRITICAL-1 raises its weight: the guard is currently the only thing protecting a property whose two behavioral scenarios do not hold.
-- **WARNING-3 — branch scope exceeds the change's source scope.** `refactor/version-facts-single-source` also carries `e7dceae`, which modifies `.gitignore` and adds 33 `openspec/` files (archive artifacts, published specs, `config.yaml`). Authored *source* delta is 26 lines, far inside the 400-line budget, but the PR diff a reviewer sees is much larger. Not a defect in this change; flagged so the delivery decision is made knowingly.
+None. The prior CRITICAL-1 is closed and independently re-proved.
 
-**SUGGESTION**
+#### WARNING
 
-- **SUGGESTION-1** — Only one of the four hero snapshots (`hero-en-chromium-desktop-darwin.png`) actually guards the hero chips against drift; `chromium-narrow` is structural. Single-platform, single-viewport coverage for the surface that CRITICAL-1 leaves unguarded is thin.
-- **SUGGESTION-2** — `prereleaseInstall` concatenates `goModulePath` with a recorded fact. This is compliant: the scenario-3 prohibition governs authored narrative sentences, and `design.md` reasons this explicitly as a locale-invariant machine invocation. Recorded here so a future reader does not mistake it for a violation.
+**WARNING-1 — `tasks.md` task 5.5 still specifies the superseded guard.**
+Line 26 of `tasks.md` was updated to the narrowed guard, but task 5.5 at line 73 still reads
+`rg -n "data/versions" tests/` — no matches, and is marked `[x]`. That command now returns a
+match (`tests/docs.spec.ts:273`, the explanatory comment). The task's literal text contradicts
+the code state and the file contradicts itself. The requirement is satisfied by the narrowed
+guard, so this is a documentation defect, not a functional one.
+
+**WARNING-2 — `tasks.md` task 5.6 and the apply notes still contract zero changes under `tests/`.**
+Task 5.6 asserts "zero changes under `tests/`" and is marked `[x]`; the "Notes for apply" section
+repeats "the contract is ZERO changes under `tests/`". `tests/docs.spec.ts` gained 17 lines in
+`d581915`. This growth is intentional and correct — it is the remediation of CRITICAL-1 — but the
+task text was not updated to match, so a reader of `tasks.md` alone would conclude the change
+regressed. The underlying purpose of that criterion (render transparency) is separately verified
+above and holds.
+
+**WARNING-3 — Engram artifacts are stale relative to `d581915`.**
+`sdd/version-facts-single-source/tasks` and `sdd/version-facts-single-source/apply` still describe
+the bare-path guard and state `tests/**` UNCHANGED, with the apply artifact's "Static No-Import
+Guard" section citing the superseded command as passing. Archive would carry these forward as
+fact. They should be refreshed before archive.
+
+**WARNING-4 — Spec delta evidence citations point at pre-edit line numbers.**
+`docs-content-presentation/spec.md:11` cites `DocumentationContentEn.astro:5,1400-1401` and
+`DocumentationContentEs.astro:9,1425-1426`; the actual post-edit bindings are EN `8,1403,1404`
+and ES `10,1426,1427` — off by the inserted frontmatter fence. `docs-browser-verification/spec.md:13`
+cites `tests/docs.spec.ts:270-283` for "authored `bound` facts", but the `bound` object is at
+247-250, outside that range. The cited failure line 279 is exactly correct. These deltas merge
+into `openspec/specs/` at archive, so the wrong pointers would become canonical.
+
+#### SUGGESTION
+
+**SUGGESTION-1 — The narrowed guard no longer catches a dynamic import.**
+`const v = await import('../src/data/versions')` evades the `from`-anchored pattern; the previous
+bare-path guard caught it. Narrowing removed one false positive and introduced one false negative.
+A pattern such as `rg -n "(from|import\()\s*['\"][^'\"]*data/versions" tests/` would close both.
+Low priority while the guard is not enforced anywhere (see SUGGESTION-2).
+
+**SUGGESTION-2 — The guard is still not wired into CI.**
+Carried forward from design Open Questions and accurately recorded as accepted residual risk in
+the apply artifact. `.github/workflows/docs-browser.yml` does not run it, so a future PR could add
+the import and land. Confirmed still open; the accepted-residual description remains accurate.
+
+**SUGGESTION-3 — Issue #30 is only partly addressed.**
+The single-source mechanism is delivered; the staleness checker is deferred and out of scope, as
+`spec` records (it would have required a build-network requirement). The issue should not be
+closed as fully resolved on merge. `openspec/config.yaml` also remains stale, deliberately.
 
 ### Verdict
 
-**FAIL** — the implementation is exemplary and every code-side gate is green (byte identity independently re-derived, 14/14 bindings, tag-hugging clean, 28 tests passing, zero collateral), but two of the eight spec scenarios are contradicted by runtime evidence, so the `docs-browser-verification` delta must not be archived as written.
+**PASS WITH WARNINGS**
+
+The change satisfies both requirements and all 9 scenarios under runtime evidence. CRITICAL-1 is
+genuinely closed: the region-scoped assertions detect drift that the page-wide loop provably
+cannot, the guard was proved in both directions, and render transparency survives with byte
+identity on both built files and zero regenerated snapshots.
+
+The four warnings are all documentation drift — `tasks.md`, the Engram artifacts, and the spec
+delta evidence lines describe a state the code has moved past. None blocks archive on correctness
+grounds, but WARNING-3 and WARNING-4 propagate into canonical specs and stored memory if archived
+unchanged, and are best corrected first.
