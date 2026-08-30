@@ -2,31 +2,34 @@ schema: spec-driven
 
 context: |
   Project: Gentle AI Community Documentation.
-  Stack: Astro 7.2.4 static site, TypeScript 5.9 with strict Astro configuration, vanilla JavaScript, and CSS.
-  Architecture: one static route composed from BaseLayout, InterfaceChrome, Sidebar, and DocumentationContent; client behavior lives in src/scripts/site.js.
-  Deployment: static output in dist/ deployed on Netlify; no server adapter, redirects, or serverless functions are required.
-  Conventions: npm scripts, GitHub Flow with short feature branches and pull requests, no direct implementation on main, and English SDD artifacts.
-  Repository state: clean main branch tracking origin/main; initialization does not create feature branches or user-facing changes.
-  Testing: no automated test runner, browser harness, coverage tool, linter, or formatter is configured; npm run check and npm run build are available.
+  Stack: Astro 7.2.4 static site, TypeScript 5.9 strict configuration, vanilla JavaScript, and CSS.
+  Architecture: bilingual static routes `/` and `/es/`, shared Astro components, client behavior in `src/scripts/site.js`.
+  Deployment: Netlify static hosting with `npm run build` and `dist/`.
+  Conventions: npm scripts, GitHub Flow feature branches and pull requests, English SDD artifacts.
+  Repository baseline: `feat/mcp-documentation` was clean with exact HEAD equal to `origin/main`; initialization changes only this config file; issue #34 is approved and open.
+  Persistence: hybrid OpenSpec + Engram; preserve existing specs and archived changes.
+  Testing: Playwright E2E via `npx playwright test`, Astro type checking via `npm run check`, and production validation via `npm run build`.
 
-strict_tdd: false
+strict_tdd: true
 
 testing:
-  detected: 2026-08-24
-  strict_tdd: false
-  workspace_test_command: null
+  detected: 2026-08-29
+  strict_tdd: true
+  workspace_test_command: npx playwright test
   projects:
     - path: "."
       stack: Astro 7.2.4 static site, TypeScript 5.9, vanilla JavaScript, and CSS
-      test_command: null
-      framework: null
+      test_command: npx playwright test
+      framework: Playwright 1.61.0
       verification_commands:
         - npm run check
         - npm run build
+      prerequisites:
+        - npx playwright install --with-deps chromium
   test_runner:
-    available: false
-    command: null
-    framework: null
+    available: true
+    command: npx playwright test
+    framework: Playwright 1.61.0
   layers:
     unit:
       available: false
@@ -35,8 +38,8 @@ testing:
       available: false
       tool: null
     e2e:
-      available: false
-      tool: null
+      available: true
+      tool: Playwright 1.61.0
   coverage:
     available: false
     command: null
@@ -63,10 +66,10 @@ rules:
   apply:
     guidelines:
       - Follow existing Astro, TypeScript, CSS, and vanilla JavaScript conventions after approval.
-    tdd: false
-    test_command: ""
+    tdd: true
+    test_command: npx playwright test
   verify:
-    test_command: npm run check
+    test_command: npx playwright test
     build_command: npm run build
     coverage_threshold: 0
   archive:
