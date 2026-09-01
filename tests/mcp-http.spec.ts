@@ -6,7 +6,7 @@ const EXPECTED_INDEX = {
   schemaVersion: 1,
   generatedAt: '2026-08-31T00:00:00.000Z',
   commit: 'fixture01',
-  sectionCount: 8,
+  sectionCount: 9,
 };
 
 const MCP_HEADERS = {
@@ -116,8 +116,8 @@ test.describe('list_sections', () => {
     const body = await response.json();
     const output = body.result.structuredContent;
 
-    expect(output.count).toBe(8);
-    expect(output.sections).toHaveLength(8);
+    expect(output.count).toBe(9);
+    expect(output.sections).toHaveLength(9);
     expect(output.sections[0]).toHaveProperty('id');
     expect(output.sections[0]).toHaveProperty('title');
     expect(output.sections[0]).toHaveProperty('level');
