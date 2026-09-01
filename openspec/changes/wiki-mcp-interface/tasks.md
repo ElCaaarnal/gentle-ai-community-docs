@@ -74,12 +74,12 @@ Unit 1 (CI fix, Vitest, extraction) ──┬──► Unit 2 (generator CLI)
 
 ## Unit 1: Extraction Module + Vitest Wiring + CI Path-Filter Fix
 
-- [ ] 1.1 Add `vitest` devDependency and a `test:unit` script (`vitest run`) to `package.json`.
-- [ ] 1.2 Create `vitest.config.mjs` — `environment: 'node'`, `include: ['scripts/**/*.test.mjs', 'mcp-server/**/*.test.mjs']`, `exclude: [...configDefaults.exclude, 'tests/**', 'dist/**']`.
-- [ ] 1.3 Fix `.github/workflows/docs-browser.yml`: add `'**.mjs'` and `'mcp-server/**'` to the `pull_request.paths` list; add a `run: npm run test:unit` step after `npm run check`.
-- [ ] 1.4 Update `openspec/config.yaml` testing block: add a `unit` layer (`available: true`, `tool: Vitest 4.1.11`, command `npx vitest run`).
-- [ ] 1.5 RED — create `scripts/lib/extract.test.mjs` with HTML fixtures under `scripts/lib/fixtures/`: assert `<pre>` line breaks survive extraction, link `href` is retained alongside its label, missing canonical link throws, missing `<main>` throws, zero headings throws, a section with empty `text` throws. Run `npx vitest run scripts/lib/extract.test.mjs` — expect failure (module absent).
-- [ ] 1.6 GREEN — create `scripts/lib/extract.mjs`, porting the pure extraction logic from `spike/mcp/build-index.mjs` (read-only) into exported functions (`toText`, `baseUrlOf`, `extractSections`) with the guards above. Run `npx vitest run scripts/lib/extract.test.mjs` — expect pass.
+- [x] 1.1 Add `vitest` devDependency and a `test:unit` script (`vitest run`) to `package.json`.
+- [x] 1.2 Create `vitest.config.mjs` — `environment: 'node'`, `include: ['scripts/**/*.test.mjs', 'mcp-server/**/*.test.mjs']`, `exclude: [...configDefaults.exclude, 'tests/**', 'dist/**']`.
+- [x] 1.3 Fix `.github/workflows/docs-browser.yml`: add `'**.mjs'` and `'mcp-server/**'` to the `pull_request.paths` list; add a `run: npm run test:unit` step after `npm run check`.
+- [x] 1.4 Update `openspec/config.yaml` testing block: add a `unit` layer (`available: true`, `tool: Vitest 4.1.11`, command `npx vitest run`).
+- [x] 1.5 RED — create `scripts/lib/extract.test.mjs` with HTML fixtures under `scripts/lib/fixtures/`: assert `<pre>` line breaks survive extraction, link `href` is retained alongside its label, missing canonical link throws, missing `<main>` throws, zero headings throws, a section with empty `text` throws. Run `npx vitest run scripts/lib/extract.test.mjs` — expect failure (module absent).
+- [x] 1.6 GREEN — create `scripts/lib/extract.mjs`, porting the pure extraction logic from `spike/mcp/build-index.mjs` (read-only) into exported functions (`toText`, `baseUrlOf`, `extractSections`) with the guards above. Run `npx vitest run scripts/lib/extract.test.mjs` — expect pass.
 
 ## Unit 2: Generator CLI + Parity Fail + Build Wiring
 
