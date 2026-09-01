@@ -1,0 +1,12 @@
+{
+  "name": "@gentle-ai-community-docs/mcp-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Read-only MCP server exposing the Gentle AI community documentation index.",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "express": "^5.2.1",
+    "zod": "^4.5.4"
+  }
+}

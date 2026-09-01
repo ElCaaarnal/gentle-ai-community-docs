@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "workspaces": ["mcp-server"],
   "scripts": {
     "dev": "astro dev",
     "check": "astro check",
