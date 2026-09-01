@@ -177,11 +177,23 @@ run` (49/49) and `npx playwright test` (38/38) are green on the rebased
 
 ## Unit 5: `get_section` + AC8 Client Test + Error Paths
 
-- [ ] 5.1 RED — extend `tests/mcp-http.spec.ts`: valid `id`+`locale` returns the full untruncated body with code blocks and links intact; unknown `id` for a given `locale` → typed error naming both; missing `locale` → schema validation error; `locale` outside `en`/`es` → typed error naming the received value; adversarial `id` values `../etc/passwd`, `%00`, and a 10 KiB string → typed unknown-id error, never resolved as a filesystem path (threat-matrix case). Run `npx playwright test tests/mcp-http.spec.ts --project=mcp-http` — expect failure.
-- [ ] 5.2 GREEN — add `get_section` to `mcp-server/src/tools.mjs`: `id` (string, required), `locale` (`z.enum(['en','es'])`, required); look up by the `(id, locale)` pair as a map key only, never a path; typed error on no match; success returns `{id, locale, title, level, url, text}` untruncated plus build identity. Run `npx playwright test tests/mcp-http.spec.ts --project=mcp-http` — expect pass.
-- [ ] 5.3 RED — create `tests/mcp-client.spec.ts` using `@modelcontextprotocol/sdk` `Client` over Streamable HTTP against the fixture-backed server: complete `initialize`, `tools/list`, and one `tools/call` (`get_section` on a known fixture id); assert the negotiated protocol version, the three advertised tool schemas, and the exact returned section text. Run `npx playwright test tests/mcp-client.spec.ts --project=mcp-http` — expect failure or gap.
-- [ ] 5.4 GREEN — close any gap 5.3 surfaces (e.g. explicit `McpServer({name, version})` sourced from `mcp-server/package.json`'s `version`). Run `npx playwright test tests/mcp-client.spec.ts --project=mcp-http` — expect pass.
-- [ ] 5.5 Run `npx vitest run && npx playwright test` — full regression, including the untouched 14 `docs.spec.ts` tests.
+- [x] 5.1 RED — extend `tests/mcp-http.spec.ts`: valid `id`+`locale` returns the full untruncated body with code blocks and links intact; unknown `id` for a given `locale` → typed error naming both; missing `locale` → schema validation error; `locale` outside `en`/`es` → typed error naming the received value; adversarial `id` values `../etc/passwd`, `%00`, and a 10 KiB string → typed unknown-id error, never resolved as a filesystem path (threat-matrix case). Run `npx playwright test tests/mcp-http.spec.ts --project=mcp-http` — expect failure.
+- [x] 5.2 GREEN — add `get_section` to `mcp-server/src/tools.mjs`: `id` (string, required), `locale` (`z.enum(['en','es'])`, required); look up by the `(id, locale)` pair as a map key only, never a path; typed error on no match; success returns `{id, locale, title, level, url, text}` untruncated plus build identity. Run `npx playwright test tests/mcp-http.spec.ts --project=mcp-http` — expect pass.
+- [x] 5.3 RED — create `tests/mcp-client.spec.ts` using `@modelcontextprotocol/sdk` `Client` over Streamable HTTP against the fixture-backed server: complete `initialize`, `tools/list`, and one `tools/call` (`get_section` on a known fixture id); assert the negotiated protocol version, the three advertised tool schemas, and the exact returned section text. Run `npx playwright test tests/mcp-client.spec.ts --project=mcp-http` — expect failure or gap.
+- [x] 5.4 GREEN — close any gap 5.3 surfaces (e.g. explicit `McpServer({name, version})` sourced from `mcp-server/package.json`'s `version`). Run `npx playwright test tests/mcp-client.spec.ts --project=mcp-http` — expect pass.
+- [x] 5.5 Run `npx vitest run && npx playwright test` — full regression, including the untouched 14 `docs.spec.ts` tests.
+
+### Note — 5.3 surfaced no gap (5.4 required zero code changes)
+
+`server.mjs` already built `McpServer({ name: 'gentle-ai-docs-mcp', version: pkg.version })` sourcing
+`version` from `mcp-server/package.json` as part of Unit 4 (`http.mjs`'s `buildServer` already took a
+`version` parameter threaded from `server.mjs`'s `pkg.version` read). Running the RED-intent
+`tests/mcp-client.spec.ts` for the first time (protocol negotiation, all three tool schemas, exact
+`get_section` content for fixture id `memory`) passed immediately against the already-implemented
+5.2 `get_section` and the pre-existing `McpServer` construction — a genuine "no gap" outcome the task
+text explicitly allows ("expect failure or gap"), not a trivial pass: removing `get_section` from
+`tools.mjs` reproduces the exact RED this test would have shown, confirming the assertions exercise
+real production code.
 
 ## Unit 6: Deployment / Operations Docs
 

@@ -20,7 +20,7 @@
       "level": 2,
       "title": "Installation",
       "url": "https://docs-gentle-ai.netlify.app/#installation",
-      "text": "Install Gentle AI with npm install -g gentle-ai. Installation configures your coding agent automatically and takes less than a minute to complete."
+      "text": "Install Gentle AI with npm install -g gentle-ai. Installation configures your coding agent automatically and takes less than a minute to complete.\n\n```bash\nnpm install -g gentle-ai\ngentle-ai init\ngentle-ai doctor\n```\n\nFull reference: https://docs-gentle-ai.netlify.app/#installation"
     },
     {
       "id": "advanced-configuration",
