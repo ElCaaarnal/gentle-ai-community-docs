@@ -126,6 +126,43 @@ run` and `npm run check` are green on the rebased `unit-2-generator-cli-parity` 
 - [x] 3.3 Create `mcp-server/test/fixtures/docs-index.json` — small deterministic EN/ES fixture matching the `schemaVersion: 1` contract (≥4 sections per locale, at least one shared id per locale for parity-style assertions).
 - [x] 3.4 RED — create `mcp-server/src/index-store.test.mjs`: assert a valid fixture loads and exposes build identity `{schemaVersion, generatedAt, commit, sectionCount}`; assert an unrecognised `schemaVersion`, a missing top-level field, empty `sections`, and a section missing `id`/`locale`/`title`/`url`/`text` each throw (threat-matrix case: index unknown `schemaVersion`). Run `npx vitest run mcp-server/src/index-store.test.mjs` — expect failure.
 - [x] 3.5 GREEN — create `mcp-server/src/index-store.mjs`: load + validate the index file, expose `getBuildIdentity()` and `getSections()`; throw (never warn-and-continue) on any unrecognised shape. Run `npx vitest run mcp-server/src/index-store.test.mjs` — expect pass.
+
+### Discovered Blocker — RESOLVED (`unit-3a-fix-empty-text-validation`)
+
+`index-store.mjs`'s required-field check used truthiness (`if (!section[field])`) instead of
+presence/type. `""` is falsy, so any section with a legitimately empty `text` — a container
+heading, the same pattern the Unit 1 corrective fix already validated as legitimate — was
+rejected as "missing", and the error message was wrong too (the key was present). Verified
+against the real generated index (`dist/mcp/docs-index.json`, 190 sections): 8 of them are
+container headings with `text: ""`. Consequence: `node mcp-server/src/server.mjs` against the
+real index exited 1 before `listen()` — the server was unusable on production data while every
+fixture test (which never contained an empty-text section) stayed green.
+
+Fixed on `unit-3a-index-store` (committed there, then rebased into `unit-3b-search` and
+`unit-4-http-transport-tools`): every required section field must now be present and a string;
+`text` may be an empty string, but `id`/`locale`/`title`/`url` must be present AND non-empty. A
+genuinely absent field and a present-but-invalid one now throw distinct messages (`"missing
+required field"` vs `"has an invalid/empty value for required field"`). `level` was deliberately
+left out of the field-presence/type check — `design.md`'s own list of required section fields
+(`id`/`locale`/`title`/`url`/`text`) does not include it, so adding a `level` check would be an
+undiagnosed scope change beyond this corrective unit.
+
+Added: a container section (`text: ""`) to the shared fixture `mcp-server/test/fixtures/docs-index.json`
+(now 9 sections); RED-first tests in `mcp-server/src/index-store.test.mjs` for the empty-text
+acceptance case, a non-string `text` value, an empty-but-present `id`/`locale`/`title`/`url` for
+each field, and the distinct-message assertion. `mcp-server/src/search.test.mjs` needed no
+changes (its assertions are relative, not hardcoded counts). `tests/mcp-http.spec.ts` on
+`unit-4-http-transport-tools` had its hardcoded `sectionCount`/`list_sections` count assertions
+updated from 8 to 9 to match the fixture change.
+
+Verified against the real site: `npm run build` writes 190 sections (95/locale, 8 with empty
+text). `PORT=3111 DOCS_INDEX_PATH=dist/mcp/docs-index.json node mcp-server/src/server.mjs`
+now starts successfully (previously exited 1); `GET /health` reports `{ok:true, sections:190,
+...}`; a `tools/call` for `search_docs` with no `Origin` header returns real results from the
+production index, including a container-heading section with an empty `snippet`. `npx vitest
+run` (49/49) and `npx playwright test` (38/38) are green on the rebased
+`unit-4-http-transport-tools`.
+
 - [x] 3.6 RED — create `mcp-server/src/search.test.mjs`: assert a precisely-relevant short section outranks a longer weakly-relevant one under BM25-lite scoring; EN/ES stopwords are excluded from term weighting; `locale` narrows the candidate pool; a produced snippet never exceeds 400 chars; a well-formed query with zero matches returns an empty array, not an error. Run `npx vitest run mcp-server/src/search.test.mjs` — expect failure.
 - [x] 3.7 GREEN — create `mcp-server/src/search.mjs`, porting `norm`, `STOP`, `search`, and `snippet` from `spike/mcp/server.mjs` (read-only) into pure exports with zero `express`/SDK imports. Run `npx vitest run mcp-server/src/search.test.mjs` — expect pass.
 
