@@ -105,6 +105,106 @@ test.describe('search_docs', () => {
   });
 });
 
+test.describe('get_section', () => {
+  test('a valid id and locale returns the full untruncated body with code blocks and links intact', async ({
+    request,
+  }) => {
+    const response = await request.post('/mcp', {
+      headers: MCP_HEADERS,
+      data: toolCall('get_section', { id: 'installation', locale: 'en' }),
+    });
+
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    const output = body.result.structuredContent;
+
+    expect(output.id).toBe('installation');
+    expect(output.locale).toBe('en');
+    expect(output.title).toBe('Installation');
+    expect(output.url).toBe('https://docs-gentle-ai.netlify.app/#installation');
+    expect(output.text).toBe(
+      'Install Gentle AI with npm install -g gentle-ai. Installation configures your coding agent ' +
+        'automatically and takes less than a minute to complete.\n\n```bash\nnpm install -g gentle-ai\n' +
+        'gentle-ai init\ngentle-ai doctor\n```\n\nFull reference: https://docs-gentle-ai.netlify.app/#installation'
+    );
+
+    // Code-block fidelity: the three commands stay on separate lines, untruncated.
+    const lines = output.text.split('\n');
+    expect(lines).toContain('npm install -g gentle-ai');
+    expect(lines).toContain('gentle-ai init');
+    expect(lines).toContain('gentle-ai doctor');
+
+    // Link fidelity: the destination survives verbatim.
+    expect(output.text).toContain('https://docs-gentle-ai.netlify.app/#installation');
+    expect(output.index).toEqual(EXPECTED_INDEX);
+  });
+
+  test('an unknown id for a given locale returns a typed error naming both', async ({ request }) => {
+    const response = await request.post('/mcp', {
+      headers: MCP_HEADERS,
+      data: toolCall('get_section', { id: 'does-not-exist', locale: 'en' }),
+    });
+
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+
+    expect(body.result.isError).toBe(true);
+    const message = body.result.content[0].text;
+    expect(message).toContain('does-not-exist');
+    expect(message).toContain('en');
+  });
+
+  test('a missing locale is a schema validation error', async ({ request }) => {
+    const response = await request.post('/mcp', {
+      headers: MCP_HEADERS,
+      data: toolCall('get_section', { id: 'installation' }),
+    });
+
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+
+    expect(body.result.isError).toBe(true);
+    expect(body.result.content[0].text).toContain('locale');
+  });
+
+  test('a locale outside en/es is a typed error naming the received value', async ({ request }) => {
+    const response = await request.post('/mcp', {
+      headers: MCP_HEADERS,
+      data: toolCall('get_section', { id: 'installation', locale: 'fr' }),
+    });
+
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+
+    expect(body.result.isError).toBe(true);
+    expect(body.result.content[0].text).toContain('fr');
+  });
+
+  for (const adversarialId of ['../etc/passwd', '%00', 'a'.repeat(10 * 1024)]) {
+    test(`an adversarial id (${adversarialId.slice(0, 20)}...) is rejected as a typed unknown-id error, never a filesystem path`, async ({
+      request,
+    }) => {
+      const response = await request.post('/mcp', {
+        headers: MCP_HEADERS,
+        data: toolCall('get_section', { id: adversarialId, locale: 'en' }),
+      });
+
+      expect(response.status()).toBe(200);
+      const body = await response.json();
+      const message = body.result.content[0].text;
+
+      expect(body.result.isError).toBe(true);
+      // Must be the SAME typed unknown-id error a well-formed unknown id gets —
+      // not the generic "tool not found" error and never a Node fs error
+      // (ENOENT/EISDIR/etc.), which id-as-map-key rules out by construction.
+      expect(message).toContain('no section with id');
+      expect(message).toContain('en');
+      expect(message).not.toContain('Tool get_section not found');
+      expect(message).not.toMatch(/ENOENT|EISDIR|no such file/i);
+    });
+  }
+});
+
 test.describe('list_sections', () => {
   test('a valid call succeeds, lists every locale, and carries the index build identity', async ({ request }) => {
     const response = await request.post('/mcp', {
