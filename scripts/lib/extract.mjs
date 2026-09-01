@@ -70,7 +70,8 @@ export function baseUrlOf(html) {
 /**
  * Extracts one section per <h2>/<h3 id="..."> heading found inside <main>.
  * Hard-fails (throws) instead of returning a silently empty or partial result:
- * missing <main>, zero headings, or any section whose extracted text is empty.
+ * missing <main>, zero headings, or empty extracted text on a section that
+ * isn't a container heading (see the empty-text guard below).
  */
 export function extractSections(html, { locale, path, base }) {
   const main = html.match(/<main\b[^>]*>([\s\S]*)<\/main>/)?.[1];
@@ -85,7 +86,15 @@ export function extractSections(html, { locale, path, base }) {
     const body = main.slice(bodyStart, bodyEnd);
     const text = toText(body);
 
-    if (!text) {
+    // A container heading (immediately followed by a strictly deeper heading,
+    // e.g. an <h2> right before an <h3>) legitimately owns no prose of its
+    // own - its subheadings carry the real content. Empty text anywhere else
+    // (same-or-shallower next heading, or the last heading in the document)
+    // still signals a genuine extraction failure.
+    const nextLevel = i + 1 < headings.length ? Number(headings[i + 1][1]) : null;
+    const isContainerHeading = nextLevel !== null && nextLevel > Number(h[1]);
+
+    if (!text && !isContainerHeading) {
       throw new Error(`section "${h[2]}" (locale "${locale}") extracted to empty text`);
     }
 

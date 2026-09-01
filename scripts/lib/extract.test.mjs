@@ -70,9 +70,29 @@ describe('extractSections', () => {
     ).toThrow(/heading/i);
   });
 
-  it('throws when a section extracts to empty text', () => {
+  it('throws when a non-container section extracts to empty text', () => {
     expect(() =>
       extractSections(fixture('empty-text-section.html'), { locale: 'en', path: '/', base: BASE })
     ).toThrow(/empty/i);
+  });
+
+  it('throws when the last section in the document extracts to empty text', () => {
+    expect(() =>
+      extractSections(fixture('empty-text-last-section.html'), { locale: 'en', path: '/', base: BASE })
+    ).toThrow(/empty/i);
+  });
+
+  it('does not throw when a container heading (immediately followed by a deeper heading) has empty text, and keeps the section', () => {
+    const sections = extractSections(fixture('container-heading-section.html'), {
+      locale: 'en',
+      path: '/',
+      base: BASE
+    });
+
+    expect(sections).toHaveLength(2);
+    expect(sections[0].id).toBe('installation');
+    expect(sections[0].title).toBe('Installation');
+    expect(sections[0].text).toBe('');
+    expect(sections[1].id).toBe('prerequisites');
   });
 });

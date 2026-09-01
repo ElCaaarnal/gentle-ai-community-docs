@@ -78,7 +78,11 @@ section count — alongside the generated index, so downstream consumers can det
 
 The system MUST fail with a descriptive error, instead of producing an empty or partial index,
 when required structure — a canonical link, a `<main>` element, or at least one heading — is
-missing from a built page.
+missing from a built page, or when a section's extracted text is empty and that section is not a
+container heading. A container heading is a heading immediately followed by a heading at a
+strictly deeper level (for example an `<h2>` immediately followed by an `<h3>`); it legitimately
+owns no prose of its own because its subheadings carry the real content, and it MUST still be
+indexed, with its title and canonical URL intact.
 
 #### Scenario: Missing structure aborts generation
 
@@ -86,3 +90,18 @@ missing from a built page.
 - WHEN the index generator runs
 - THEN it exits with a non-zero status and a message naming the missing structure, and MUST NOT
   write an index file
+
+#### Scenario: A container heading with no prose of its own is indexed, not rejected
+
+- GIVEN a heading is immediately followed by a heading at a strictly deeper level, with no prose
+  between them
+- WHEN that heading is indexed
+- THEN it is included in the index with empty text, and its title and canonical URL are preserved
+
+#### Scenario: Empty text on a non-container section still aborts generation
+
+- GIVEN a heading's extracted text is empty and it is either followed by a heading at the same or
+  a shallower level, or it is the last heading in the document
+- WHEN the index generator runs
+- THEN it exits with a non-zero status and a message naming the section, and MUST NOT write an
+  index file
