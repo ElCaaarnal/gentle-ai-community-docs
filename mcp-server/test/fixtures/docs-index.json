@@ -2,10 +2,18 @@
   "schemaVersion": 1,
   "generatedAt": "2026-08-31T00:00:00.000Z",
   "commit": "fixture01",
-  "sectionCount": 8,
+  "sectionCount": 9,
   "base": "https://docs-gentle-ai.netlify.app",
   "locales": ["en", "es"],
   "sections": [
+    {
+      "id": "cli",
+      "locale": "en",
+      "level": 2,
+      "title": "CLI",
+      "url": "https://docs-gentle-ai.netlify.app/#cli",
+      "text": ""
+    },
     {
       "id": "installation",
       "locale": "en",

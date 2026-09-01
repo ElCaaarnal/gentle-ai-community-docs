@@ -35,7 +35,7 @@ describe('loadIndexStore', () => {
       schemaVersion: 1,
       generatedAt: '2026-08-31T00:00:00.000Z',
       commit: 'fixture01',
-      sectionCount: 8
+      sectionCount: 9
     });
   });
 
@@ -43,10 +43,18 @@ describe('loadIndexStore', () => {
     const store = loadIndexStore(fixturePath);
     const sections = store.getSections();
 
-    expect(sections).toHaveLength(8);
+    expect(sections).toHaveLength(9);
     expect(sections.find((s) => s.id === 'memory' && s.locale === 'es')).toMatchObject({
       title: 'Memoria Persistente'
     });
+  });
+
+  it('loads a section with legitimately empty text (container heading) without throwing', () => {
+    const store = loadIndexStore(fixturePath);
+    const container = store.getSections().find((s) => s.id === 'cli' && s.locale === 'en');
+
+    expect(container).toBeDefined();
+    expect(container.text).toBe('');
   });
 });
 
@@ -105,6 +113,72 @@ describe('createIndexStore validation', () => {
     delete data.sections[0].text;
 
     expect(() => createIndexStore(data)).toThrow(/text/);
+  });
+
+  it('does not throw when a section has a legitimately empty "text" string', () => {
+    const data = validIndex();
+    data.sections[0].text = '';
+
+    expect(() => createIndexStore(data)).not.toThrow();
+  });
+
+  it('throws when a section has a non-string "text" value', () => {
+    const data = validIndex();
+    data.sections[0].text = 42;
+
+    expect(() => createIndexStore(data)).toThrow(/text/);
+  });
+
+  it('throws when a section has an empty (but present) "id"', () => {
+    const data = validIndex();
+    data.sections[0].id = '';
+
+    expect(() => createIndexStore(data)).toThrow(/id/);
+  });
+
+  it('throws when a section has an empty (but present) "locale"', () => {
+    const data = validIndex();
+    data.sections[0].locale = '';
+
+    expect(() => createIndexStore(data)).toThrow(/locale/);
+  });
+
+  it('throws when a section has an empty (but present) "title"', () => {
+    const data = validIndex();
+    data.sections[0].title = '';
+
+    expect(() => createIndexStore(data)).toThrow(/title/);
+  });
+
+  it('throws when a section has an empty (but present) "url"', () => {
+    const data = validIndex();
+    data.sections[0].url = '';
+
+    expect(() => createIndexStore(data)).toThrow(/url/);
+  });
+
+  it('uses a different error message for a genuinely absent field than for a present-but-invalid one', () => {
+    const missingData = validIndex();
+    delete missingData.sections[0].text;
+    let missingMessage = '';
+    try {
+      createIndexStore(missingData);
+    } catch (err) {
+      missingMessage = err.message;
+    }
+
+    const emptyData = validIndex();
+    emptyData.sections[0].id = '';
+    let invalidMessage = '';
+    try {
+      createIndexStore(emptyData);
+    } catch (err) {
+      invalidMessage = err.message;
+    }
+
+    expect(missingMessage).toMatch(/missing/i);
+    expect(invalidMessage).not.toMatch(/missing/i);
+    expect(missingMessage).not.toBe(invalidMessage);
   });
 
   it('does not throw for a fully valid index and returns a store with both accessors', () => {

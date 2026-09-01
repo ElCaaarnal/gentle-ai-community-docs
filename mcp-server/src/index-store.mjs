@@ -41,8 +41,23 @@ export function validateIndex(data) {
 
   data.sections.forEach((section, i) => {
     for (const field of REQUIRED_SECTION_FIELDS) {
-      if (!section[field]) {
+      if (!(field in section)) {
         throw new Error(`docs index section at position ${i} is missing required field "${field}"`);
+      }
+
+      const value = section[field];
+
+      if (typeof value !== 'string') {
+        throw new Error(
+          `docs index section at position ${i} has an invalid value for required field "${field}": expected a string, got ${typeof value}`
+        );
+      }
+
+      // "text" is allowed to be a legitimately empty string — a container
+      // heading (e.g. an <h2> immediately followed by an <h3>) owns no prose
+      // of its own. Every other required field must be non-empty.
+      if (field !== 'text' && value === '') {
+        throw new Error(`docs index section at position ${i} has an empty value for required field "${field}"`);
       }
     }
   });
