@@ -87,29 +87,30 @@ Unit 1 (CI fix, Vitest, extraction) ──┬──► Unit 2 (generator CLI)
 - [x] 2.2 GREEN — create `scripts/build-mcp-index.mjs`, porting `spike/mcp/build-index.mjs` (read-only) into the CLI: add `schemaVersion: 1`, `commit` from `$COMMIT_REF`/`git rev-parse --short HEAD` falling back to `"unknown"`, a `MIN_SECTIONS` constant set with headroom above the measured 190, and fail-fast EN/ES parity (non-zero exit, no partial write). Run `npx vitest run scripts/build-mcp-index.test.mjs` — expect pass.
 - [x] 2.3 Wire the generator into `package.json`'s `build` script: `astro build && node scripts/build-mcp-index.mjs`.
 
-### Discovered Blocker (not resolved in this unit — needs a decision)
+### Discovered Blocker — RESOLVED
 
 Running the real `npm run build` (task 2.3's own wiring, against the actual `dist/index.html` /
-`dist/es/index.html`, not the committed fixtures) crashes inside **Unit 1's** `scripts/lib/extract.mjs`:
-`Error: section "instalacion" (locale "en") extracted to empty text`. Root cause: the real site has
-`<h2>` headings that own no direct prose because a `<h3>` subheading follows immediately (e.g.
-`<h2 id="instalacion">Installation</h2><h3 id="requisitos-previos">Prerequisites</h3>` with nothing
-between them) — a legitimate, common heading-nesting pattern that Unit 1's "any section with empty
-text throws" guard (from `design.md`) was not designed against. Confirmed via direct inspection of
-the built HTML: **4 such headings per locale** (`instalacion`, `presets`, `skills`, `cli`), identical
-ids in both `en` and `es` (symmetric — dropping them would not break EN/ES parity), leaving 91/91
-sections with real content per locale (182 total), still comfortably above the `MIN_SECTIONS` floor
-this unit set.
+`dist/es/index.html`, not the committed fixtures) used to crash inside **Unit 1's**
+`scripts/lib/extract.mjs`: `Error: section "instalacion" (locale "en") extracted to empty text`.
+Root cause: the real site has `<h2>` headings that own no direct prose because a `<h3>` subheading
+follows immediately (e.g. `<h2 id="instalacion">Installation</h2><h3 id="requisitos-previos">Prerequisites</h3>`
+with nothing between them) — a legitimate, common heading-nesting pattern (a "container heading")
+that Unit 1's original "any section with empty text throws" guard was not designed against.
 
-This is out of Unit 2's assigned scope (2.1–2.3 only touch `scripts/build-mcp-index.*` and
-`package.json`'s `build` script) and touches a file Unit 1 already completed, tested, and committed
-under its own PR. Per the executor contract ("NEVER implement tasks that weren't assigned to you"),
-it was **not fixed here**. Recommended fix for a follow-up task: in `extractSections`, skip (don't
-throw on) a heading whose own body text is empty, instead indexing only its non-empty siblings —
-its subheadings still carry the real content, so nothing is lost. Until this lands, `npm run build`
-does not produce `dist/mcp/docs-index.json` against the real site, even though
-`scripts/build-mcp-index.mjs` itself is correct and fully green against the fixtures task 2.1
-specifies.
+Fixed as a corrective work unit (`unit-1-fix-container-empty-guard`, committed on
+`unit-1-extraction-vitest-ci`, then rebased into `unit-2-generator-cli-parity`): `extractSections`
+now compares each heading's level against its immediately following heading. Empty text is
+legitimate only when the next heading is at a strictly deeper level (a container heading); the
+section is still indexed, with its title and canonical URL intact. Empty text on any other section
+(followed by a same-or-shallower heading, or the last heading in the document) still throws.
+Covered by new RED-first tests and fixtures in `scripts/lib/extract.test.mjs`. The
+`docs-mcp-index` spec's "Extraction Failure Is Explicit, Not Silent" requirement was amended with
+two scenarios covering both the container-heading and still-throws cases.
+
+Verified against the real site: `npm run build` now succeeds and writes `dist/mcp/docs-index.json`
+with **190 sections** (95 per locale), including all four container ids (`instalacion`, `presets`,
+`skills`, `cli`) in both `en` and `es`, each with its title preserved and empty text. `npx vitest
+run` and `npm run check` are green on the rebased `unit-2-generator-cli-parity` branch.
 
 ## Unit 3: Index Store + Scoring (Pure, No HTTP)
 
