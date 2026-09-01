@@ -83,9 +83,33 @@ Unit 1 (CI fix, Vitest, extraction) ──┬──► Unit 2 (generator CLI)
 
 ## Unit 2: Generator CLI + Parity Fail + Build Wiring
 
-- [ ] 2.1 RED — create `scripts/build-mcp-index.test.mjs` with `dist/index.html`/`dist/es/index.html` fixtures (via `DIST_DIR` env): assert a valid pair writes `docs-index.json` with `{schemaVersion:1, generatedAt, commit, sectionCount, base, locales, sections}`; assert an EN/ES id mismatch exits non-zero and writes **no** file; assert `sectionCount < MIN_SECTIONS` exits non-zero. Run `npx vitest run scripts/build-mcp-index.test.mjs` — expect failure.
-- [ ] 2.2 GREEN — create `scripts/build-mcp-index.mjs`, porting `spike/mcp/build-index.mjs` (read-only) into the CLI: add `schemaVersion: 1`, `commit` from `$COMMIT_REF`/`git rev-parse --short HEAD` falling back to `"unknown"`, a `MIN_SECTIONS` constant set with headroom above the measured 190, and fail-fast EN/ES parity (non-zero exit, no partial write). Run `npx vitest run scripts/build-mcp-index.test.mjs` — expect pass.
-- [ ] 2.3 Wire the generator into `package.json`'s `build` script: `astro build && node scripts/build-mcp-index.mjs`.
+- [x] 2.1 RED — create `scripts/build-mcp-index.test.mjs` with `dist/index.html`/`dist/es/index.html` fixtures (via `DIST_DIR` env): assert a valid pair writes `docs-index.json` with `{schemaVersion:1, generatedAt, commit, sectionCount, base, locales, sections}`; assert an EN/ES id mismatch exits non-zero and writes **no** file; assert `sectionCount < MIN_SECTIONS` exits non-zero. Run `npx vitest run scripts/build-mcp-index.test.mjs` — expect failure.
+- [x] 2.2 GREEN — create `scripts/build-mcp-index.mjs`, porting `spike/mcp/build-index.mjs` (read-only) into the CLI: add `schemaVersion: 1`, `commit` from `$COMMIT_REF`/`git rev-parse --short HEAD` falling back to `"unknown"`, a `MIN_SECTIONS` constant set with headroom above the measured 190, and fail-fast EN/ES parity (non-zero exit, no partial write). Run `npx vitest run scripts/build-mcp-index.test.mjs` — expect pass.
+- [x] 2.3 Wire the generator into `package.json`'s `build` script: `astro build && node scripts/build-mcp-index.mjs`.
+
+### Discovered Blocker (not resolved in this unit — needs a decision)
+
+Running the real `npm run build` (task 2.3's own wiring, against the actual `dist/index.html` /
+`dist/es/index.html`, not the committed fixtures) crashes inside **Unit 1's** `scripts/lib/extract.mjs`:
+`Error: section "instalacion" (locale "en") extracted to empty text`. Root cause: the real site has
+`<h2>` headings that own no direct prose because a `<h3>` subheading follows immediately (e.g.
+`<h2 id="instalacion">Installation</h2><h3 id="requisitos-previos">Prerequisites</h3>` with nothing
+between them) — a legitimate, common heading-nesting pattern that Unit 1's "any section with empty
+text throws" guard (from `design.md`) was not designed against. Confirmed via direct inspection of
+the built HTML: **4 such headings per locale** (`instalacion`, `presets`, `skills`, `cli`), identical
+ids in both `en` and `es` (symmetric — dropping them would not break EN/ES parity), leaving 91/91
+sections with real content per locale (182 total), still comfortably above the `MIN_SECTIONS` floor
+this unit set.
+
+This is out of Unit 2's assigned scope (2.1–2.3 only touch `scripts/build-mcp-index.*` and
+`package.json`'s `build` script) and touches a file Unit 1 already completed, tested, and committed
+under its own PR. Per the executor contract ("NEVER implement tasks that weren't assigned to you"),
+it was **not fixed here**. Recommended fix for a follow-up task: in `extractSections`, skip (don't
+throw on) a heading whose own body text is empty, instead indexing only its non-empty siblings —
+its subheadings still carry the real content, so nothing is lost. Until this lands, `npm run build`
+does not produce `dist/mcp/docs-index.json` against the real site, even though
+`scripts/build-mcp-index.mjs` itself is correct and fully green against the fixtures task 2.1
+specifies.
 
 ## Unit 3: Index Store + Scoring (Pure, No HTTP)
 
