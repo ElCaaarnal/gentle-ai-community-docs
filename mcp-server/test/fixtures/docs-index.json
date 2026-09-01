@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-31T00:00:00.000Z",
+  "commit": "fixture01",
+  "sectionCount": 8,
+  "base": "https://docs-gentle-ai.netlify.app",
+  "locales": ["en", "es"],
+  "sections": [
+    {
+      "id": "installation",
+      "locale": "en",
+      "level": 2,
+      "title": "Installation",
+      "url": "https://docs-gentle-ai.netlify.app/#installation",
+      "text": "Install Gentle AI with npm install -g gentle-ai. Installation configures your coding agent automatically and takes less than a minute to complete."
+    },
+    {
+      "id": "advanced-configuration",
+      "locale": "en",
+      "level": 2,
+      "title": "Advanced Configuration",
+      "url": "https://docs-gentle-ai.netlify.app/#advanced-configuration",
+      "text": "Gentle AI exposes a rich configuration surface once your environment is already set up and running smoothly across every supported terminal agent. Administrators can adjust persona voice, memory retention windows, skill loading order, and review workload budgets through a single YAML file that lives at the root of every project. Most teams never touch these settings because the defaults already match common workflows, but power users appreciate the ability to fine tune scoring thresholds, chain strategies, and delivery gates without editing any source code. You typically only revisit this file long after the initial install, when a project's needs have grown beyond the defaults."
+    },
+    {
+      "id": "memory",
+      "locale": "en",
+      "level": 2,
+      "title": "Persistent Memory",
+      "url": "https://docs-gentle-ai.netlify.app/#memory",
+      "text": "Engram provides persistent memory that survives across sessions and compactions. Every decision, bug fix, and discovered convention gets saved automatically so agents remember prior work instead of repeating the same exploration."
+    },
+    {
+      "id": "skills",
+      "locale": "en",
+      "level": 2,
+      "title": "Skills System",
+      "url": "https://docs-gentle-ai.netlify.app/#skills",
+      "text": "Skills package specialized behavior into reusable, project-scoped instructions. A skill can restrict which tools an agent is allowed to call, teach domain-specific conventions, or bind a slash command to a bounded workflow."
+    },
+    {
+      "id": "installation",
+      "locale": "es",
+      "level": 2,
+      "title": "Instalación",
+      "url": "https://docs-gentle-ai.netlify.app/es/#installation",
+      "text": "Instala Gentle AI con npm install -g gentle-ai. La instalación configura tu agente de código automáticamente y tarda menos de un minuto en completarse."
+    },
+    {
+      "id": "advanced-configuration",
+      "locale": "es",
+      "level": 2,
+      "title": "Configuración Avanzada",
+      "url": "https://docs-gentle-ai.netlify.app/es/#advanced-configuration",
+      "text": "Gentle AI expone una superficie de configuración amplia una vez que tu entorno ya está configurado y funcionando sin problemas en cualquier agente de terminal compatible. Los administradores pueden ajustar la voz de la persona, las ventanas de retención de memoria, el orden de carga de habilidades y los presupuestos de carga de revisión mediante un único archivo YAML que vive en la raíz de cada proyecto. La mayoría de los equipos nunca tocan esta configuración porque los valores predeterminados ya coinciden con los flujos de trabajo comunes, pero los usuarios avanzados aprecian la posibilidad de ajustar los umbrales de puntuación, las estrategias de encadenamiento y las puertas de entrega sin editar ningún código fuente. Normalmente solo vuelves a este archivo mucho después de la instalación inicial, cuando las necesidades de un proyecto han crecido más allá de los valores predeterminados."
+    },
+    {
+      "id": "memory",
+      "locale": "es",
+      "level": 2,
+      "title": "Memoria Persistente",
+      "url": "https://docs-gentle-ai.netlify.app/es/#memory",
+      "text": "Engram proporciona memoria persistente que sobrevive entre sesiones y compactaciones. Cada decisión, corrección de errores y convención descubierta se guarda automáticamente para que los agentes recuerden el trabajo previo en lugar de repetir la misma exploración."
+    },
+    {
+      "id": "skills",
+      "locale": "es",
+      "level": 2,
+      "title": "Sistema de Habilidades",
+      "url": "https://docs-gentle-ai.netlify.app/es/#skills",
+      "text": "Las habilidades empaquetan comportamiento especializado en instrucciones reutilizables y con alcance de proyecto. Una habilidad puede restringir qué herramientas puede llamar un agente, enseñar convenciones específicas del dominio o vincular un comando de barra a un flujo de trabajo delimitado."
+    }
+  ]
+}
