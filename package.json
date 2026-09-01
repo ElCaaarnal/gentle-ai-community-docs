@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "check": "astro check",
-    "build": "astro build",
+    "build": "astro build && node scripts/build-mcp-index.mjs",
     "generate:banner": "node scripts/generate-banner.mjs",
     "preview": "astro preview",
     "test:unit": "vitest run"
