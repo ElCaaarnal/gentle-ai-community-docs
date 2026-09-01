@@ -4,10 +4,10 @@
 
 | Field | Value |
 |-------|-------|
-| Estimated changed lines | Unit1 ~300, Unit2 ~165, Unit3 ~350, Unit4 ~350, Unit5 ~250, Unit6 ~220, Unit7 ~260 (total ~1895) |
+| Estimated changed lines | Unit1 300, Unit2 165, Unit3a 285, Unit3b 229, Unit4 ~350, Unit5 ~250, Unit6 ~220, Unit7 ~260 (Units 1-3b are measured, not estimated) |
 | 400-line budget risk | Medium (Units 3 and 4 sit near the cap at ~350) |
 | Chained PRs recommended | Yes |
-| Suggested split | 7 chained work units, PR 1 → PR 7 (see Dependency Order); spike removal is local cleanup, no PR |
+| Suggested split | 8 chained work units, PR 1 → PR 8 (see Dependency Order); spike removal is local cleanup, no PR |
 | Delivery strategy | ask-on-risk |
 | Chain strategy | feature-branch-chain (user-selected) |
 
@@ -113,6 +113,13 @@ with **190 sections** (95 per locale), including all four container ids (`instal
 run` and `npm run check` are green on the rebased `unit-2-generator-cli-parity` branch.
 
 ## Unit 3: Index Store + Scoring (Pure, No HTTP)
+
+> **Split during apply.** The unit measured 514 authored lines against the 400 budget.
+> `search.mjs` imports nothing from `index-store.mjs`, so the modules are genuinely
+> independent and the seam is real rather than invented: **3a** is tasks 3.1-3.5
+> (workspace, index store, fixture, 285 lines, branch `unit-3a-index-store`) and
+> **3b** is tasks 3.6-3.7 (search, 229 lines, branch `unit-3b-search`).
+> The apply executor reported no split was available; that was incorrect.
 
 - [x] 3.1 Create `mcp-server/package.json` — workspace package, `version` field as the release identifier, dependencies `express`, `@modelcontextprotocol/sdk`, `zod`.
 - [x] 3.2 Add `"workspaces": ["mcp-server"]` to root `package.json`; run `npm install` to hoist the SDK/zod/express to one pinned root version.
