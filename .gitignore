@@ -26,7 +26,16 @@ playwright-report/
 .codegraph/
 .pi/
 .atl/
-.claude/
+# Throwaway validation spike for issue #34. Deliberately never committed:
+# its findings live in openspec/changes/wiki-mcp-interface/ and Engram, and
+# committing ~489 lines only to delete them would burn review budget twice.
+spike/
+
+# Agent config stays local, except the shared project commands: git cannot
+# re-include a path whose parent directory is excluded, so .claude itself is
+# matched with /* rather than /.
+.claude/*
+!.claude/commands/
 docs-gentle-ai/
 
 # OS
