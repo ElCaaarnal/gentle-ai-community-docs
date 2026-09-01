@@ -29,8 +29,9 @@ testing:
     framework: Playwright 1.61.0
   layers:
     unit:
-      available: false
-      tool: null
+      available: true
+      tool: Vitest 4.1.11
+      command: npx vitest run
     integration:
       available: false
       tool: null
