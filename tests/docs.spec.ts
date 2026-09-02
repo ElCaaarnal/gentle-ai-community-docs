@@ -242,11 +242,10 @@ test('operations use localized headings, shared IDs, and literal boundaries', as
 
 test('version policy and reference content is localized with exact shared literals', async ({ page }) => {
   const ids = ['versiones', 'glosario', 'docs'];
-  const versions = ['v1.47.0', 'v2.1.6', 'v2.2.0', 'v2.4.0', 'v2.4.0-rc.8', 'v2.5.0-rc.1', '2026-07-10', '2026-08-17', '2026-08-14', '2026-08-26'];
+  const versions = ['v1.47.0', 'v2.1.6', 'v2.2.0', 'v2.3.0', 'v2.5.0', 'v2.5.0-rc.3', '2026-07-10', '2026-08-30', '2026-09-01', '2026-09-02'];
   const formula = 'min(200, ceil(original_changed_lines / 2))';
   const bound = {
-    stable: { version: 'v2.4.0', released: '2026-08-17' },
-    prerelease: { version: 'v2.5.0-rc.1', released: '2026-08-26' },
+    stable: { version: 'v2.5.0', released: '2026-09-01' },
   };
   const glossary = ['Candidate', 'Lineage', 'Receipt', 'Lens', 'Burn', 'Projection', 'Gate', 'Candidate-caused finding', 'Correction budget', 'Delta-spec', 'Escalated'];
   const spanishGlossary = ['Candidato', 'Linaje', 'Receipt', 'Lente', 'Quema', 'Proyección', 'Gate', 'Finding causado por el candidato', 'Presupuesto de corrección', 'Delta-spec', 'Escalado'];
@@ -270,6 +269,13 @@ test('version policy and reference content is localized with exact shared litera
     for (const id of ids) await expect(page.locator(`h2#${id}`)).toHaveCount(1);
     for (const literal of [...versions, formula]) await expect(page.locator('main')).toContainText(literal);
 
+    // The upgrade notes are an h3 inside #versiones on purpose: an h2 would change the
+    // section count that scripts/build-mcp-index.mjs and the section scans above pin.
+    await expect(page.locator('h3#actualizar-a-v2-5-0')).toHaveCount(1);
+    for (const removed of ['FINALIZE', 'gentle-ai.sdd-status/v2', '/gentle-sdd-*', '2.3.0']) {
+      await expect(page.locator('h3#actualizar-a-v2-5-0 + p + ul')).toContainText(removed);
+    }
+
     // Double-entry against src/data/versions.ts. These expectations are authored here by
     // hand and MUST NOT be imported from that module, or the assertion becomes a tautology.
     // Scoped to the bound regions on purpose: asserting over `main` cannot detect drift,
@@ -277,11 +283,18 @@ test('version policy and reference content is localized with exact shared litera
     const channels = page.locator('h2#versiones ~ .tblwrap').first();
     for (const region of [page.locator('.hero .meta'), channels]) {
       await expect(region).toContainText(bound.stable.version);
-      await expect(region).toContainText(bound.prerelease.version);
     }
     await expect(channels).toContainText(bound.stable.released);
-    await expect(channels).toContainText(bound.prerelease.released);
-    await expect(channels).toContainText(`gentle-ai@${bound.prerelease.version}`);
+
+    // The prerelease channel is removed while no candidate line is open. Asserting its
+    // absence — rather than dropping the old expectations — keeps the same double-entry
+    // guard pointing at the current shape: a stale RC row or hero chip reappearing in
+    // either locale fails here instead of shipping a candidate that does not exist.
+    await expect(channels.locator('tbody tr')).toHaveCount(2);
+    for (const region of [page.locator('.hero .meta'), channels]) {
+      await expect(region).not.toContainText('-rc.');
+    }
+    await expect(page.locator('main')).not.toContainText('gentle-ai@v2.');
     await expect(page.locator('h2#docs + .tblwrap a')).toHaveCount(officialLinks.length);
     for (const href of officialLinks) {
       const link = page.locator(`h2#docs + .tblwrap a[href="${href}"]`);
@@ -292,6 +305,7 @@ test('version policy and reference content is localized with exact shared litera
 
   await page.goto('/');
   await expect(page.locator('h2#versiones')).toContainText('Version policy');
+  await expect(page.locator('h3#actualizar-a-v2-5-0')).toContainText('Upgrading to v2.5.0');
   await expect(page.locator('h2#glosario')).toContainText('Glossary');
   await expect(page.locator('h2#docs')).toContainText('Official documentation');
   await expect(page.locator('h2#glosario + dl dt').allTextContents()).resolves.toEqual(glossary.map((term) => expect.stringContaining(term)));
@@ -300,6 +314,7 @@ test('version policy and reference content is localized with exact shared litera
 
   await page.goto('/es/');
   await expect(page.locator('h2#versiones')).toContainText('Política de versiones');
+  await expect(page.locator('h3#actualizar-a-v2-5-0')).toContainText('Actualizar a v2.5.0');
   await expect(page.locator('h2#glosario')).toContainText('Glosario');
   await expect(page.locator('h2#docs')).toContainText('Documentación oficial');
   await expect(page.locator('h2#glosario + dl dt').allTextContents()).resolves.toEqual(spanishGlossary.map((term) => expect.stringContaining(term)));
