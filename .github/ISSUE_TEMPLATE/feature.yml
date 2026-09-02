@@ -1,0 +1,50 @@
+name: Feature request
+description: Propose a capability the project does not have yet.
+labels: ["type:feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Lead with the problem, not the solution. A feature that cannot name the problem it solves usually should not be built.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What cannot be done today, and who is blocked by it.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Motivating example
+      description: A concrete situation where this is felt. Real beats hypothetical.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Requested outcome
+      description: What should become possible. Describe behaviour, not implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: The checks that decide whether this is done.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and workarounds
+      description: What exists today, and why it is not enough.
+    validations:
+      required: false
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and security
+      description: Boundaries, and anything touching published content, credentials, or deployment.
+    validations:
+      required: false
