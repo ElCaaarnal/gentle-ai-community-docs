@@ -6,7 +6,7 @@ const EXPECTED_INDEX = {
   schemaVersion: 1,
   generatedAt: '2026-08-31T00:00:00.000Z',
   commit: 'fixture01',
-  sectionCount: 9,
+  sectionCount: 10,
 };
 
 const MCP_HEADERS = {
@@ -216,8 +216,8 @@ test.describe('list_sections', () => {
     const body = await response.json();
     const output = body.result.structuredContent;
 
-    expect(output.count).toBe(9);
-    expect(output.sections).toHaveLength(9);
+    expect(output.count).toBe(10);
+    expect(output.sections).toHaveLength(10);
     expect(output.sections[0]).toHaveProperty('id');
     expect(output.sections[0]).toHaveProperty('title');
     expect(output.sections[0]).toHaveProperty('level');
@@ -236,9 +236,101 @@ test.describe('list_sections', () => {
     const body = await response.json();
     const output = body.result.structuredContent;
 
-    expect(output.count).toBe(4);
+    expect(output.count).toBe(5);
     for (const section of output.sections) {
       expect(section.locale).toBe('es');
     }
   });
+});
+
+test.describe('locale parity of served content', () => {
+  test('every served section id exists in both locales — no orphan in either direction', async ({ request }) => {
+    const response = await request.post('/mcp', {
+      headers: MCP_HEADERS,
+      data: toolCall('list_sections'),
+    });
+
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    const sections: { id: string; locale: string }[] = body.result.structuredContent.sections;
+
+    const idsIn = (locale: string) =>
+      sections
+        .filter((section) => section.locale === locale)
+        .map((section) => section.id)
+        .sort();
+
+    const en = idsIn('en');
+    const es = idsIn('es');
+
+    // Guard against a vacuous pass: two empty arrays are trivially equal.
+    expect(en.length).toBeGreaterThan(0);
+    expect(es).toEqual(en);
+  });
+});
+
+test.describe('unsupported locale is rejected by every locale-aware tool', () => {
+  const cases: { tool: string; args: Record<string, unknown> }[] = [
+    { tool: 'search_docs', args: { query: 'installation', locale: 'fr' } },
+    { tool: 'list_sections', args: { locale: 'fr' } },
+  ];
+
+  for (const { tool, args } of cases) {
+    test(`${tool} rejects a locale outside en/es with a typed error naming the received value`, async ({
+      request,
+    }) => {
+      const response = await request.post('/mcp', {
+        headers: MCP_HEADERS,
+        data: toolCall(tool, args),
+      });
+
+      expect(response.status()).toBe(200);
+      const body = await response.json();
+
+      expect(body.result.isError).toBe(true);
+      expect(body.result.content[0].text).toContain('fr');
+    });
+  }
+});
+
+test.describe('search_docs rejects an empty query instead of returning empty results', () => {
+  for (const [label, query] of [['empty', ''], ['whitespace-only', '   ']] as const) {
+    test(`an ${label} query is a typed error, never a successful empty result`, async ({ request }) => {
+      const response = await request.post('/mcp', {
+        headers: MCP_HEADERS,
+        data: toolCall('search_docs', { query }),
+      });
+
+      expect(response.status()).toBe(200);
+      const body = await response.json();
+
+      expect(body.result.isError).toBe(true);
+      expect(body.result.content[0].text).toBe('query must not be empty');
+      // The error path deliberately carries no structuredContent even though
+      // search_docs advertises an outputSchema: the SDK skips output validation
+      // when isError is set. Asserting it here pins that contract.
+      expect(body.result.structuredContent).toBeUndefined();
+    });
+  }
+});
+
+test('get_section resolves one id to genuinely different content per locale', async ({ request }) => {
+  const fetchSection = async (locale: string) => {
+    const response = await request.post('/mcp', {
+      headers: MCP_HEADERS,
+      data: toolCall('get_section', { id: 'installation', locale }),
+    });
+    expect(response.status()).toBe(200);
+    return (await response.json()).result.structuredContent;
+  };
+
+  const en = await fetchSection('en');
+  const es = await fetchSection('es');
+
+  expect(en.locale).toBe('en');
+  expect(es.locale).toBe('es');
+  expect(es.title).toBe('Instalación');
+  expect(es.title).not.toBe(en.title);
+  expect(es.url).toContain('/es/');
+  expect(es.text).not.toBe(en.text);
 });

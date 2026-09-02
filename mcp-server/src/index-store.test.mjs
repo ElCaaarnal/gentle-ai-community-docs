@@ -35,7 +35,7 @@ describe('loadIndexStore', () => {
       schemaVersion: 1,
       generatedAt: '2026-08-31T00:00:00.000Z',
       commit: 'fixture01',
-      sectionCount: 9
+      sectionCount: 10
     });
   });
 
@@ -43,7 +43,7 @@ describe('loadIndexStore', () => {
     const store = loadIndexStore(fixturePath);
     const sections = store.getSections();
 
-    expect(sections).toHaveLength(9);
+    expect(sections).toHaveLength(10);
     expect(sections.find((s) => s.id === 'memory' && s.locale === 'es')).toMatchObject({
       title: 'Memoria Persistente'
     });
