@@ -39,7 +39,14 @@ The generator verifies the source hash, crop, output dimensions, size, and repro
 
 ## Deployment
 
-Deployed on Netlify:
+This project has two deployables:
+
+- **Netlify static demo:** the existing public static deployment and its `netlify.toml` configuration.
+- **HostGator VPS:** Apache serves the static wiki and reverse-proxies the long-running systemd MCP service at `https://gentle-ai-wiki.gentlemanprogramming.com/mcp`.
+
+The VPS administrator runbook is [docs/mcp-server-operations.md](docs/mcp-server-operations.md). It defines the reproducible Node 24, Apache, systemd, build, health-check, upgrade, and rollback state; it does not modify Netlify configuration.
+
+### Netlify static demo
 
 | Setting | Value |
 |---------|-------|
