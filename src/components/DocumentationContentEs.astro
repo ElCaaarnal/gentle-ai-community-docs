@@ -1,5 +1,5 @@
 ---
-import { prereleaseInstall, releases } from '../data/versions';
+import { releases } from '../data/versions';
 ---
 
 {<>
@@ -7,7 +7,7 @@ import { prereleaseInstall, releases } from '../data/versions';
 <img src="/banner.webp" alt="Gentle-AI" width="1600" height="689" fetchpriority="high">
 <h1>Documentación de Gentle AI</h1>
 <p class="lede">Gentle AI equipa a los agentes de IA que ya usás con memoria persistente, desarrollo guiado por especificación, skills curadas, servidores MCP, ruteo de modelos, una persona orientada a la enseñanza y revisión nativa acotada.</p>
-<div class="meta"><span class="chip">Estable <b>{releases.stable.version}</b></span><span class="chip">Última RC <b>{releases.prerelease.version}</b></span><span class="chip">Go <b>1.25.10+</b></span><span class="chip">Licencia <b>MIT</b></span><span class="chip">16 agentes soportados</span></div>
+<div class="meta"><span class="chip">Estable <b>{releases.stable.version}</b></span><span class="chip">Go <b>1.25.10+</b></span><span class="chip">Licencia <b>MIT</b></span><span class="chip">16 agentes soportados</span></div>
 </section>
 
 
@@ -66,12 +66,9 @@ brew install gentle-ai</pre>
 <p>Fijate en el sufijo <code>/v2</code> en la ruta del módulo: Go lo exige para la versión mayor 2 en adelante. Los releases anteriores a <code>v2.0.0</code> usan la ruta sin sufijo.</p>
 
 <div class="warn">
-  <b>Windows</b>
-  <p>La compilación desde fuente y los tests de CI/runtime siguen soportados, pero la distribución oficial de binarios de Windows y Scoop están temporalmente no disponibles. La instalación y las actualizaciones en Windows requieren Go 1.25.10+ y fallan de forma cerrada hacia la guía de instalación desde fuente: nunca descargan un ejecutable de Gentle AI sin firmar ni ejecutan un script remoto de actualización.</p>
-</div>
-<div class="note">
-  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
-  <p>La candidata publica un asset de release <code>windows_amd64.exe</code>. <code>arm64</code> sigue ausente, y el release estable <code>v2.4.0</code> no publica ningún asset de Windows — verificado contra los assets del release el 2026-08-26.</p>
+  <b>Windows se instala desde fuente</b>
+  <p><code>v2.5.0</code> publica ocho assets de release y <strong>ninguno es un binario de Windows</strong>: cuatro archivos de plataforma para macOS y Linux (<code>darwin_amd64</code>, <code>darwin_arm64</code>, <code>linux_amd64</code>, <code>linux_arm64</code>), el archivo del contrato de proveedor, el archivo de procedencia del release, y el par <code>checksums.txt</code> / <code>checksums.txt.minisig</code> que los autentica.</p>
+  <p style="margin-top:8px">En Windows, la instalación y las actualizaciones van por <code>go install</code> con Go 1.25.10+. La compilación desde fuente y los tests de CI/runtime siguen soportados; la distribución oficial de binarios de Windows y Scoop siguen no disponibles. La instalación y las actualizaciones en Windows fallan de forma cerrada hacia esa ruta de compilación desde fuente: nunca descargan un ejecutable de Gentle AI sin firmar ni ejecutan un script remoto de actualización.</p>
 </div>
 
 
@@ -113,7 +110,7 @@ brew install gentle-ai</pre>
 <tr><td>Persona</td><td><code>persona</code></td><td>Inyección de la persona Gentleman/neutral administrada, o modo persona custom sin administrar</td></tr>
 <tr><td>Permisos</td><td><code>permissions</code></td><td>Defaults y barreras de seguridad. Se aplica a Claude Code y OpenCode, los dos adaptadores con soporte de overlay de permisos</td></tr>
 <tr><td>GGA</td><td><code>gga</code></td><td>Gentleman Guardian Angel: conmutador de proveedores de IA</td></tr>
-<tr><td>Theme</td><td><code>theme</code></td><td>Overlay del tema Gentleman Kanagawa. <span class="pill">v2.5.0-rc.1</span> instala los temas seleccionables <strong>Gentleman</strong> y <strong>Gentleman-Cute</strong> para Claude Code y OpenCode, sobre cuatro assets gestionados, preservando el tema activo, los ajustes no relacionados y los temas de terceros</td></tr>
+<tr><td>Theme</td><td><code>theme</code></td><td>Overlay del tema Gentleman Kanagawa. Desde <span class="pill">v2.5.0</span> instala los temas seleccionables <strong>Gentleman</strong> y <strong>Gentleman-Cute</strong> para Claude Code y OpenCode, sobre cuatro assets gestionados, preservando el tema activo, los ajustes no relacionados y los temas de terceros</td></tr>
 </tbody>
 </table>
 </div>
@@ -252,8 +249,8 @@ engram sync --import</pre>
 
 <h2 id="sdd-research">SDD Research — la vía de evidencia</h2>
 <div class="note">
-  <b>Nuevo en <span class="pill">v2.5.0-rc.1</span></b>
-  <p>Esta vía no existe en <code>v2.4.0</code>, la línea estable actual. Las diez fases de arriba no cambian: la investigación se ofrece <em>junto a</em> ellas, nunca insertada entre ellas.</p>
+  <b>Nuevo en <span class="pill">v2.5.0</span></b>
+  <p>La vía se publica bajo el contrato <code>gentle-ai.sdd-research/v1</code>. Las diez fases de arriba no cambian: la investigación se ofrece <em>junto a</em> ellas, nunca insertada entre ellas.</p>
 </div>
 <p>SDD tenía exploración local, pero ninguna vía de primera clase para evidencia externa auditable. La investigación se ofrece inmediatamente después de <code>sdd-explore</code>, y es opcional — pero seleccionarla vuelve obligatorios sus chequeos de admisión y persistencia.</p>
 <pre class="mermaid">
@@ -555,10 +552,7 @@ gentle-ai skill-registry list --json   # legible por máquina, incluye descripci
 
 <h2 id="estados">Estados públicos</h2>
 <p>La interacción normal reporta solo cuatro estados. El usuario no elige internos de revisión, hashes, receipts ni transiciones de ciclo de vida.</p>
-<div class="note">
-  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
-  <p>La proyección de estado de SDD pasa a ser el contrato limpio <code>gentle-ai.sdd-status/v2</code>. El estado de runtime conserva la verdad de planificación, tareas, verificación, selected-untracked e intentos, y ya no proyecta bindings de revisión activos ni receipts. Los registros históricos de runtime que contienen <code>binding</code>, <code>receipt</code> o <code>binding/set</code> rechazan en lugar de reproducirse.</p>
-</div>
+<p>La proyección de estado de SDD es el contrato <code>gentle-ai.sdd-status/v2</code>. El estado de runtime lleva la verdad de planificación, tareas, verificación, selected-untracked e intentos, y no proyecta bindings de revisión activos ni receipts. Los registros históricos de runtime que contienen <code>binding</code>, <code>receipt</code> o <code>binding/set</code> rechazan en lugar de reproducirse.</p>
 
 <div class="tblwrap">
 <table>
@@ -617,12 +611,8 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <p>Mientras RDD está desactivado, el trabajo continúa por ruteo directo inline, delegado directo o SDD opcional, sin iniciar, reintentar ni reactivar la revisión por cuenta propia. Los gates nativos de entrega reportan <code>disabled/unmanaged</code> cuando no aplica ningún receipt exacto, y <strong>nunca fabrican una aprobación</strong>.</p>
 
 <h2 id="rdd-ciclo">El ciclo atómico</h2>
-<pre>STATUS sin selector → START exacto → colección/finalize acotados → aprobado + quema → política ordinaria del repositorio</pre>
-<div class="note">
-  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
-  <p>La candidata cierra la revisión en su último evento causal. Un resultado terminal de reviewer, refuter, validator, plan de corrección o zero-lens cierra la transacción y quema su linaje directamente: no hay un paso FINALIZE separado, ni publicación de receipt compacto, ni gate de entrega posterior. El ciclo que se describe abajo es el que corre en <code>v2.4.0</code>, la línea estable actual.</p>
-</div>
-
+<pre>STATUS sin selector → START exacto → colección acotada → captura terminal → aprobado + quema → política ordinaria del repositorio</pre>
+<p>La revisión cierra en su último evento causal. Un resultado terminal de reviewer, refuter, validator, plan de corrección o zero-lens cierra la transacción y quema su linaje directamente: <strong>no hay un paso FINALIZE separado</strong>, ni publicación de receipt compacto, ni gate de entrega posterior.</p>
 
 <h3 id="1-status-sin-selector-solo-hace-preflight">1. STATUS sin selector solo hace preflight</h3>
 <p>STATUS sin selector evalúa <strong>únicamente el candidato del worktree actual</strong> y renderiza una invocación START exacta. <strong>No</strong> descubre autoridad ambiente, no retoma otro worktree, no recupera historia ni selecciona un linaje viejo. El padre corre solo la <code>next_transition</code> devuelta y sus tokens ordenados.</p>
@@ -638,11 +628,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <p>Un replay exacto de un START activo puede devolver <code>replayed</code>. Un START genuinamente nuevo es independiente. Un linaje quemado nunca se reutiliza.</p>
 
 <h3 id="3-las-llamadas-atadas-manejan-la-transaccion">3. Las llamadas atadas manejan la transacción</h3>
-<p>Cada STATUS, <code>review capture-result</code> y FINALIZE posterior lleva esos tokens exactos. El padre rutea únicamente desde la <code>next_transition</code> devuelta:</p>
-<div class="note">
-  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
-  <p>FINALIZE deja de ser una de las llamadas atadas. STATUS y <code>review capture-result</code> siguen llevando los tokens exactos; la captura terminal cierra la transacción por sí misma.</p>
-</div>
+<p>Cada STATUS y <code>review capture-result</code> posterior lleva esos tokens exactos; la captura terminal cierra la transacción por sí misma. El padre rutea únicamente desde la <code>next_transition</code> devuelta:</p>
 
 <div class="tblwrap">
 <table>
@@ -660,14 +646,9 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <p>Al tener éxito, el código nativo lee de vuelta la aprobación terminal y después <strong>quema</strong> el linaje exacto y sus artefactos antes de devolver <code>approved</code>. No sobrevive ningún receipt terminal, tombstone, testigo, espejo ni autoridad de entrega. Otros linajes y worktrees quedan intactos.</p>
 
 <div class="warn">
-  <b>Un FINALIZE no limpio no es una aprobación</b>
-  <p>Esto incluye salida malformada o vacía, falla de transporte, ambigüedad post-mutación, y el caso en que la autoridad terminal ya pueda estar commiteada. El padre conserva el linaje, revisión y objetivo exactos, consulta STATUS atado una vez, y sigue solo la acción devuelta. Nunca cae en recuperación ambiente ni inventa otro linaje.</p>
+  <b>Una captura terminal no limpia no es una aprobación</b>
+  <p>Esto incluye salida malformada o vacía, falla de transporte, ambigüedad post-mutación, y el caso en que la autoridad terminal ya pueda estar commiteada. Un resultado con cualquiera de esas formas nunca quema autoridad. El padre conserva el linaje, revisión y objetivo exactos, consulta STATUS atado una vez, y sigue solo la acción devuelta. Nunca cae en recuperación ambiente ni inventa otro linaje.</p>
 </div>
-<div class="note">
-  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
-  <p>Sin paso FINALIZE, esta forma de falla desaparece. El mismo cuidado se aplica a la captura terminal: un resultado malformado, incompleto o no disponible nunca quema autoridad, y el padre emite un único STATUS atado al objetivo en lugar de inventar un linaje.</p>
-</div>
-
 
 <h3 id="continuidad-entre-repositorios">Continuidad entre repositorios</h3>
 <p>Una sesión con raíz en el repositorio A puede revisar un objetivo anidado — explícitamente autorizado por el usuario — en un repositorio B no relacionado. Go resuelve la ruta pedida a la raíz canónica de worktree de B; los adaptadores permanecen opacos y nunca parsean autorización ni raíces.</p>
@@ -675,7 +656,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <table>
 <thead><tr><th>Regla</th><th>Contrato</th></tr></thead>
 <tbody>
-<tr><td>Raíz del ciclo de vida</td><td>Una vez seleccionado B, el host mantiene B canónico desde STATUS hasta consentimiento, colección, corrección, validación, FINALIZE y quema. A nunca es un respaldo</td></tr>
+<tr><td>Raíz del ciclo de vida</td><td>Una vez seleccionado B, el host mantiene B canónico desde STATUS hasta consentimiento, colección, corrección, validación, acuse y quema. A nunca es un respaldo</td></tr>
 <tr><td>Comandos</td><td>Se corren los tokens emitidos por el proveedor sin cambios. Si un comando omite <code>--cwd</code>, se corre con el cwd de proceso B</td></tr>
 <tr><td>Captura opaca</td><td><code>repository_context</code> puede materializarse o capturarse desde otro cwd de proceso, pero permanece atado a B</td></tr>
 <tr><td>Aislamiento</td><td>Un texto de linaje idéntico en A y B nombra transacciones independientes. La aprobación quema solo B; A queda intacto</td></tr>
@@ -751,13 +732,9 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
   <b>La revisión nunca autoriza la entrega</b>
   <p>El estado terminal de revisión es informativo. Commit, push, PR, release y archive siguen la política ordinaria del repositorio y requieren su propia autorización explícita.</p>
 </div>
-<div class="warn">
-  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
-  <p>Los receipts compactos y sus gates de entrega se retiran por completo. La entrega sigue la política ordinaria del repositorio, y ningún estado de receipt retirado cuenta como aprobación. En la candidata, los resultados de gate que se describen abajo ya no aplican.</p>
-</div>
+<p>Los receipts compactos y sus gates de entrega están retirados. La entrega sigue la política ordinaria del repositorio, y ningún estado de receipt cuenta como aprobación.</p>
 
-
-<p><code>gentle-ai review validate</code> y sus gates nombrados — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code> y <code>release</code> — son comandos de compatibilidad e información. Nunca descubren autoridad ni deciden la entrega:</p>
+<p><code>gentle-ai review validate</code> y sus gates nombrados — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code> y <code>release</code> — sobreviven solo como comandos de compatibilidad e información. Nunca descubren autoridad ni deciden la entrega:</p>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Modo RDD</th><th>Resultado informativo</th></tr></thead>
@@ -774,11 +751,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <pre>git add apps/mi-servicio
 git diff --cached
 gentle-ai review start --projection staged</pre>
-<p>La proyección <code>staged</code> congela el <strong>índice existente completo</strong>, incluidas todas las rutas ya stageadas. Excluye el contenido no stageado y sin trackear del worktree, y no modifica el índice ni el worktree vivos al derivar evidencia. Inicia la revisión, pero por sí sola no emite un receipt aprobado.</p>
-<div class="note">
-  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
-  <p>Los receipts compactos se retiran, así que ninguna proyección emite uno. Una proyección sigue eligiendo qué bytes se congelan en START; simplemente no tiene receipt que retener.</p>
-</div>
+<p>La proyección <code>staged</code> congela el <strong>índice existente completo</strong>, incluidas todas las rutas ya stageadas. Excluye el contenido no stageado y sin trackear del worktree, y no modifica el índice ni el worktree vivos al derivar evidencia. Una proyección solo elige qué bytes se congelan en START: los receipts compactos están retirados, así que ninguna proyección emite uno.</p>
 
 <p>Una autoridad existente nunca se convierte automáticamente entre proyecciones. La recuperación hereda la proyección del predecesor cuando se omite <code>--projection</code>.</p>
 
@@ -795,7 +768,7 @@ gentle-ai review start --projection staged</pre>
 <tr><td><code>lens_context_budget_exceeded</code></td><td>Terminal. El contexto inmutable del revisor no se puede truncar. Reducir el alcance del candidato e iniciar una transacción nueva</td></tr>
 <tr><td><code>corrupted_or_unverifiable_authority</code></td><td>Terminal. La autoridad es ilegible o no soportada. Pedirle a un mantenedor que la inspeccione</td></tr>
 <tr><td><code>manual_intervention_required</code></td><td>Terminal. El estado de autoridad está fuera del ciclo de vida negociado</td></tr>
-<tr><td><code>original_finalize_request_required</code> <span class="pill">retirado en v2.5.0-rc.1</span></td><td>Volver a correr <code>gentle-ai review finalize --lineage &lt;id&gt;</code> con el payload original exacto atado al contenido</td></tr>
+<tr><td><code>original_finalize_request_required</code> <span class="pill">retirado en v2.5.0</span></td><td>Volver a correr <code>gentle-ai review finalize --lineage &lt;id&gt;</code> con el payload original exacto atado al contenido</td></tr>
 <tr><td><code>native_stop_required</code></td><td>Terminal. El linaje escaló y no tiene continuación nativa</td></tr>
 <tr><td><code>empty_base_diff_bootstrap_required</code></td><td>Terminal. La base commiteada no tiene rutas revisables</td></tr>
 <tr><td><code>recovery_scope_unchanged</code></td><td>Cambiar el objetivo para que su identidad difiera, y reintentar la invocación <code>review recover</code> exacta devuelta</td></tr>
@@ -1386,16 +1359,13 @@ gentle-ai install --agent windsurf --preset full-gentleman</pre>
 </ol>
 
 <h2 id="releases">Verificación de releases</h2>
-<p>Los archivos oficiales de release para macOS y Linux requieren un <code>checksums.txt</code> autenticado. El actualizador integrado verifica su firma Minisign, su binding exacto a <code>Gentleman-Programming/gentle-ai</code> más el tag del release, y el checksum del archivo seleccionado <strong>antes</strong> de reemplazar el binario instalado.</p>
-<div class="warn">
-  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
-  <p>La candidata publica <code>SHA256SUMS.txt</code> y <strong>ningún archivo de firma Minisign</strong>. El release estable <code>v2.4.0</code> publica <code>checksums.txt</code> junto con <code>checksums.txt.minisig</code>; la candidata no publica ninguno de los dos. El procedimiento de verificación de abajo, por lo tanto, no tiene contra qué verificar en la candidata, y sus binarios se publican crudos en vez de como archivos <code>.tar.gz</code>. Verificado contra los assets del release el 2026-08-26.</p>
-</div>
+<p><code>v2.5.0</code> publica seis archivos bajo un único manifiesto de checksums firmado: cuatro archivos <code>.tar.gz</code> de plataforma para macOS y Linux (amd64 y arm64), el archivo del contrato de proveedor <code>gentle-ai-review-provider-contract-1.1.0.tar.gz</code>, y el archivo de procedencia del release <code>gentle-ai-release-provenance-v1.tar.gz</code>. <code>checksums.txt</code> cubre los seis y está autenticado por <code>checksums.txt.minisig</code>, firmado con la clave Minisign del release.</p>
+<p>Los archivos oficiales de release para macOS y Linux requieren ese <code>checksums.txt</code> autenticado. El actualizador integrado verifica su firma Minisign, su binding exacto a <code>Gentleman-Programming/gentle-ai</code> más el tag del release, y el checksum del archivo seleccionado <strong>antes</strong> de reemplazar el binario instalado.</p>
 
 <p>Los archivos de release tienen un tope de <strong>128 MiB</strong>, incluidas respuestas por chunks o de longitud desconocida. Material de clave faltante, sobredimensionado, malformado, no confiable o de relleno falla de forma cerrada sin cambiar el binario instalado.</p>
 
 <pre>minisign -VQm checksums.txt -x checksums.txt.minisig -P "$GENTLE_AI_MINISIGN_PUBLIC_KEY"
-# Salida esperada: repo=Gentleman-Programming/gentle-ai;tag=vX.Y.Z
+# Comentario de confianza esperado en v2.5.0: repo=Gentleman-Programming/gentle-ai;tag=v2.5.0
 sha256sum --check --strict --ignore-missing checksums.txt</pre>
 
 <div class="warn">
@@ -1403,20 +1373,15 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
   <p>Obtenga la clave pública de producción y su huella desde un canal controlado por los mantenedores, y solo después descargue <code>checksums.txt</code> y <code>checksums.txt.minisig</code> del mismo release.</p>
 </div>
 
-<p>Los archivos de Windows y la publicación en Scoop siguen omitidos hasta que se provisione firma Authenticode RSA de confianza pública, ambos ejecutables (amd64 y arm64) estén firmados antes de generar archivos y checksums, y la verificación de release falle si alguno de los dos está sin firmar.</p>
-<div class="note">
-  <b>Cambia en <span class="pill">v2.5.0-rc.1</span></b>
-  <p>Parcialmente superado en la candidata, que publica un <code>windows_amd64.exe</code> de estado de firma desconocido. El ejecutable <code>arm64</code> que nombra este párrafo sigue sin publicarse.</p>
-</div>
-
+<p>Los archivos de Windows y la publicación en Scoop siguen omitidos hasta que se provisione firma Authenticode RSA de confianza pública, ambos ejecutables (amd64 y arm64) estén firmados antes de generar archivos y checksums, y la verificación de release falle si alguno de los dos está sin firmar. Hasta entonces, Windows se instala desde fuente con <code>go install</code>.</p>
 
 <h2 id="versiones">Política de versiones</h2>
 <p>RDD empezó en <code>gentle-ai</code> <strong>v1.47.0</strong> (2026-07-10), con las primeras transacciones de revisión nativa acotada, y se volvió la ruta estable soportada en <strong>v2.2.0</strong>. El contrato público negociado de revisión se publicó en <strong>v2.1.6</strong>.</p>
 
 <div class="warn">
-  <b>La documentación del repositorio está desactualizada respecto de los releases</b>
-  <p>El README, <code>quickstart.md</code> y <code>trigger-rules.md</code> todavía nombran <code>v2.3.0</code> como estable y <code>v2.4.0-rc.1</code> como prerelease. La lista de releases indica otra cosa: <strong><code>v2.4.0</code> se publicó como estable el 2026-08-17</strong> y dejó atrás toda la serie de candidatas, que llegó hasta <code>v2.4.0-rc.8</code> (2026-08-14). Después, el 2026-08-26, se abrió una nueva línea de candidatas con <strong><code>v2.5.0-rc.1</code></strong>. Esta tabla sigue los releases, no los documentos.</p>
-  <p style="margin-top:8px">Verificado contra <a href="https://github.com/Gentleman-Programming/gentle-ai/releases" target="_blank" rel="noopener">la página de releases</a> el <strong>2026-08-26</strong>. Las versiones cambian: confirma siempre con <code>gentle-ai version</code> y con esa página.</p>
+  <b>Algunos documentos del repositorio están desactualizados respecto de los releases</b>
+  <p><strong><code>v2.5.0</code> se publicó como estable el 2026-09-01</strong> y dejó atrás la serie de candidatas, que llegó hasta <code>v2.5.0-rc.3</code> (2026-08-30). El README del repositorio ya nombra esa versión, pero <code>quickstart.md</code> y <code>trigger-rules.md</code> todavía nombran <code>v2.3.0</code> como estable y una prerelease de dos series de candidatas atrás. Esta tabla sigue los releases, no los documentos.</p>
+  <p style="margin-top:8px">Verificado contra <a href="https://github.com/Gentleman-Programming/gentle-ai/releases" target="_blank" rel="noopener">la página de releases</a> el <strong>2026-09-02</strong>. Las versiones cambian: confirma siempre con <code>gentle-ai version</code> y con esa página.</p>
 </div>
 
 <div class="tblwrap">
@@ -1424,13 +1389,12 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
 <thead><tr><th>Canal</th><th>Versión</th><th>Instalación</th></tr></thead>
 <tbody>
 <tr><td>Estable</td><td><code>{releases.stable.version}</code> <span class="pill">{releases.stable.released}</span></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@latest</code></td></tr>
-<tr><td>Prerelease</td><td><code>{releases.prerelease.version}</code> <span class="pill">{releases.prerelease.released}</span></td><td><code>{prereleaseInstall}</code></td></tr>
 <tr><td>Desarrollo</td><td><code>main</code></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@main</code></td></tr>
 </tbody>
 </table>
 </div>
 
-<p>Hay una línea de candidatas abierta por delante de <code>v2.4.0</code>, así que <code>@latest</code> y la última RC ya no apuntan a la misma línea: <code>@latest</code> sigue resolviendo a estable, y a <code>v2.5.0-rc.1</code> se llega solo con su pin exacto. El instalador administrado sigue la última versión del canal y <strong>no acepta un pin arbitrario</strong> de release, así que usa <code>go install</code> para correr la candidata, o cuando la reproducibilidad requiera una versión exacta. Usa <code>@main</code> solo para probar cambios que no forman parte de ningún release.</p>
+<p><strong>No hay ninguna línea de candidatas abierta.</strong> El release más nuevo en cualquier canal es <code>v2.5.0</code>, y <code>@latest</code> resuelve a él. El instalador administrado sigue la última versión del canal y <strong>no acepta un pin arbitrario</strong> de release, así que usa <code>go install</code> con una versión explícita cuando la reproducibilidad requiera una versión exacta. Usa <code>@main</code> solo para probar cambios que no forman parte de ningún release.</p>
 
 <p>El instalador administrado en canal beta sigue <code>main</code> y requiere Go 1.25.10+:</p>
 <pre># macOS / Linux
@@ -1438,6 +1402,16 @@ curl -fsSL https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/mai
 
 # Windows (PowerShell)
 $env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@main</pre>
+
+<h3 id="actualizar-a-v2-5-0">Actualizar a v2.5.0</h3>
+<p>Se quitaron cuatro cosas. Cada una tiene reemplazo:</p>
+<ul>
+<li><strong>Los receipts compactos, FINALIZE y los gates de entrega están retirados.</strong> La captura terminal cierra la revisión y quema su linaje; la entrega sigue la política ordinaria del repositorio.</li>
+<li><strong>SDD status v1 fue eliminado.</strong> <code>gentle-ai.sdd-status/v2</code> es el único contrato de estado, y los registros históricos que llevan <code>binding</code> o <code>receipt</code> rechazan en lugar de reproducirse.</li>
+<li><strong>Los comandos SDD de Claude Code cambiaron de nombre.</strong> Ahora llevan el prefijo <code>/gentle-sdd-*</code>; corre <code>gentle-ai install</code> para refrescar los archivos de comandos.</li>
+<li><strong><code>gentle-pi</code> tiene que ser 2.3.0 o superior.</strong> Las versiones hasta 2.2.0 solo decodifican <code>gentle-ai.review-integration.start/v3</code> y rechazan este proveedor; 2.3.0 lleva el pin de <code>v2.5.0</code>.</li>
+</ul>
+<p>Después de reemplazar el binario, corre <code>gentle-ai sync</code>: los assets de revisión y runtime están atados a la versión del binario.</p>
 
 <hr>
 
@@ -1450,7 +1424,7 @@ $env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentl
 <dd>El identificador de una transacción de revisión. Se captura en START y se replica sin cambios en cada llamada posterior. Un linaje quemado nunca se reutiliza.</dd>
 
 <dt>Receipt</dt>
-<dd>La evidencia terminal de una transacción de revisión completada. Es informativa: nunca autoriza la entrega. Al aprobarse, se quema junto con la autoridad. Retirado en <code>v2.5.0-rc.1</code>, donde la revisión cierra en su evento terminal sin publicar ninguno.</dd>
+<dd>La evidencia terminal de una transacción de revisión completada. Es informativa: nunca autoriza la entrega. Al aprobarse, se quema junto con la autoridad. Retirado en <code>v2.5.0</code>, donde la revisión cierra en su evento terminal sin publicar ninguno.</dd>
 
 <dt>Lente <span class="pill">lens</span></dt>
 <dd>Un revisor de solo lectura que juzga una sola preocupación y emite un JSON estricto. Las cuatro canónicas son Riesgo, Resiliencia, Legibilidad y Confiabilidad (4R).</dd>
@@ -1462,7 +1436,7 @@ $env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentl
 <dd>Qué congela START: <code>workspace</code> (todo el espacio de trabajo, default) o <code>staged</code> (exactamente el índice de Git).</dd>
 
 <dt>Gate</dt>
-<dd>Un punto de chequeo nombrado — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code>, <code>release</code>. Son comandos informativos y de compatibilidad: nunca permiten ni bloquean una entrega. Retirado en <code>v2.5.0-rc.1</code> junto con los receipts compactos.</dd>
+<dd>Un punto de chequeo nombrado — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code>, <code>release</code>. Son comandos informativos y de compatibilidad: nunca permiten ni bloquean una entrega. Retirado en <code>v2.5.0</code> junto con los receipts compactos.</dd>
 
 <dt>Finding causado por el candidato</dt>
 <dd>Un hallazgo que el cambio introdujo. Solo los severos de esta clase pueden bloquear. Los preexistentes se convierten en seguimientos.</dd>

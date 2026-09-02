@@ -1,11 +1,11 @@
 ---
-import { prereleaseInstall, releases } from '../data/versions';
+import { releases } from '../data/versions';
 ---
 <section class="hero">
 <img src="/banner.webp" alt="Gentle-AI" width="1600" height="689" fetchpriority="high">
 <h1>Gentle AI Documentation</h1>
 <p class="lede">Gentle AI equips the AI coding agents already on your machine with persistent memory, specification-driven development, curated skills, MCP servers, model routing, a teaching-oriented persona, and native bounded review.</p>
-<div class="meta"><span class="chip">Stable <b>{releases.stable.version}</b></span><span class="chip">Latest RC <b>{releases.prerelease.version}</b></span><span class="chip">Go <b>1.25.10+</b></span><span class="chip">License <b>MIT</b></span><span class="chip">16 supported agents</span></div>
+<div class="meta"><span class="chip">Stable <b>{releases.stable.version}</b></span><span class="chip">Go <b>1.25.10+</b></span><span class="chip">License <b>MIT</b></span><span class="chip">16 supported agents</span></div>
 </section>
 
 <div class="imp">
@@ -63,12 +63,9 @@ brew install gentle-ai</pre>
 <p>Notice the <code>/v2</code> suffix in the module path: Go requires it for major version 2 and later. Releases before <code>v2.0.0</code> use the path without the suffix.</p>
 
 <div class="warn">
-  <b>Windows</b>
-  <p>Building from source and CI/runtime tests remain supported, but official Windows binary distribution and Scoop are temporarily unavailable. Windows installation and updates require Go 1.25.10+ and fail closed to the build-from-source guidance: they never download an unsigned Gentle AI executable or run a remote update script.</p>
-</div>
-<div class="note">
-  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
-  <p>The candidate publishes a <code>windows_amd64.exe</code> release asset. <code>arm64</code> is still absent, and the stable <code>v2.4.0</code> release publishes no Windows asset at all — verified against the release assets on 2026-08-26.</p>
+  <b>Windows installs from source</b>
+  <p><code>v2.5.0</code> publishes eight release assets and <strong>none of them is a Windows binary</strong>: four platform archives for macOS and Linux (<code>darwin_amd64</code>, <code>darwin_arm64</code>, <code>linux_amd64</code>, <code>linux_arm64</code>), the provider-contract archive, the release-provenance archive, and the <code>checksums.txt</code> / <code>checksums.txt.minisig</code> pair that authenticates them.</p>
+  <p style="margin-top:8px">On Windows, install and update with <code>go install</code> and Go 1.25.10+. Building from source and CI/runtime tests are supported; official Windows binary distribution and Scoop remain unavailable. Windows installation and updates fail closed to that build-from-source path: they never download an unsigned Gentle AI executable or run a remote update script.</p>
 </div>
 
 
@@ -110,7 +107,7 @@ brew install gentle-ai</pre>
 <tr><td>Persona</td><td><code>persona</code></td><td>Managed Gentleman/neutral persona injection, or unmanaged custom-persona mode</td></tr>
 <tr><td>Permissions</td><td><code>permissions</code></td><td>Defaults and safety barriers. Applied to Claude Code and OpenCode, the two adapters that support permission overlays</td></tr>
 <tr><td>GGA</td><td><code>gga</code></td><td>Gentleman Guardian Angel: AI provider switcher</td></tr>
-<tr><td>Theme</td><td><code>theme</code></td><td>Gentleman Kanagawa theme overlay. <span class="pill">v2.5.0-rc.1</span> installs selectable <strong>Gentleman</strong> and <strong>Gentleman-Cute</strong> themes for Claude Code and OpenCode, across four managed assets, preserving the active theme, unrelated settings, and third-party themes</td></tr>
+<tr><td>Theme</td><td><code>theme</code></td><td>Gentleman Kanagawa theme overlay. Since <span class="pill">v2.5.0</span> it installs selectable <strong>Gentleman</strong> and <strong>Gentleman-Cute</strong> themes for Claude Code and OpenCode, across four managed assets, preserving the active theme, unrelated settings, and third-party themes</td></tr>
 </tbody>
 </table>
 </div>
@@ -249,8 +246,8 @@ engram sync --import</pre>
 
 <h2 id="sdd-research">SDD Research — the evidence lane</h2>
 <div class="note">
-  <b>New in <span class="pill">v2.5.0-rc.1</span></b>
-  <p>This lane does not exist on <code>v2.4.0</code>, the current stable line. The ten phases above are unchanged: research is offered <em>alongside</em> them, never inserted into them.</p>
+  <b>New in <span class="pill">v2.5.0</span></b>
+  <p>The lane ships under the <code>gentle-ai.sdd-research/v1</code> contract. The ten phases above are unchanged: research is offered <em>alongside</em> them, never inserted into them.</p>
 </div>
 <p>SDD had local exploration but no first-class lane for auditable external evidence. Research is offered immediately after <code>sdd-explore</code>, and it is optional — but selecting it makes its admission and persistence checks mandatory.</p>
 <pre class="mermaid">
@@ -553,10 +550,7 @@ gentle-ai skill-registry list --json   # machine-readable, including description
 
 <h2 id="estados">Public states</h2>
 <p>Normal interaction reports only four states. The user does not choose internal review states, hashes, receipts, or lifecycle transitions.</p>
-<div class="note">
-  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
-  <p>The SDD status projection is now the clean <code>gentle-ai.sdd-status/v2</code> contract. Runtime state keeps planning, task, verification, selected-untracked, and attempt truth, and no longer projects active review bindings or receipts. Historical runtime records containing <code>binding</code>, <code>receipt</code>, or <code>binding/set</code> refuse rather than being replayed.</p>
-</div>
+<p>The SDD status projection is the <code>gentle-ai.sdd-status/v2</code> contract. Runtime state carries planning, task, verification, selected-untracked, and attempt truth, and it does not project active review bindings or receipts. Historical runtime records containing <code>binding</code>, <code>receipt</code>, or <code>binding/set</code> refuse rather than being replayed.</p>
 
 <div class="tblwrap">
 <table>
@@ -615,12 +609,8 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <p>While RDD is disabled, work continues through direct inline routing, direct delegation, or optional SDD, without starting, retrying, or reactivating review on its own. Native delivery gates report <code>disabled/unmanaged</code> when no exact receipt applies, and <strong>never fabricate approval</strong>.</p>
 
 <h2 id="rdd-ciclo">The atomic cycle</h2>
-<pre>STATUS without a selector → exact START → bounded collection/finalize → approved + burn → ordinary repository policy</pre>
-<div class="note">
-  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
-  <p>The candidate closes the review at its last causal event. A terminal reviewer, refuter, validator, correction-plan, or zero-lens result closes the transaction and burns its lineage directly — there is no separate FINALIZE step, no compact receipt publication, and no delivery gate afterwards. The cycle described below is the one that runs on <code>v2.4.0</code>, the current stable line.</p>
-</div>
-
+<pre>STATUS without a selector → exact START → bounded collection → terminal capture → approved + burn → ordinary repository policy</pre>
+<p>The review closes at its last causal event. A terminal reviewer, refuter, validator, correction-plan, or zero-lens result closes the transaction and burns its lineage directly: there is <strong>no separate FINALIZE step</strong>, no compact receipt publication, and no delivery gate afterwards.</p>
 
 <h3 id="1-status-sin-selector-solo-hace-preflight">1. STATUS without a selector only performs preflight</h3>
 <p>STATUS without a selector evaluates <strong>only the current worktree candidate</strong> and renders one exact START invocation. It does <strong>not</strong> discover ambient authority, resume another worktree, recover history, or select an old lineage. The parent runs only the returned <code>next_transition</code> and its ordered tokens.</p>
@@ -636,11 +626,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <p>An exact replay of an active START can return <code>replayed</code>. A genuinely new START is independent. A burned lineage is never reused.</p>
 
 <h3 id="3-las-llamadas-atadas-manejan-la-transaccion">3. Bound calls manage the transaction</h3>
-<p>Every subsequent STATUS, <code>review capture-result</code>, and FINALIZE carries those exact tokens. The parent routes only from the returned <code>next_transition</code>:</p>
-<div class="note">
-  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
-  <p>FINALIZE is no longer one of the bound calls. STATUS and <code>review capture-result</code> still carry the exact tokens; the terminal capture itself closes the transaction.</p>
-</div>
+<p>Every subsequent STATUS and <code>review capture-result</code> carries those exact tokens; the terminal capture itself closes the transaction. The parent routes only from the returned <code>next_transition</code>:</p>
 
 <div class="tblwrap">
 <table>
@@ -658,14 +644,9 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <p>On success, native code reads back terminal approval and then <strong>burns</strong> the exact lineage and its artifacts before returning <code>approved</code>. No terminal receipt, tombstone, witness, mirror, or delivery authority survives. Other lineages and worktrees remain intact.</p>
 
 <div class="warn">
-  <b>An unclean FINALIZE is not approval</b>
-  <p>This includes malformed or empty output, transport failure, post-mutation ambiguity, and the case where terminal authority may already be committed. The parent keeps the exact lineage, revision, and target, queries bound STATUS once, and follows only the returned action. It never falls back to ambient recovery or invents another lineage.</p>
+  <b>An unclean terminal capture is not approval</b>
+  <p>This includes malformed or empty output, transport failure, post-mutation ambiguity, and the case where terminal authority may already be committed. A result in any of those shapes never burns authority. The parent keeps the exact lineage, revision, and target, queries bound STATUS once, and follows only the returned action. It never falls back to ambient recovery or invents another lineage.</p>
 </div>
-<div class="note">
-  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
-  <p>With no FINALIZE step, this failure shape disappears. The equivalent care applies to the terminal capture instead: a malformed, incomplete, or unavailable result never burns authority, and the parent issues one target-bound STATUS rather than inventing a lineage.</p>
-</div>
-
 
 <h3 id="continuidad-entre-repositorios">Cross-repository continuity</h3>
 <p>A session rooted in repository A can review a user-explicitly-authorized nested target in unrelated repository B. Go resolves the requested path to B's canonical worktree root; adapters remain opaque and never parse authorization or roots.</p>
@@ -673,7 +654,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <table>
 <thead><tr><th>Rule</th><th>Contract</th></tr></thead>
 <tbody>
-<tr><td>Lifecycle root</td><td>Once B is selected, the host keeps canonical B from STATUS through consent, collection, correction, validation, FINALIZE, and burn. A is never a fallback</td></tr>
+<tr><td>Lifecycle root</td><td>Once B is selected, the host keeps canonical B from STATUS through consent, collection, correction, validation, acknowledgement, and burn. A is never a fallback</td></tr>
 <tr><td>Commands</td><td>Provider-issued tokens run unchanged. If a command omits <code>--cwd</code>, it runs with B as its process cwd</td></tr>
 <tr><td>Opaque capture</td><td><code>repository_context</code> may be materialized or captured from another process cwd, but remains bound to B</td></tr>
 <tr><td>Isolation</td><td>Identical lineage text in A and B names independent transactions. Approval burns only B; A remains intact</td></tr>
@@ -749,13 +730,9 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
   <b>Review never authorizes delivery</b>
   <p>The terminal review state is informative. Commit, push, PR, release, and archive follow ordinary repository policy and require their own explicit authorization.</p>
 </div>
-<div class="warn">
-  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
-  <p>Compact receipts and their delivery gates are retired outright. Delivery follows ordinary repository policy, and no retired receipt state counts as an approval. On the candidate, the gate results described below no longer apply.</p>
-</div>
+<p>Compact receipts and their delivery gates are retired. Delivery follows ordinary repository policy, and no receipt state counts as an approval.</p>
 
-
-<p><code>gentle-ai review validate</code> and its named gates — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code>, and <code>release</code> — are compatibility and information commands. They never discover authority or decide delivery:</p>
+<p><code>gentle-ai review validate</code> and its named gates — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code>, and <code>release</code> — survive only as compatibility and information commands. They never discover authority or decide delivery:</p>
 <div class="tblwrap">
 <table>
 <thead><tr><th>RDD mode</th><th>Informative result</th></tr></thead>
@@ -772,11 +749,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <pre>git add apps/mi-servicio
 git diff --cached
 gentle-ai review start --projection staged</pre>
-<p>The <code>staged</code> projection freezes the <strong>complete existing index</strong>, including every already-staged path. It excludes unstaged and untracked worktree content, and does not modify the live index or worktree when deriving evidence. It starts review, but does not by itself issue an approved receipt.</p>
-<div class="note">
-  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
-  <p>Compact receipts are retired, so no projection issues one. A projection still selects which bytes are frozen at START; it simply has no receipt to withhold.</p>
-</div>
+<p>The <code>staged</code> projection freezes the <strong>complete existing index</strong>, including every already-staged path. It excludes unstaged and untracked worktree content, and does not modify the live index or worktree when deriving evidence. A projection only selects which bytes are frozen at START: compact receipts are retired, so no projection issues one.</p>
 
 <p>Existing authority never converts automatically between projections. Recovery inherits the predecessor's projection when <code>--projection</code> is omitted.</p>
 
@@ -793,7 +766,7 @@ gentle-ai review start --projection staged</pre>
 <tr><td><code>lens_context_budget_exceeded</code></td><td>Terminal. Immutable reviewer context cannot be truncated. Reduce candidate scope and start a new transaction</td></tr>
 <tr><td><code>corrupted_or_unverifiable_authority</code></td><td>Terminal. Authority is unreadable or unsupported. Ask a maintainer to inspect it</td></tr>
 <tr><td><code>manual_intervention_required</code></td><td>Terminal. Authority state is outside the negotiated lifecycle</td></tr>
-<tr><td><code>original_finalize_request_required</code> <span class="pill">retired in v2.5.0-rc.1</span></td><td>Rerun <code>gentle-ai review finalize --lineage &lt;id&gt;</code> with the exact original content-bound payload</td></tr>
+<tr><td><code>original_finalize_request_required</code> <span class="pill">retired in v2.5.0</span></td><td>Rerun <code>gentle-ai review finalize --lineage &lt;id&gt;</code> with the exact original content-bound payload</td></tr>
 <tr><td><code>native_stop_required</code></td><td>Terminal. The lineage escalated and has no native continuation</td></tr>
 <tr><td><code>empty_base_diff_bootstrap_required</code></td><td>Terminal. The committed base has no reviewable paths</td></tr>
 <tr><td><code>recovery_scope_unchanged</code></td><td>Change the target so its identity differs, then retry the exact returned <code>review recover</code> invocation</td></tr>
@@ -1363,16 +1336,13 @@ gentle-ai install --agent windsurf --preset full-gentleman</pre>
 </ol>
 
 <h2 id="releases">Release verification</h2>
-<p>Official macOS and Linux release files require an authenticated <code>checksums.txt</code>. The built-in updater verifies its Minisign signature, its exact binding to <code>Gentleman-Programming/gentle-ai</code> plus the release tag, and the selected file checksum <strong>before</strong> replacing the installed binary.</p>
-<div class="warn">
-  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
-  <p>The candidate ships <code>SHA256SUMS.txt</code> and <strong>no Minisign signature file</strong>. The stable <code>v2.4.0</code> release publishes <code>checksums.txt</code> together with <code>checksums.txt.minisig</code>; the candidate publishes neither. The verification procedure below therefore has nothing to verify against on the candidate, and its binaries are published raw rather than as <code>.tar.gz</code> archives. Verified against the release assets on 2026-08-26.</p>
-</div>
+<p><code>v2.5.0</code> publishes six archives under one signed checksum manifest: four platform <code>.tar.gz</code> archives for macOS and Linux (amd64 and arm64), the provider-contract archive <code>gentle-ai-review-provider-contract-1.1.0.tar.gz</code>, and the release-provenance archive <code>gentle-ai-release-provenance-v1.tar.gz</code>. <code>checksums.txt</code> covers all six and is authenticated by <code>checksums.txt.minisig</code>, signed with the release Minisign key.</p>
+<p>Official macOS and Linux release files require that authenticated <code>checksums.txt</code>. The built-in updater verifies its Minisign signature, its exact binding to <code>Gentleman-Programming/gentle-ai</code> plus the release tag, and the selected file checksum <strong>before</strong> replacing the installed binary.</p>
 
 <p>Release files have a <strong>128 MiB</strong> cap, including chunked or unknown-length responses. Missing, oversized, malformed, untrusted, or padding key material fails closed without changing the installed binary.</p>
 
 <pre>minisign -VQm checksums.txt -x checksums.txt.minisig -P "$GENTLE_AI_MINISIGN_PUBLIC_KEY"
-# Expected output: repo=Gentleman-Programming/gentle-ai;tag=vX.Y.Z
+# Expected trusted comment on v2.5.0: repo=Gentleman-Programming/gentle-ai;tag=v2.5.0
 sha256sum --check --strict --ignore-missing checksums.txt</pre>
 
 <div class="warn">
@@ -1380,20 +1350,15 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
   <p>Obtain the production public key and its fingerprint from a maintainer-controlled channel, and only then download <code>checksums.txt</code> and <code>checksums.txt.minisig</code> from the same release.</p>
 </div>
 
-<p>Windows release files and Scoop publication remain omitted until publicly trusted RSA Authenticode signing is provisioned, both executables (amd64 and arm64) are signed before assets and checksums are generated, and release verification fails if either is unsigned.</p>
-<div class="note">
-  <b>Changes in <span class="pill">v2.5.0-rc.1</span></b>
-  <p>Partially superseded on the candidate, which publishes a signed-status-unknown <code>windows_amd64.exe</code>. The <code>arm64</code> executable named by this paragraph is still not published.</p>
-</div>
-
+<p>Windows release files and Scoop publication remain omitted until publicly trusted RSA Authenticode signing is provisioned, both executables (amd64 and arm64) are signed before assets and checksums are generated, and release verification fails if either is unsigned. Until then, Windows installs from source with <code>go install</code>.</p>
 
 <h2 id="versiones">Version policy</h2>
 <p>RDD began in <code>gentle-ai</code> <strong>v1.47.0</strong> (2026-07-10) with the first bounded native review transactions, and became the supported stable path in <strong>v2.2.0</strong>. The negotiated public review contract was published in <strong>v2.1.6</strong>.</p>
 
 <div class="warn">
-  <b>Repository documentation is behind the releases</b>
-  <p>The README, <code>quickstart.md</code>, and <code>trigger-rules.md</code> still identify <code>v2.3.0</code> as stable and <code>v2.4.0-rc.1</code> as a prerelease. The release list says otherwise: <strong><code>v2.4.0</code> was published as stable on 2026-08-17</strong>, superseding the candidate series that reached <code>v2.4.0-rc.8</code> (2026-08-14). A new candidate line then opened on 2026-08-26 with <strong><code>v2.5.0-rc.1</code></strong>. This table follows releases, not documents.</p>
-  <p style="margin-top:8px">Verified against <a href="https://github.com/Gentleman-Programming/gentle-ai/releases" target="_blank" rel="noopener">the releases page</a> on <strong>2026-08-26</strong>. Versions change: always confirm with <code>gentle-ai version</code> and that page.</p>
+  <b>Some repository documents are behind the releases</b>
+  <p><strong><code>v2.5.0</code> was published as stable on 2026-09-01</strong>, superseding the candidate series that reached <code>v2.5.0-rc.3</code> (2026-08-30). The repository README carries that version, but <code>quickstart.md</code> and <code>trigger-rules.md</code> still identify <code>v2.3.0</code> as stable and name a prerelease that is two candidate series old. This table follows releases, not documents.</p>
+  <p style="margin-top:8px">Verified against <a href="https://github.com/Gentleman-Programming/gentle-ai/releases" target="_blank" rel="noopener">the releases page</a> on <strong>2026-09-02</strong>. Versions change: always confirm with <code>gentle-ai version</code> and that page.</p>
 </div>
 
 <div class="tblwrap">
@@ -1401,13 +1366,12 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
 <thead><tr><th>Channel</th><th>Version</th><th>Installation</th></tr></thead>
 <tbody>
 <tr><td>Stable</td><td><code>{releases.stable.version}</code> <span class="pill">{releases.stable.released}</span></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@latest</code></td></tr>
-<tr><td>Prerelease</td><td><code>{releases.prerelease.version}</code> <span class="pill">{releases.prerelease.released}</span></td><td><code>{prereleaseInstall}</code></td></tr>
 <tr><td>Development</td><td><code>main</code></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@main</code></td></tr>
 </tbody>
 </table>
 </div>
 
-<p>A candidate line is open ahead of <code>v2.4.0</code>, so <code>@latest</code> and the latest RC no longer point at the same line: <code>@latest</code> still resolves to stable, and <code>v2.5.0-rc.1</code> is reached only through its exact pin. The managed installer follows the newest channel version and <strong>does not accept an arbitrary release pin</strong>, so use <code>go install</code> to run the candidate, or whenever reproducibility requires an exact version. Use <code>@main</code> only to test changes that are not part of a release.</p>
+<p><strong>There is no open candidate line.</strong> The newest release on any channel is <code>v2.5.0</code>, and <code>@latest</code> resolves to it. The managed installer follows the newest channel version and <strong>does not accept an arbitrary release pin</strong>, so use <code>go install</code> with an explicit version whenever reproducibility requires an exact one. Use <code>@main</code> only to test changes that are not part of a release.</p>
 
 <p>The beta-channel managed installer follows <code>main</code> and requires Go 1.25.10+:</p>
 <pre># macOS / Linux
@@ -1415,6 +1379,16 @@ curl -fsSL https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/mai
 
 # Windows (PowerShell)
 $env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@main</pre>
+
+<h3 id="actualizar-a-v2-5-0">Upgrading to v2.5.0</h3>
+<p>Four things were removed. Each has a replacement:</p>
+<ul>
+<li><strong>Compact receipts, FINALIZE, and delivery gates are retired.</strong> The terminal capture closes the review and burns its lineage; delivery follows ordinary repository policy.</li>
+<li><strong>SDD status v1 is removed.</strong> <code>gentle-ai.sdd-status/v2</code> is the sole status contract, and historical records carrying <code>binding</code> or <code>receipt</code> refuse instead of replaying.</li>
+<li><strong>Claude Code SDD commands are renamed.</strong> They now carry the <code>/gentle-sdd-*</code> prefix; run <code>gentle-ai install</code> to refresh the command files.</li>
+<li><strong><code>gentle-pi</code> must be 2.3.0 or newer.</strong> Versions up to 2.2.0 decode only <code>gentle-ai.review-integration.start/v3</code> and reject this provider; 2.3.0 carries the <code>v2.5.0</code> pin.</li>
+</ul>
+<p>After replacing the binary, run <code>gentle-ai sync</code>: review and runtime assets are tied to the binary version.</p>
 
 <hr>
 
@@ -1427,7 +1401,7 @@ $env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentl
 <dd>The identifier of a review transaction. It is captured at START and replicated unchanged in every later call. A burned lineage is never reused.</dd>
 
 <dt>Receipt</dt>
-<dd>The terminal evidence of a completed review transaction. It is informative: it never authorizes delivery. On approval, it is burned together with the authority. Retired in <code>v2.5.0-rc.1</code>, where the review closes at its terminal event without publishing one.</dd>
+<dd>The terminal evidence of a completed review transaction. It is informative: it never authorizes delivery. On approval, it is burned together with the authority. Retired in <code>v2.5.0</code>, where the review closes at its terminal event without publishing one.</dd>
 
 <dt>Lens <span class="pill">lens</span></dt>
 <dd>A read-only reviewer that judges one concern and emits strict JSON. The four canonical lenses are Risk, Resilience, Readability, and Reliability (4R).</dd>
@@ -1439,7 +1413,7 @@ $env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentl
 <dd>What START freezes: <code>workspace</code> (the entire workspace, default) or <code>staged</code> (exactly the Git index).</dd>
 
 <dt>Gate</dt>
-<dd>A named checkpoint — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code>, <code>release</code>. These are informative compatibility commands: they never allow or block delivery. Retired in <code>v2.5.0-rc.1</code> together with compact receipts.</dd>
+<dd>A named checkpoint — <code>post-apply</code>, <code>pre-commit</code>, <code>pre-push</code>, <code>pre-pr</code>, <code>release</code>. These are informative compatibility commands: they never allow or block delivery. Retired in <code>v2.5.0</code> together with compact receipts.</dd>
 
 <dt>Candidate-caused finding</dt>
 <dd>A finding introduced by the change. Only severe findings of this class can block. Pre-existing findings become follow-ups.</dd>
