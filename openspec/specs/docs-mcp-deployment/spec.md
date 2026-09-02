@@ -4,7 +4,9 @@
 
 Describes the transport, origin/host validation, hosting, operations, and staleness controls
 for the MCP server as a second deployable alongside the statically hosted site (AC1 transport,
-AC6 staleness, AC10 operations).
+AC6 staleness, AC10 operations). The resolved production topology is Node.js 24 Active LTS,
+Apache at `gentle-ai-wiki.gentlemanprogramming.com`, and systemd; the administrator runbook
+defines this desired state without claiming observed VPS execution.
 
 ## Requirements
 
@@ -83,16 +85,27 @@ the static hosting target cannot run a persistent process.
 - WHEN a reader loads the public documentation site
 - THEN the site remains available, unaffected by the MCP process state
 
-### Requirement: Rate Limiting At The Reverse Proxy
+### Requirement: Rate Limiting At The Apache Reverse Proxy
 
-Requests to the MCP endpoint MUST be rate-limited at the reverse proxy layer in front of the
-process, not solely relied upon in-process.
+Requests to the MCP endpoint MUST be rate-limited by Apache at the reverse proxy layer in front of
+the process, not solely relied upon in-process.
 
 #### Scenario: Excess request rate is throttled at the proxy
 
 - GIVEN a client exceeds the configured request rate
 - WHEN subsequent requests arrive within the rate window
-- THEN the reverse proxy throttles or rejects them before they reach the process
+- THEN Apache throttles or rejects them before they reach the process
+
+### Requirement: Reproducible Production Runtime And Supervision
+
+The administrator runbook MUST require Node.js major `24` with an explicit version check, use
+systemd to supervise the local process, and keep Node 26 Current out of the production selection.
+
+#### Scenario: Administrator prepares the serving host
+
+- GIVEN the VPS administrator follows the runbook
+- WHEN they prepare the long-running service
+- THEN the documented desired state selects Node 24, Apache, systemd, and the public wiki/MCP host
 
 ### Requirement: Health Endpoint Exposes Operational Status And Build Identity
 

@@ -151,7 +151,7 @@ post raw JSON-RPC.
                                      ▼
                               search.mjs / tools.mjs ──► result + build identity
                                      │
-                              nginx (TLS, limit_req) ──► agent client
+                              Apache (TLS, proxy rate limit) ──► agent client
 ```
 
 ## File Changes
@@ -173,7 +173,7 @@ post raw JSON-RPC.
 | `package.json` | Modify | `workspaces`, build chain, `test:unit`, `vitest` devDep |
 | `.github/workflows/docs-browser.yml` | Modify | Add `**.mjs` + `mcp-server/**` to `paths` (today `**.js` does not match `.mjs`); add `npm run test:unit` |
 | `openspec/config.yaml` | Modify | Testing block gains the unit layer |
-| `docs/mcp-server-operations.md` | Create | systemd unit, nginx block, deploy runbook, versioning |
+| `docs/mcp-server-operations.md` | Create | Node 24 check, systemd unit, Apache proxy/rate-limit block, deploy runbook, versioning |
 | `docs/mcp-client-setup.md` | Create | Per-agent project-scoped configuration |
 | `.gitignore` | Modify | `.pi/` → `.pi/*` + `!.pi/mcp.json`, reusing the existing `.claude` precedent (git cannot re-include a file under an excluded directory) |
 | `opencode.json`, `.opencode/`, `.agents/skills/`, `.codex/config.toml`, `.pi/mcp.json` | Create | Client configuration |
@@ -183,23 +183,25 @@ post raw JSON-RPC.
 ## Deployment Topology
 
 ```
-/srv/gentle-ai-docs   (git checkout, deploy user)
-deploy.sh — ONE step, the AC6 staleness mitigation made real:
-  git fetch --prune && git checkout <ref> && npm ci \
-    && npm run build            # regenerates dist/ AND dist/mcp/docs-index.json
-    && sudo systemctl restart gentle-ai-docs-mcp
+/srv/gentle-ai-community-docs   (Gentleman-Programming serving-fork checkout)
+git fetch --prune && git checkout <approved-ref> && npm ci \
+  && DOCS_BASE_URL=https://gentle-ai-wiki.gentlemanprogramming.com npm run build \
+  && sudo systemctl restart gentle-ai-docs-mcp
 ```
 
-`gentle-ai-docs-mcp.service`: `WorkingDirectory=/srv/gentle-ai-docs`,
+The VPS desired state is Node.js 24 Active LTS (never Node 26 Current), Apache at
+`gentle-ai-wiki.gentlemanprogramming.com`, and systemd. The administrator runbook requires an
+explicit Node-major check and does not claim observed VPS execution.
+
+`gentle-ai-docs-mcp.service`: `WorkingDirectory=/srv/gentle-ai-community-docs`,
 `ExecStart=/usr/bin/node mcp-server/src/server.mjs`,
 `EnvironmentFile=/etc/gentle-ai-docs-mcp.env` (`PORT=3111`, `ALLOWED_HOSTS`, `ALLOWED_ORIGINS`,
 `DOCS_INDEX_PATH`), `Restart=on-failure`, `RestartSec=5`, `NoNewPrivileges=yes`,
 `ProtectSystem=strict`, `ProtectHome=yes`, `PrivateTmp=yes`, `MemoryMax=512M`.
 
-nginx: `limit_req_zone $binary_remote_addr zone=mcp:10m rate=30r/m;` and
-`location /mcp { limit_req zone=mcp burst=10 nodelay; client_max_body_size 1m;
-proxy_pass http://127.0.0.1:3111; proxy_read_timeout 30s; proxy_buffering on; }` — buffering is safe
-precisely because the stateless design has no SSE stream. `/health` proxied on an internal path.
+Apache `ProxyPass` routes `/mcp` and `/health` to `127.0.0.1:3111`, with `ProxyPreserveHost On`,
+a 1 MB request-body limit, and a 30-second proxy timeout. ModSecurity supplies the required
+30-request-per-minute per-IP `/mcp` rate limit. This is safe because the stateless design has no SSE stream.
 
 **Rejected**: server fetches the index over HTTPS from the published site at start. It would remove
 the build toolchain from the VPS, but adds a boot-time network dependency, a 404/partial-read
@@ -246,7 +248,7 @@ Project-specific boundary (the real adversarial surface), all carried into `task
 | `Origin: null` / untrusted host | — | `403 forbidden origin` |
 | `Host` outside allow-list | — | Rejected before MCP processing |
 | `GET`/`DELETE /mcp` | — | `405`, client completes over POST alone |
-| Body > 1 MiB | — | Rejected by `express.json({limit:'1mb'})` and nginx |
+| Body > 1 MB | — | Rejected by `express.json({limit:'1mb'})` and Apache |
 | `get_section` `id` with `../`, `%00`, 10 KiB | — | Typed unknown-id error; `id` is a map key, never a filesystem path |
 | Index unknown `schemaVersion` | — | Exit 1 before `listen()` |
 
@@ -279,10 +281,9 @@ Vitest wiring TDD requires up front, so it splits at the module/CLI seam.
 **Slice 6 is extracted deliberately**: 329 deletions of superseded throwaway code carry near-zero
 review cognition but would consume most of slice 3's budget. Standalone, or `size:exception`.
 
-## Open Questions
+## Resolved Deployment Decisions
 
-- [ ] VPS Node version — must be `^20 || ^22 || >=24` for Vitest parity with CI (Node 22). Confirm
-      before slice 4 writes the runbook.
-- [ ] Nginx public hostname and TLS termination for the MCP endpoint are not recorded anywhere in
-      this repo; slice 4 needs the real value.
-- [ ] `MIN_SECTIONS` floor value (spike measured 190) — set in slice 1b with headroom.
+- Node.js 24 Active LTS is the production target; the administrator runbook requires an explicit major-version check and does not select Node 26 Current.
+- Apache is the observed reverse proxy; `gentle-ai-wiki.gentlemanprogramming.com` is the public wiki/MCP host, and systemd supervises the local service.
+- The runbook records desired reproducible state for the VPS administrator; it does not claim access to, or diagnostic observations from, that VPS.
+- `MIN_SECTIONS` was set with headroom in Unit 2.

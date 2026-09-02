@@ -67,10 +67,10 @@ Unit 1 (CI fix, Vitest, extraction) ──┬──► Unit 2 (generator CLI)
 - Units 6, 7, 8 all depend on Unit 5 (spike removal per rollback plan is safe "only after slice 3",
   i.e. this plan's Unit 5) but are mutually independent — **can proceed in parallel**.
 - Unit 6 additionally needs Unit 2 (the `deploy.sh` runbook documents the real `npm run build` hook).
-- **Open questions block only Unit 6**: VPS Node version, nginx public hostname/TLS, and
-  `MIN_SECTIONS` floor. `MIN_SECTIONS` is set with headroom inside Unit 2 (not blocking); the other
-  two block finishing Unit 6's runbook content specifically (tasks 6.1/6.2 below). Units 1–5, 7, 8
-  are not blocked by any open question.
+- **Unit 6 deployment decisions are resolved**: Node.js 24 Active LTS, Apache, systemd, and
+  `gentle-ai-wiki.gentlemanprogramming.com` are documented as desired administrator-executed state.
+  `MIN_SECTIONS` was set with headroom inside Unit 2. Units 1–5, 7, and 8 remain independent of the
+  deployment runbook.
 
 ## Unit 1: Extraction Module + Vitest Wiring + CI Path-Filter Fix
 
@@ -197,20 +197,20 @@ real production code.
 
 ## Unit 6: Deployment / Operations Docs
 
-- [ ] 6.1 [Blocked — open question: VPS Node version] Confirm the VPS Node runtime satisfies `^20 || ^22 || >=24` before documenting `ExecStart`.
-- [ ] 6.2 [Blocked — open question: nginx hostname/TLS] Obtain the real public hostname and TLS termination detail for the `/mcp` `location` block.
-- [ ] 6.3 Create `docs/mcp-server-operations.md`: `gentle-ai-docs-mcp.service` (WorkingDirectory, `ExecStart=/usr/bin/node mcp-server/src/server.mjs`, `EnvironmentFile`, `Restart=on-failure`, `RestartSec=5`, `NoNewPrivileges=yes`, `ProtectSystem=strict`, `ProtectHome=yes`, `PrivateTmp=yes`, `MemoryMax=512M`); nginx `limit_req_zone`/`location /mcp` block (`limit_req burst=10 nodelay`, `client_max_body_size 1m`, `proxy_read_timeout 30s`, `proxy_buffering on`, `/health` proxied internally); the one-step `deploy.sh` runbook (`git fetch --prune && git checkout <ref> && npm ci && npm run build && sudo systemctl restart gentle-ai-docs-mcp`); the staleness-is-observable note (build identity in `/health` and every tool response); supported MCP protocol version and the server's release identifier.
-- [ ] 6.4 Update `README.md` with a pointer to `docs/mcp-server-operations.md` and the second-deployable (VPS vs. Netlify) note.
+- [x] 6.1 Record the desired production Node.js 24 Active LTS decision, including an explicit major-version check and no Node 26 Current selection; state that the runbook is not observed VPS execution.
+- [x] 6.2 Record Apache as the reverse proxy, `gentle-ai-wiki.gentlemanprogramming.com` as the public host, and systemd as the supervisor without requesting VPS diagnostics.
+- [x] 6.3 Create `docs/mcp-server-operations.md`: serving-fork checkout/update, Node 24 verification, install/build with `DOCS_BASE_URL=https://gentle-ai-wiki.gentlemanprogramming.com`, environment file, hardened `gentle-ai-docs-mcp.service`, distribution-aware Apache module guidance, `/mcp` and `/health` proxy/rate-limit directives, smoke checks, logs, upgrade, rollback, failure diagnosis, index staleness, protocol versions, and release identifier.
+- [x] 6.4 Update `README.md` with a pointer to `docs/mcp-server-operations.md` and the two deployables: Netlify static demo plus HostGator VPS static wiki and long-running MCP service.
 
 ## Unit 7: Adoption / Setup Docs + Client Configs
 
-- [ ] 7.1 Fix `.gitignore`: replace the `.pi/` line with `.pi/*` plus `!.pi/mcp.json`, matching the existing `.claude/*` / `!.claude/commands/` precedent, so the repo-local Pi config can be committed.
-- [ ] 7.2 Create `.claude/commands/wiki.md` — project-scoped Claude Code command whose `allowed-tools` frontmatter exposes only the MCP documentation tool.
-- [ ] 7.3 Create `opencode.json` registering the MCP server, plus a project-scoped `.opencode/` agent whose permissions deny non-MCP categories and a bound project command.
-- [ ] 7.4 Create `.pi/mcp.json` (repo-local, consumable via `--mcp-config`) and a corresponding project-scoped skill under `.agents/skills/`.
-- [ ] 7.5 Create `.codex/config.toml` and a Codex skill documenting registration via `codex mcp add` and granting project trust through Codex's own interactive prompt — never a hand-edited `~/.codex/config.toml`.
-- [ ] 7.6 Create `docs/mcp-client-setup.md`: a working example and explicit scope statement for each of Claude Code, OpenCode, Pi, and Codex; document OpenCode's isolation caveat (breaks once a second MCP server is registered) and Codex's documented spontaneous-invocation limitation (guaranteed only on explicit request).
-- [ ] 7.7 Manual verification: invoke each of the four agents against a running server instance; confirm the server request log records the tool call for Claude Code, OpenCode, and Pi, and for Codex on explicit request; record the evidence in `docs/mcp-client-setup.md`.
+- [x] 7.1 Fix `.gitignore`: replace the `.pi/` line with `.pi/*` plus `!.pi/mcp.json`, matching the existing `.claude/*` / `!.claude/commands/` precedent, so the repo-local Pi config can be committed.
+- [x] 7.2 Create `.claude/commands/wiki.md` — project-scoped Claude Code command whose `allowed-tools` frontmatter exposes only the MCP documentation tool.
+- [x] 7.3 Create `opencode.json` registering the MCP server, plus a project-scoped `.opencode/` agent whose permissions deny non-MCP categories and a bound project command.
+- [x] 7.4 Create `.pi/mcp.json` (repo-local, consumable via `--mcp-config`) and a corresponding project-scoped skill under `.agents/skills/`.
+- [x] 7.5 Create `.codex/config.toml` and a Codex skill documenting registration via `codex mcp add` and granting project trust through Codex's own interactive prompt — never a hand-edited `~/.codex/config.toml`.
+- [x] 7.6 Create `docs/mcp-client-setup.md`: a working example and explicit scope statement for each of Claude Code, OpenCode, Pi, and Codex; document OpenCode's isolation caveat (breaks once a second MCP server is registered) and Codex's documented spontaneous-invocation limitation (guaranteed only on explicit request).
+- [x] 7.7 Manual verification: invoke each of the four agents against a running server instance; confirm the server request log records the tool call for Claude Code, OpenCode, and Pi, and for Codex on explicit request; record the evidence in `docs/mcp-client-setup.md`.
 
 ## Cleanup (not a work unit): remove `spike/mcp/`
 
@@ -219,9 +219,9 @@ produces no diff and consumes no review budget. It is a local cleanup step, not 
 reviewable unit — committing ~489 lines in order to delete them would have charged
 the chain roughly 978 lines for throwaway code.
 
-- [ ] C.1 Confirm Unit 5 has landed (the promoted server serves `search_docs`, `list_sections`, and `get_section` with origin/host validation and index generation).
-- [ ] C.2 Delete the local `spike/mcp/` directory.
-- [ ] C.3 Run `npm run check && npx vitest run && npx playwright test` to confirm nothing references `spike/mcp/`.
+- [x] C.1 Confirm Unit 5 has landed (the promoted server serves `search_docs`, `list_sections`, and `get_section` with origin/host validation and index generation).
+- [x] C.2 Delete the local `spike/mcp/` directory.
+- [x] C.3 Run `npm run check && npx vitest run && npx playwright test` to confirm nothing references `spike/mcp/`.
 
 ## Spec Requirement Coverage
 
