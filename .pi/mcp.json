@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "gentle-ai-docs": {
+      "url": "http://localhost:3111/mcp"
+    }
+  }
+}
