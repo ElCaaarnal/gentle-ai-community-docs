@@ -1,0 +1,42 @@
+name: Documentation issue
+description: Published documentation is wrong, missing, stale, or out of sync between locales.
+labels: ["type:docs"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What the documentation says or omits, and why that is a problem.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Section, URL, or file path, plus the current text. Quote it rather than paraphrasing.
+    validations:
+      required: true
+  - type: dropdown
+    id: locales
+    attributes:
+      label: Affected locales
+      multiple: true
+      options:
+        - English
+        - Spanish
+        - Both
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Requested outcome
+      description: What the documentation should say instead.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Not in scope
+    validations:
+      required: false

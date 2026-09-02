@@ -1,0 +1,51 @@
+name: Bug report
+description: Something in the site, build, or tooling behaves incorrectly.
+labels: ["type:bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe what happens and how you know. Evidence beats adjectives.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is broken, in one or two sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: How to reproduce it, plus observed behaviour against expected behaviour. Include exact commands, URLs, or output where they help.
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Affected surface
+      description: Where the problem shows up.
+      multiple: true
+      options:
+        - Published site (English)
+        - Published site (Spanish)
+        - Build or generator scripts
+        - MCP server
+        - Test suite or CI
+        - Repository tooling
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: What must be true for this to be considered fixed.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Not in scope
+      description: Anything deliberately excluded, so the fix does not sprawl.
+    validations:
+      required: false
