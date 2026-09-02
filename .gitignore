@@ -24,7 +24,8 @@ playwright-report/
 
 # Machine-local caches and session state — regenerable, never authored by hand
 .codegraph/
-.pi/
+.pi/*
+!.pi/mcp.json
 .atl/
 # Throwaway validation spike for issue #34. Deliberately never committed:
 # its findings live in openspec/changes/wiki-mcp-interface/ and Engram, and
