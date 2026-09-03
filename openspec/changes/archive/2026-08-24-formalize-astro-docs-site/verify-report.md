@@ -77,7 +77,7 @@ $ npm run check
 > astro check
 
 08:49:53 [types] Generated 30ms
-08:49:53 [check] Getting diagnostics for Astro files in /Users/usuarionuevo/work/test-exploracion...
+08:49:53 [check] Getting diagnostics for Astro files in <project-root>...
 Result (7 files):
 - 0 errors
 - 0 warnings
@@ -93,7 +93,7 @@ $ npm run build
 08:49:59 [types] Generated 18ms
 08:49:59 [build] output: "static"
 08:49:59 [build] mode: "static"
-08:49:59 [build] directory: /Users/usuarionuevo/work/test-exploracion/dist/
+08:49:59 [build] directory: <project-root>/dist/
 08:49:59 [build] Collecting build info...
 08:49:59 [build] Completed in 36ms.
 08:49:59 [build] Building static entrypoints...
