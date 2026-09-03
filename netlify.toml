@@ -10,4 +10,10 @@
   # and Netlify cancels a build whose ignore command exits 0 — before installing
   # dependencies. When $CACHED_COMMIT_REF is unavailable (first build, cleared
   # cache) the diff fails and the build proceeds, which is the safe direction.
-  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- ':!tests/**' ':!.github/**' ':!README.md' ':!LICENSE'"
+  #
+  # The exclusion list is a denylist rather than an allowlist on purpose: a path
+  # nobody thought to list still triggers a build, so a genuinely shipping
+  # addition can never be silently skipped. `openspec/` holds the SDD record and
+  # `docs/` the operator runbooks; Astro builds from `src/pages`, so neither one
+  # reaches `dist/` and neither should spend a metered production deploy.
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- ':!tests/**' ':!.github/**' ':!openspec/**' ':!docs/**' ':!README.md' ':!CONTRIBUTING.md' ':!SECURITY.md' ':!CODE_OF_CONDUCT.md' ':!LICENSE' ':!.nvmrc'"
