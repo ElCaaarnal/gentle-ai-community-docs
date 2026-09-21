@@ -62,12 +62,12 @@ brew trust --formula gentleman-programming/tap/gentle-ai
 brew install gentle-ai</pre>
 
 <h3 id="go-install">Go install (cualquier plataforma con Go 1.25.10+)</h3>
-<pre>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@latest</pre>
-<p>Fijate en el sufijo <code>/v2</code> en la ruta del módulo: Go lo exige para la versión mayor 2 en adelante. Los releases anteriores a <code>v2.0.0</code> usan la ruta sin sufijo.</p>
+<pre>go install github.com/gentleman-programming/gentle-ai/v3/cmd/gentle-ai@latest</pre>
+<p>Fijate en el sufijo <code>/v3</code> en la ruta del módulo: Go lo exige para la versión mayor 2 en adelante. Los releases anteriores a <code>v2.0.0</code> usan la ruta sin sufijo.</p>
 
 <div class="warn">
   <b>Windows se instala desde fuente</b>
-  <p><code>v2.5.0</code> publica ocho assets de release y <strong>ninguno es un binario de Windows</strong>: cuatro archivos de plataforma para macOS y Linux (<code>darwin_amd64</code>, <code>darwin_arm64</code>, <code>linux_amd64</code>, <code>linux_arm64</code>), el archivo del contrato de proveedor, el archivo de procedencia del release, y el par <code>checksums.txt</code> / <code>checksums.txt.minisig</code> que los autentica.</p>
+  <p><code>v3.4.0</code> publica ocho assets de release y <strong>ninguno es un binario de Windows</strong>: cuatro archivos de plataforma para macOS y Linux (<code>darwin_amd64</code>, <code>darwin_arm64</code>, <code>linux_amd64</code>, <code>linux_arm64</code>), <code>gentle-ai-review-provider-contract-1.2.0.tar.gz</code>, el archivo de procedencia del release, y el par <code>checksums.txt</code> / <code>checksums.txt.minisig</code> que los autentica.</p>
   <p style="margin-top:8px">En Windows, la instalación y las actualizaciones van por <code>go install</code> con Go 1.25.10+. La compilación desde fuente y los tests de CI/runtime siguen soportados; la distribución oficial de binarios de Windows y Scoop siguen no disponibles. La instalación y las actualizaciones en Windows fallan de forma cerrada hacia esa ruta de compilación desde fuente: nunca descargan un ejecutable de Gentle AI sin firmar ni ejecutan un script remoto de actualización.</p>
 </div>
 
@@ -516,6 +516,18 @@ gentle-ai skill-registry list --json   # legible por máquina, incluye descripci
   <p>El conteo de archivos, las líneas cambiadas, el tamaño o el riesgo percibido <strong>nunca</strong> seleccionan SDD por sí solos. Solo lo hace un pedido explícito o una propuesta aceptada.</p>
 </div>
 
+<div class="note">
+  <b>ODD es el protocolo predeterminado obligatorio</b>
+  <p>Organic Driven Development (ODD) maneja por defecto el trabajo autorizado. SDD sigue siendo un flujo seleccionado explícitamente, separado de RDD.</p>
+</div>
+<ul>
+<li>Para trabajo autorizado sustancial, ODD persiste la continuidad en <code>odd/tasks/&lt;feature&gt;.md</code> con un espejo en Engram, y después retoma el trabajo sin terminar desde esos registros reconciliados.</li>
+<li>ODD usa el modo TDD configurado resuelto y su runner exacto. La sola presencia de tests no activa TDD silenciosamente.</li>
+<li>Cada tarea ODD completada cierra con un work-unit commit revisable en la rama de la funcionalidad.</li>
+<li>Cada commit se evalúa contra el último límite revisado: los commits de alto riesgo se revisan de inmediato, el trabajo de riesgo medio se acumula en slices de PR revisables, y se aplica una estrategia de PRs encadenados cuando hace falta.</li>
+</ul>
+<p>Cuando se dispara un trigger de la tabla de Reglas de parada de la delegación, delegar es obligatorio; la tabla define esos triggers sin cambiar la ruta de implementación.</p>
+
 <h3 id="las-tres-rutas">Las tres rutas</h3>
 <div class="tblwrap">
 <table>
@@ -768,7 +780,7 @@ gentle-ai review start --projection staged</pre>
 <tr><td><code>lens_context_budget_exceeded</code></td><td>Terminal. El contexto inmutable del revisor no se puede truncar. Reducir el alcance del candidato e iniciar una transacción nueva</td></tr>
 <tr><td><code>corrupted_or_unverifiable_authority</code></td><td>Terminal. La autoridad es ilegible o no soportada. Pedirle a un mantenedor que la inspeccione</td></tr>
 <tr><td><code>manual_intervention_required</code></td><td>Terminal. El estado de autoridad está fuera del ciclo de vida negociado</td></tr>
-<tr><td><code>original_finalize_request_required</code> <span class="pill">retirado en v2.5.0</span></td><td>Volver a correr <code>gentle-ai review finalize --lineage &lt;id&gt;</code> con el payload original exacto atado al contenido</td></tr>
+<tr><td><code>original_finalize_request_required</code></td><td>Correr el replay original-finalize exacto atado a la parada; no reconstruir un comando ni payload</td></tr>
 <tr><td><code>native_stop_required</code></td><td>Terminal. El linaje escaló y no tiene continuación nativa</td></tr>
 <tr><td><code>empty_base_diff_bootstrap_required</code></td><td>Terminal. La base commiteada no tiene rutas revisables</td></tr>
 <tr><td><code>recovery_scope_unchanged</code></td><td>Cambiar el objetivo para que su identidad difiera, y reintentar la invocación <code>review recover</code> exacta devuelta</td></tr>
@@ -993,8 +1005,10 @@ flowchart TD
 <li>La ejecución en background administrada se configura con <code>--opencode-background-subagents=auto|on|off</code> o la variable <code>GENTLE_AI_OPENCODE_BACKGROUND_SUBAGENTS</code>. La precedencia de CLI es: flag, entorno no vacío, estado administrado previo, y después <code>auto</code>.</li>
 <li>Los jobs en background son locales al proceso y no durables, no tienen aislamiento de filesystem, y no deben usarse para fases dependientes ni escritores paralelos en un mismo worktree.</li>
 <li>Los modelos custom de <code>opencode.json</code> deben declarar <code>tool_call: true</code> explícitamente para aparecer como opciones seleccionables con capacidad SDD.</li>
-<li>Requisito para multimodo: primero conecte sus proveedores de IA y después ejecute <code>opencode models --refresh</code>.</li>
+<li>Requisito para multimodo: primero conectá tus proveedores de IA y después ejecutá <code>opencode models --verbose</code> para inspeccionar los modelos descubiertos.</li>
 <li>Gentle AI pone el sharing de agentes SDD en <code>disabled</code> por defecto, por privacidad; los valores de <code>share</code> ya administrados por el usuario, como <code>manual</code> o <code>auto</code>, se preservan.</li>
+<li>El comportamiento de OpenCode V1 no cambia. OpenCode V2 beta usa su propio manejo nativo de configuración, plugins administrados y presentación beta.</li>
+<li>Las versiones desconocidas de OpenCode fallan de forma cerrada. La revisión RDD nativa en OpenCode V2 sigue sin estar disponible en <code>v3.4.0</code>.</li>
 </ul>
 
 <h4>Codex</h4>
@@ -1359,13 +1373,13 @@ gentle-ai install --agent windsurf --preset full-gentleman</pre>
 </ol>
 
 <h2 id="releases">Verificación de releases</h2>
-<p><code>v2.5.0</code> publica seis archivos bajo un único manifiesto de checksums firmado: cuatro archivos <code>.tar.gz</code> de plataforma para macOS y Linux (amd64 y arm64), el archivo del contrato de proveedor <code>gentle-ai-review-provider-contract-1.1.0.tar.gz</code>, y el archivo de procedencia del release <code>gentle-ai-release-provenance-v1.tar.gz</code>. <code>checksums.txt</code> cubre los seis y está autenticado por <code>checksums.txt.minisig</code>, firmado con la clave Minisign del release.</p>
+<p><code>v3.4.0</code> publica ocho assets bajo un único manifiesto de checksums firmado: cuatro archivos <code>.tar.gz</code> de plataforma para macOS y Linux (amd64 y arm64), <code>gentle-ai-review-provider-contract-1.2.0.tar.gz</code>, el archivo de procedencia del release, <code>checksums.txt</code> y <code>checksums.txt.minisig</code>. El manifiesto cubre los seis archivos y está autenticado por la firma Minisign.</p>
 <p>Los archivos oficiales de release para macOS y Linux requieren ese <code>checksums.txt</code> autenticado. El actualizador integrado verifica su firma Minisign, su binding exacto a <code>Gentleman-Programming/gentle-ai</code> más el tag del release, y el checksum del archivo seleccionado <strong>antes</strong> de reemplazar el binario instalado.</p>
 
 <p>Los archivos de release tienen un tope de <strong>128 MiB</strong>, incluidas respuestas por chunks o de longitud desconocida. Material de clave faltante, sobredimensionado, malformado, no confiable o de relleno falla de forma cerrada sin cambiar el binario instalado.</p>
 
 <pre>minisign -VQm checksums.txt -x checksums.txt.minisig -P "$GENTLE_AI_MINISIGN_PUBLIC_KEY"
-# Comentario de confianza esperado en v2.5.0: repo=Gentleman-Programming/gentle-ai;tag=v2.5.0
+# Comentario de confianza esperado en v3.4.0: repo=Gentleman-Programming/gentle-ai;tag=v3.4.0
 sha256sum --check --strict --ignore-missing checksums.txt</pre>
 
 <div class="warn">
@@ -1376,42 +1390,30 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
 <p>Los archivos de Windows y la publicación en Scoop siguen omitidos hasta que se provisione firma Authenticode RSA de confianza pública, ambos ejecutables (amd64 y arm64) estén firmados antes de generar archivos y checksums, y la verificación de release falle si alguno de los dos está sin firmar. Hasta entonces, Windows se instala desde fuente con <code>go install</code>.</p>
 
 <h2 id="versiones">Política de versiones</h2>
-<p>RDD empezó en <code>gentle-ai</code> <strong>v1.47.0</strong> (2026-07-10), con las primeras transacciones de revisión nativa acotada, y se volvió la ruta estable soportada en <strong>v2.2.0</strong>. El contrato público negociado de revisión se publicó en <strong>v2.1.6</strong>.</p>
-
-<div class="warn">
-  <b>Algunos documentos del repositorio están desactualizados respecto de los releases</b>
-  <p><strong><code>v2.5.0</code> se publicó como estable el 2026-09-01</strong> y dejó atrás la serie de candidatas, que llegó hasta <code>v2.5.0-rc.3</code> (2026-08-30). El README del repositorio ya nombra esa versión, pero <code>quickstart.md</code> y <code>trigger-rules.md</code> todavía nombran <code>v2.3.0</code> como estable y una prerelease de dos series de candidatas atrás. Esta tabla sigue los releases, no los documentos.</p>
-  <p style="margin-top:8px">Verificado contra <a href="https://github.com/Gentleman-Programming/gentle-ai/releases" target="_blank" rel="noopener">la página de releases</a> el <strong>2026-09-02</strong>. Las versiones cambian: confirma siempre con <code>gentle-ai version</code> y con esa página.</p>
-</div>
+<p><strong><code>v3.4.0</code> se publicó como estable el 2026-09-19.</strong> Esta página es un snapshot fijado de ese release; su contrato de proveedor permanece congelado byte a byte en <code>1.2.0</code>.</p>
 
 <div class="tblwrap">
 <table>
 <thead><tr><th>Canal</th><th>Versión</th><th>Instalación</th></tr></thead>
 <tbody>
-<tr><td>Estable</td><td><code>{releases.stable.version}</code> <span class="pill">{releases.stable.released}</span></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@latest</code></td></tr>
-<tr><td>Desarrollo</td><td><code>main</code></td><td><code>go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@main</code></td></tr>
+<tr><td>Estable</td><td><code>{releases.stable.version}</code> <span class="pill">{releases.stable.released}</span></td><td><code>go install github.com/gentleman-programming/gentle-ai/v3/cmd/gentle-ai@latest</code></td></tr>
+<tr><td>Desarrollo</td><td><code>main</code></td><td><code>go install github.com/gentleman-programming/gentle-ai/v3/cmd/gentle-ai@main</code></td></tr>
 </tbody>
 </table>
 </div>
 
-<p><strong>No hay ninguna línea de candidatas abierta.</strong> El release más nuevo en cualquier canal es <code>v2.5.0</code>, y <code>@latest</code> resuelve a él. El instalador administrado sigue la última versión del canal y <strong>no acepta un pin arbitrario</strong> de release, así que usa <code>go install</code> con una versión explícita cuando la reproducibilidad requiera una versión exacta. Usa <code>@main</code> solo para probar cambios que no forman parte de ningún release.</p>
+<p><code>@latest</code> describe el canal estable y <code>@main</code> describe desarrollo sin release. Para este snapshot reproducible, instalá el release exacto: <code>go install github.com/gentleman-programming/gentle-ai/v3/cmd/gentle-ai@v3.4.0</code>.</p>
 
-<p>El instalador administrado en canal beta sigue <code>main</code> y requiere Go 1.25.10+:</p>
-<pre># macOS / Linux
-curl -fsSL https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/scripts/install.sh | bash -s -- --channel beta
-
-# Windows (PowerShell)
-$env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentle-ai/v2/cmd/gentle-ai@main</pre>
-
-<h3 id="actualizar-a-v2-5-0">Actualizar a v2.5.0</h3>
-<p>Se quitaron cuatro cosas. Cada una tiene reemplazo:</p>
+<h3 id="actualizar-a-v3-4-0">Actualizar a v3.4.0</h3>
+<p><strong>Novedades</strong></p>
 <ul>
-<li><strong>Los receipts compactos, FINALIZE y los gates de entrega están retirados.</strong> La captura terminal cierra la revisión y quema su linaje; la entrega sigue la política ordinaria del repositorio.</li>
-<li><strong>SDD status v1 fue eliminado.</strong> <code>gentle-ai.sdd-status/v2</code> es el único contrato de estado, y los registros históricos que llevan <code>binding</code> o <code>receipt</code> rechazan en lugar de reproducirse.</li>
-<li><strong>Los comandos SDD de Claude Code cambiaron de nombre.</strong> Ahora llevan el prefijo <code>/gentle-sdd-*</code>; corre <code>gentle-ai install</code> para refrescar los archivos de comandos.</li>
-<li><strong><code>gentle-pi</code> tiene que ser 2.3.0 o superior.</strong> Las versiones hasta 2.2.0 solo decodifican <code>gentle-ai.review-integration.start/v3</code> y rechazan este proveedor; 2.3.0 lleva el pin de <code>v2.5.0</code>.</li>
+<li><code>review assess</code> informa <code>candidate.consumed</code>, <code>review_due</code>, <code>review_due_reason</code> y la <code>next_transition</code> exacta para el ruteo del host.</li>
+<li>Los roles de refutador y validador de Pi pasan a estar mediados por el host.</li>
+<li>Cada runtime prueba que su contexto entra en <strong>200 KiB</strong> antes de START.</li>
 </ul>
-<p>Después de reemplazar el binario, corre <code>gentle-ai sync</code>: los assets de revisión y runtime están atados a la versión del binario.</p>
+<p><strong>Cambio incompatible:</strong> se retira la integración RTK.</p>
+<p><strong>Seis fixes:</strong> relay de provider-task para lens-capture V1 de OpenCode; techo de scrape de 64 MiB en VictoriaMetrics; retención de deduplicación de telemetría y compactación diaria; ninguna configuración de OpenCode cuando no está seleccionado; test de descubrimiento nativo de Claude condicionado a CLI v2.1.154; y fixes para los tests de Windows Full Suite.</p>
+<p>Después de reemplazar el binario, <strong>corré <code>gentle-ai sync</code></strong> para instalar assets administrados compatibles. El contrato de proveedor <code>1.2.0</code> permanece congelado byte a byte.</p>
 
 <hr>
 
@@ -1456,16 +1458,16 @@ $env:GENTLE_AI_CHANNEL="beta"; go install github.com/gentleman-programming/gentl
 <table>
 <thead><tr><th>Tu tarea</th><th>Empieza aquí</th></tr></thead>
 <tbody>
-<tr><td>Entender el modelo mental de Gentle AI</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/intended-usage.md" target="_blank" rel="noopener">Intended Usage</a></td></tr>
-<tr><td>Elegir entre ruteo directo, delegado o SDD opcional</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/trigger-rules.md" target="_blank" rel="noopener">Organic Implementation Routing</a></td></tr>
-<tr><td>Entender la arquitectura de RDD</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/architecture/organic-rdd.md" target="_blank" rel="noopener">Organic RDD</a></td></tr>
-<tr><td>Revisar o entregar un cambio de forma segura</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/review-integration.md" target="_blank" rel="noopener">Review Integration Contract</a></td></tr>
-<tr><td>Conocer los límites técnicos de la autoridad de revisión</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/review-authority-threat-model.md" target="_blank" rel="noopener">Review Authority Threat Model</a></td></tr>
-<tr><td>Configurar un agente soportado</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/agents.md" target="_blank" rel="noopener">Agents</a></td></tr>
-<tr><td>Usar el harness de Pi</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/pi.md" target="_blank" rel="noopener">Pi Agent</a></td></tr>
-<tr><td>Versionar artefactos SDD como archivos</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/openspec-config.md" target="_blank" rel="noopener">OpenSpec Config</a></td></tr>
-<tr><td>Encontrar o compartir contexto persistente</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/engram.md" target="_blank" rel="noopener">Engram Commands</a></td></tr>
-<tr><td>Recuperar una instalación</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/rollback.md" target="_blank" rel="noopener">Backup &amp; Rollback</a></td></tr>
+<tr><td>Entender el modelo mental de Gentle AI</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/intended-usage.md" target="_blank" rel="noopener">Intended Usage</a></td></tr>
+<tr><td>Elegir entre ruteo directo, delegado o SDD opcional</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/trigger-rules.md" target="_blank" rel="noopener">Organic Implementation Routing</a></td></tr>
+<tr><td>Entender la arquitectura de RDD</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/architecture/organic-rdd.md" target="_blank" rel="noopener">Organic RDD</a></td></tr>
+<tr><td>Revisar o entregar un cambio de forma segura</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/review-integration.md" target="_blank" rel="noopener">Review Integration Contract</a></td></tr>
+<tr><td>Conocer los límites técnicos de la autoridad de revisión</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/review-authority-threat-model.md" target="_blank" rel="noopener">Review Authority Threat Model</a></td></tr>
+<tr><td>Configurar un agente soportado</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/agents.md" target="_blank" rel="noopener">Agents</a></td></tr>
+<tr><td>Usar el harness de Pi</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/pi.md" target="_blank" rel="noopener">Pi Agent</a></td></tr>
+<tr><td>Versionar artefactos SDD como archivos</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/openspec-config.md" target="_blank" rel="noopener">OpenSpec Config</a></td></tr>
+<tr><td>Encontrar o compartir contexto persistente</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/engram.md" target="_blank" rel="noopener">Engram Commands</a></td></tr>
+<tr><td>Recuperar una instalación</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/rollback.md" target="_blank" rel="noopener">Backup &amp; Rollback</a></td></tr>
 <tr><td>Entender la confianza verificable</td><td><a href="https://the-amazing-gentleman-programming-book.vercel.app/en/book/Chapter21_Verifiable-Trust" target="_blank" rel="noopener">Capítulo 21 — Verifiable Trust</a></td></tr>
 <tr><td>Navegar el código fuente</td><td><a href="https://github.com/Gentleman-Programming/gentle-ai" target="_blank" rel="noopener">Gentleman-Programming/gentle-ai</a></td></tr>
 </tbody>
