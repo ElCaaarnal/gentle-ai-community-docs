@@ -120,6 +120,50 @@ test('agent behavior uses localized headings with matching canonical IDs', async
   await expect(page.locator('h3#las-tres-rutas')).toContainText('Las tres rutas');
 });
 
+test('cumulative v3 ODD and OpenCode contracts are localized and section-scoped', async ({ page }) => {
+  const locales = [
+    {
+      path: '/',
+      routing: ['ODD is the mandatory default protocol', 'SDD remains an explicitly selected workflow', 'odd/tasks/<feature>.md', 'Engram mirror', 'resolved configured TDD mode', 'exact runner', 'does not silently enable TDD', 'work-unit commit', 'last reviewed boundary', 'high-risk commits review immediately', 'medium-risk work accumulates into reviewable PR slices', 'Delegation stop rules table fires, delegation is mandatory'],
+      delegation: ['Four-file rule', 'Multi-file writing rule', 'Incident rule', 'Long-session rule'],
+      openCode: ['OpenCode V1 behavior remains unchanged', 'OpenCode V2 beta', 'native configuration handling', 'managed plugins', 'Unknown OpenCode versions fail closed', 'RDD review on OpenCode V2 remains unavailable', 'v3.4.0'],
+    },
+    {
+      path: '/es/',
+      routing: ['ODD es el protocolo predeterminado obligatorio', 'SDD sigue siendo un flujo seleccionado explícitamente', 'odd/tasks/<feature>.md', 'espejo en Engram', 'modo TDD configurado resuelto', 'runner exacto', 'no activa TDD silenciosamente', 'work-unit commit', 'último límite revisado', 'alto riesgo se revisan de inmediato', 'trabajo de riesgo medio se acumula en slices de PR revisables', 'delegar es obligatorio'],
+      delegation: ['Regla de 4 archivos', 'Regla de escritura multiarchivo', 'Regla de incidente', 'Regla de sesión larga'],
+      openCode: ['comportamiento de OpenCode V1 no cambia', 'OpenCode V2 beta', 'manejo nativo de configuración', 'plugins administrados', 'versiones desconocidas de OpenCode fallan de forma cerrada', 'RDD nativa en OpenCode V2 sigue sin estar disponible', 'v3.4.0'],
+    },
+  ];
+
+  for (const locale of locales) {
+    await page.goto(locale.path);
+    const routingText = await page.locator('h2#ruteo').evaluate((heading) => {
+      let text = '';
+      for (let node: Element | null = heading; node; node = node.nextElementSibling) {
+        if (node !== heading && node.tagName === 'H2') break;
+        text += node.textContent ?? '';
+      }
+      return text;
+    });
+    for (const literal of locale.routing) expect(routingText).toContain(literal);
+
+    const delegationText = await page.locator('h2#delegacion').evaluate((heading) => {
+      let text = '';
+      for (let node: Element | null = heading; node; node = node.nextElementSibling) {
+        if (node !== heading && node.tagName === 'H2') break;
+        text += node.textContent ?? '';
+      }
+      return text;
+    });
+    for (const literal of locale.delegation) expect(delegationText).toContain(literal);
+
+    const openCodeNotes = page.locator('h4').filter({ hasText: 'OpenCode' }).locator('xpath=following-sibling::ul[1]');
+    await expect(openCodeNotes).toHaveCount(1);
+    for (const literal of locale.openCode) await expect(openCodeNotes).toContainText(literal);
+  }
+});
+
 test('RDD uses localized headings with matching canonical IDs', async ({ page }) => {
   const sections = ['rdd', 'rdd-control', 'rdd-ciclo', 'rdd-lentes', 'rdd-correccion', 'rdd-entrega', 'rdd-limites', 'rdd-mantenimiento'];
   const subsections = ['el-modelo-en-tres-frases', '1-status-sin-selector-solo-hace-preflight', '2-start-congela-una-transaccion-independiente', '3-las-llamadas-atadas-manejan-la-transaccion', '4-la-aprobacion-quema-la-autoridad', 'continuidad-entre-repositorios', 'las-lentes-son-de-solo-lectura', 'la-forma-de-un-resultado-de-revisor', 'evidencia-independiente', 'proyecciones-del-candidato', 'codigos-de-parada', 'que-protege-el-modelo-de-amenazas-y-que-no', 'controles-retenidos', 'esquemas-de-entrada'];
@@ -242,24 +286,24 @@ test('operations use localized headings, shared IDs, and literal boundaries', as
 
 test('version policy and reference content is localized with exact shared literals', async ({ page }) => {
   const ids = ['versiones', 'glosario', 'docs'];
-  const versions = ['v1.47.0', 'v2.1.6', 'v2.2.0', 'v2.3.0', 'v2.5.0', 'v2.5.0-rc.3', '2026-07-10', '2026-08-30', '2026-09-01', '2026-09-02'];
+  const versions = ['v3.4.0', '2026-09-19', '1.2.0'];
   const formula = 'min(200, ceil(original_changed_lines / 2))';
   const bound = {
-    stable: { version: 'v2.5.0', released: '2026-09-01' },
+    stable: { version: 'v3.4.0', released: '2026-09-19' },
   };
   const glossary = ['Candidate', 'Lineage', 'Receipt', 'Lens', 'Burn', 'Projection', 'Gate', 'Candidate-caused finding', 'Correction budget', 'Delta-spec', 'Escalated'];
   const spanishGlossary = ['Candidato', 'Linaje', 'Receipt', 'Lente', 'Quema', 'Proyección', 'Gate', 'Finding causado por el candidato', 'Presupuesto de corrección', 'Delta-spec', 'Escalado'];
   const officialLinks = [
-    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/intended-usage.md',
-    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/trigger-rules.md',
-    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/architecture/organic-rdd.md',
-    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/review-integration.md',
-    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/review-authority-threat-model.md',
-    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/agents.md',
-    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/pi.md',
-    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/openspec-config.md',
-    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/engram.md',
-    'https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/rollback.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/intended-usage.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/trigger-rules.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/architecture/organic-rdd.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/review-integration.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/review-authority-threat-model.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/agents.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/pi.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/openspec-config.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/engram.md',
+    'https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/rollback.md',
     'https://the-amazing-gentleman-programming-book.vercel.app/en/book/Chapter21_Verifiable-Trust',
     'https://github.com/Gentleman-Programming/gentle-ai',
   ];
@@ -271,9 +315,15 @@ test('version policy and reference content is localized with exact shared litera
 
     // The upgrade notes are an h3 inside #versiones on purpose: an h2 would change the
     // section count that scripts/build-mcp-index.mjs and the section scans above pin.
-    await expect(page.locator('h3#actualizar-a-v2-5-0')).toHaveCount(1);
-    for (const removed of ['FINALIZE', 'gentle-ai.sdd-status/v2', '/gentle-sdd-*', '2.3.0']) {
-      await expect(page.locator('h3#actualizar-a-v2-5-0 + p + ul')).toContainText(removed);
+    const upgrade = page.locator('h3#actualizar-a-v3-4-0');
+    const releaseNotes = upgrade.locator('xpath=following-sibling::*[self::p or self::ul][position() <= 5]');
+    await expect(upgrade).toHaveCount(1);
+    const releaseText = (await releaseNotes.allTextContents()).join(' ');
+    const localizedReleaseLiterals = route === '/'
+      ? ['Pi refuter and validator roles are host-mediated.', 'the RTK integration is retired.']
+      : ['Los roles de refutador y validador de Pi pasan a estar mediados por el host.', 'se retira la integración RTK.'];
+    for (const literal of ['review_due', 'next_transition', '200 KiB', 'OpenCode', 'VictoriaMetrics', 'v2.1.154', 'gentle-ai sync', ...localizedReleaseLiterals]) {
+      expect(releaseText).toContain(literal);
     }
 
     // Double-entry against src/data/versions.ts. These expectations are authored here by
@@ -305,7 +355,7 @@ test('version policy and reference content is localized with exact shared litera
 
   await page.goto('/');
   await expect(page.locator('h2#versiones')).toContainText('Version policy');
-  await expect(page.locator('h3#actualizar-a-v2-5-0')).toContainText('Upgrading to v2.5.0');
+  await expect(page.locator('h3#actualizar-a-v3-4-0')).toContainText('Upgrading to v3.4.0');
   await expect(page.locator('h2#glosario')).toContainText('Glossary');
   await expect(page.locator('h2#docs')).toContainText('Official documentation');
   await expect(page.locator('h2#glosario + dl dt').allTextContents()).resolves.toEqual(glossary.map((term) => expect.stringContaining(term)));
@@ -314,7 +364,7 @@ test('version policy and reference content is localized with exact shared litera
 
   await page.goto('/es/');
   await expect(page.locator('h2#versiones')).toContainText('Política de versiones');
-  await expect(page.locator('h3#actualizar-a-v2-5-0')).toContainText('Actualizar a v2.5.0');
+  await expect(page.locator('h3#actualizar-a-v3-4-0')).toContainText('Actualizar a v3.4.0');
   await expect(page.locator('h2#glosario')).toContainText('Glosario');
   await expect(page.locator('h2#docs')).toContainText('Documentación oficial');
   await expect(page.locator('h2#glosario + dl dt').allTextContents()).resolves.toEqual(spanishGlossary.map((term) => expect.stringContaining(term)));
