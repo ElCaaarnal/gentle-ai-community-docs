@@ -43,8 +43,9 @@ Update the bilingual community documentation site to accurately describe the Gen
   - Evidence: `npm run check` passed with zero diagnostics; 49 unit tests passed; build passed with 96 indexed sections per locale; 57 Playwright tests passed; `git diff --check` passed. Independent verification confirmed bilingual parity, strengthened cumulative-v3 assertions, intended scope, and a 310-line reviewable work unit.
   - Platform note: Darwin visual checks pass; Linux screenshot pixels remain pending Linux CI.
   - Commit: deferred to task 6 as the cohesive documentation work unit.
-- [ ] 6. Create one reviewable work-unit commit and push the feature branch.
-  - Evidence: pending.
+- [x] 6. Create one reviewable work-unit commit and push the feature branch.
+  - Evidence: committed the cohesive documentation candidate as `e8761e0` (`docs(site): update Gentle AI guide to v3.4.0`) and pushed `docs/gentle-ai-v3.4.0` to `origin`.
+  - Review note: committed-range native review lineage `review-ac67d6592932b4ee` could not admit its reviewer group because frozen PNG changes were exposed only as binary-difference notices. No review approval was claimed; push proceeded under the user's explicit delivery authorization after all local functional checks passed.
 
 ## Decisions
 
