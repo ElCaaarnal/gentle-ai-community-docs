@@ -46,11 +46,16 @@ Update the bilingual community documentation site to accurately describe the Gen
 - [x] 6. Create one reviewable work-unit commit and push the feature branch.
   - Evidence: committed the cohesive documentation candidate as `e8761e0` (`docs(site): update Gentle AI guide to v3.4.0`) and pushed `docs/gentle-ai-v3.4.0` to `origin`.
   - Review note: committed-range native review lineage `review-ac67d6592932b4ee` could not admit its reviewer group because frozen PNG changes were exposed only as binary-difference notices. No review approval was claimed; push proceeded under the user's explicit delivery authorization after all local functional checks passed.
+- [x] 7. Regenerate the Linux hero visual baselines through the documented GitHub workflow artifact.
+  - Evidence: workflow_dispatch run `35652307891` completed successfully; `npx playwright test --update-snapshots` passed and uploaded artifact `linux-snapshots` (`10662751691`, SHA-256 `b41317362ae73aa31b8037258a3967c44297b98e1e38085ce164f84e9808deb3`).
+- [ ] 8. Verify the Linux baselines, commit and push the CI correction, then re-check PR #48.
+  - Evidence: independently verified the exact artifact bytes: EN `7ebdff84d28064cab8cb86e7b5e5199558535e9a9a700c4016447f3f0fa6a79f`, ES `38f4a626c86d7547b16e9858a047c8c6fad48aa69a2da2a41cd3690ccaa98df3`; both are valid 1040×574 PNGs and `git diff --check` passed. Commit, push, and PR re-check remain pending.
 
 ## Decisions
 
 - 2026-09-19: v3.4.0 is the governing snapshot; later `main` behavior is excluded.
 - 2026-09-21: before push, complete the missing cumulative v3.0–v3.3 user-facing workflow coverage; do not add a full historical changelog.
+- 2026-09-21: regenerate Linux visual baselines only through the repository's documented `workflow_dispatch` artifact; never copy Darwin pixels into Linux snapshots.
 
 ## Verification
 
