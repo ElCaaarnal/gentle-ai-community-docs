@@ -32,7 +32,7 @@ import { releases } from '../data/versions';
 <tbody>
 <tr><td>Correr el instalador y elegir agentes y preset</td><td>Editar a mano los archivos de configuración generados</td></tr>
 <tr><td>Empezar a programar con tu agente</td><td>Memorizar fases o comandos de SDD</td></tr>
-<tr><td>Dejar que el agente proponga SDD cuando la tarea lo amerita</td><td>Forzar SDD en cada tarea chica</td></tr>
+<tr><td>Dejar que ODD resuelva la incertidumbre; usar artefactos formales de SDD solo tras un pedido explícito o una propuesta aceptada</td><td>Forzar SDD en cada tarea chica</td></tr>
 <tr><td>Confiar en que Engram guarda contexto cuando está instalado y activo</td><td>Meterte en el almacenamiento de Engram salvo que necesites <code>engram sync</code> o <code>engram tui</code></td></tr>
 <tr><td>Dejar que los hooks de arranque o <code>sdd-init</code> refresquen el registro de skills</td><td>Reescanear skills a mano salvo que necesites <code>--force</code></td></tr>
 <tr><td>Decir "usá sdd" si ya sabés que querés planificación estructurada</td><td>Preocuparte por qué fase de SDD viene después</td></tr>
@@ -88,12 +88,12 @@ brew install gentle-ai</pre>
 <table>
 <thead><tr><th>Comando</th><th>Qué hace</th><th>Cuándo volver a correrlo</th></tr></thead>
 <tbody>
-<tr><td><code>/sdd-init</code></td><td>Detecta el stack y las capacidades de testing; activa Strict TDD si está disponible</td><td>Cuando el proyecto agrega o saca frameworks de test, o la primera vez en un proyecto nuevo</td></tr>
+<tr><td><code>/sdd-init</code></td><td>Cuando seleccionás SDD explícitamente, registra el contexto del proyecto y las capacidades de testing detectables; detectarlas no activa Strict TDD</td><td>Al iniciar SDD explícitamente en un proyecto nuevo, o cuando hace falta refrescar ese contexto</td></tr>
 <tr><td><code>gentle-ai skill-registry refresh</code></td><td>Escanea skills instaladas y convenciones del proyecto, y construye el registro</td><td>Después de instalar o quitar skills, o la primera vez en un proyecto nuevo</td></tr>
 </tbody>
 </table>
 </div>
-<p>El orquestador de SDD corre <code>/sdd-init</code> automáticamente si no detecta contexto. Los hooks de arranque normalmente mantienen fresco el registro de skills en los agentes que soportan hooks — Codex, Claude Code, OpenCode y Pi a través de <code>gentle-pi</code>. Si arrancás Pi con <code>pi -ns</code>, se saltea la carga de skills y los hooks de inicio, así que ahí conviene refrescar el registro a mano.</p>
+<p>Solo un flujo SDD seleccionado explícitamente puede correr <code>/sdd-init</code> automáticamente cuando necesita contexto. Los tests detectables no activan Strict TDD: resolvé su modo, fuente y runner exacto desde la configuración del proyecto/sesión o una elección explícita. Los hooks de arranque normalmente mantienen fresco el registro de skills en los agentes que soportan hooks — Codex, Claude Code, OpenCode y Pi a través de <code>gentle-pi</code>. Si arrancás Pi con <code>pi -ns</code>, se saltea la carga de skills y los hooks de inicio, así que ahí conviene refrescar el registro a mano.</p>
 <p>En cualquier momento podés correr <code>gentle-ai doctor</code>, un chequeo de salud de solo lectura del ecosistema.</p>
 
 <h2 id="presets">Componentes, skills y presets</h2>
@@ -104,7 +104,7 @@ brew install gentle-ai</pre>
 <thead><tr><th>Componente</th><th>ID</th><th>Descripción</th></tr></thead>
 <tbody>
 <tr><td>Engram</td><td><code>engram</code></td><td>Memoria persistente entre sesiones vía MCP: autodetección del nombre del proyecto, búsqueda de texto completo, sincronización con git y consolidación de proyectos</td></tr>
-<tr><td>SDD</td><td><code>sdd</code></td><td>Flujo de desarrollo guiado por especificación (10 fases, incluida <code>sdd-onboard</code>). El agente lo maneja de forma orgánica cuando la tarea lo amerita, o cuando se lo pedís</td></tr>
+<tr><td>SDD</td><td><code>sdd</code></td><td>Flujo de desarrollo guiado por especificación (10 fases, incluida <code>sdd-onboard</code>). Sus artefactos formales comienzan solo tras un pedido explícito o una propuesta aceptada</td></tr>
 <tr><td>Skills</td><td><code>skills</code></td><td>Biblioteca curada de skills</td></tr>
 <tr><td>Context7</td><td><code>context7</code></td><td>Servidor MCP con documentación en vivo de frameworks y librerías</td></tr>
 <tr><td>Persona</td><td><code>persona</code></td><td>Inyección de la persona Gentleman/neutral administrada, o modo persona custom sin administrar</td></tr>
@@ -207,7 +207,7 @@ engram sync --import</pre>
 
 <div class="cards">
   <div class="card"><h4>Pedido chico</h4><p>El agente lo hace y ya. Sin ceremonia.</p></div>
-  <div class="card"><h4>Funcionalidad sustancial</h4><p>El agente sugiere usar SDD para planificarla bien: explorar el código, proponer un enfoque, diseñar la arquitectura y después implementar paso a paso.</p></div>
+  <div class="card"><h4>Funcionalidad sustancial</h4><p>ODD explora, resuelve la incertidumbre y registra el trabajo. Los artefactos formales de SDD comienzan solo tras un pedido explícito o una propuesta aceptada.</p></div>
   <div class="card"><h4>Querés SDD explícitamente</h4><p>Decí "usá sdd" o "hazlo con sdd" y el agente arranca el flujo.</p></div>
 </div>
 
@@ -247,53 +247,17 @@ engram sync --import</pre>
 <li><strong>Persisten artefactos de fase cuando el backend lo soporta.</strong> En flujos SDD respaldados por Engram, los agentes de fase guardan artefactos antes de retornar. La fase siguiente puede continuar desde la propuesta, spec, diseño, tareas o progreso de apply guardados — incluso entre sesiones.</li>
 </ol>
 
-<h2 id="sdd-research">SDD Research — la vía de evidencia</h2>
-<div class="note">
-  <b>Nuevo en <span class="pill">v2.5.0</span></b>
-  <p>La vía se publica bajo el contrato <code>gentle-ai.sdd-research/v1</code>. Las diez fases de arriba no cambian: la investigación se ofrece <em>junto a</em> ellas, nunca insertada entre ellas.</p>
-</div>
-<p>SDD tenía exploración local, pero ninguna vía de primera clase para evidencia externa auditable. La investigación se ofrece inmediatamente después de <code>sdd-explore</code>, y es opcional — pero seleccionarla vuelve obligatorios sus chequeos de admisión y persistencia.</p>
-<pre class="mermaid">
-flowchart TD
-    A["sdd-explore"] --&gt; B&#123;"¿Seleccionar la vía de investigación?"&#125;
-    B --&gt;|"no"| G["Propose"]
-    B --&gt;|"sí"| C["Declarar capacidad<br/>documentation / open-web"]
-    C --&gt; D["Recolectar fuentes<br/>claims - contradicciones - incertidumbre"]
-    D --&gt; E["Persistir el artefacto<br/>OpenSpec - Engram - ambos"]
-    E --&gt; F&#123;"¿Evidencia done - store listo<br/>decisiones confirmadas?"&#125;
-    F --&gt;|"no"| H["Bloqueado<br/>ningún claim validado"]
-    H --&gt; D
-    F --&gt;|"sí"| G
-    G --&gt; I["Spec - Design - Tasks"]
+<h2 id="sdd-research">SDD Research — evidencia opcional</h2>
+<p>La investigación es trabajo opcional de solo lectura para una incertidumbre nombrada. Puede informar ODD o SDD seleccionado explícitamente, pero no es una fase ni un contrato administrativo de SDD.</p>
 
-    style G fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
-    style H fill:#43242B,stroke:#D27E99,color:#DCD7BA
-</pre>
+<h3 id="como-se-declara">Cómo usarla</h3>
+<p>Planteá la pregunta y usá solo herramientas que estén disponibles y autorizadas. Priorizá fuentes primarias cuando respondan la pregunta; no infieras acceso por el nombre de una herramienta ni por una clase de fuente no disponible. Cuando se delega, el colector dedicado es un colector de evidencia solo de salida: no lee artefactos locales ni estado del repositorio, y el orquestador aporta el contexto de código.</p>
 
-<h3 id="como-se-declara">Cómo se declara</h3>
-<p>En instalaciones que exponen el slash command, <code>/sdd-research &lt;preguntas&gt;</code> corre la vía después de que Session Preflight y <code>sdd-init</code> establecieron el cambio activo, las clases de fuente solicitadas, el artifact store y la declaración de capacidad del runtime.</p>
-<p>La investigación acepta <strong>únicamente</strong> la declaración versionada <code>gentle-ai.sdd-research-capability/v1</code>, con un grant exacto para <code>documentation</code> u <code>open-web</code>. Nada más abre la vía.</p>
+<h3 id="que-persiste">Qué devuelve</h3>
+<p>Devolvé evidencia concisa y atribuida: los claims materiales enlazan URLs de fuentes o ubicaciones de código y distinguen hechos verificados, supuestos, contradicciones, frescura y brechas explícitas. El padre maneja cualquier persistencia autorizada según las prácticas existentes del proyecto.</p>
 
-<h3 id="que-persiste">Qué persiste</h3>
-<p>Escribe un artefacto <code>gentle-ai.sdd-research/v1</code> que registra preguntas, grants, fuentes, mapeos de claim a fuente, contradicciones, incertidumbre, frescura y decisiones de producto separadas y no autoritativas.</p>
-<div class="tblwrap">
-<table>
-<thead><tr><th>Store</th><th>Ubicación</th><th>Validación</th></tr></thead>
-<tbody>
-<tr><td>OpenSpec</td><td><code>openspec/changes/&#123;change-name&#125;/research.md</code></td><td>Valida el backend seleccionado</td></tr>
-<tr><td>Engram</td><td><code>sdd/&#123;change-name&#125;/research</code></td><td>Valida el backend seleccionado</td></tr>
-<tr><td>Híbrido</td><td>Ambos</td><td>Exige la misma revisión y los mismos bytes en ambos</td></tr>
-</tbody>
-</table>
-</div>
-<p>Una falla de un solo lado en modo híbrido se recupera solo desde la intención pre-escritura retenida y el contenido canónico. Si no, la investigación y la propuesta quedan bloqueadas — el sistema nunca prefiere una copia sobre la otra. Una investigación sin store no puede dejar lista una propuesta.</p>
-
-<h3 id="la-compuerta-de-propuesta">La compuerta de la propuesta</h3>
-<p>Una vez seleccionada la investigación, <code>propose</code> exige evidencia en <code>done</code>, referencias válidas, un backend listo y decisiones de producto confirmadas. Esta es la parte que conviene internalizar: <strong>elegir la vía es opcional, terminarla no</strong>.</p>
-<div class="warn">
-  <b>Qué no produce un claim validado</b>
-  <p>Bash, MCP genérico, acceso de persistencia, herramientas no declaradas, clases de fuente desconocidas, fuentes inválidas, evidencia parcial y admisión fallida. Ninguno crea un claim validado, y ninguno admite una propuesta.</p>
-</div>
+<h3 id="la-compuerta-de-propuesta">Cómo informa una propuesta</h3>
+<p>La investigación aporta una recomendación, tradeoffs, preguntas abiertas e implicancias de implementación. La evidencia faltante se revela en vez de inventarse; solo pausa una decisión insegura que dependa de ella. No crea una fase, contrato, grant de admisión, requisito de persistencia, gate de preparación ni bloqueo de propuesta de SDD.</p>
 
 <hr>
 
@@ -382,14 +346,12 @@ testing:
 <p>Es decir: <code>rules.apply</code> y <code>rules.verify</code> se tratan hoy como si pudieran contener claves estructuradas, mientras otros ejemplos muestran esas mismas reglas de fase como listas planas.</p>
 
 <h2 id="tdd">Strict TDD</h2>
-<p>El modo TDD estricto se activa cuando el proyecto tiene soporte de testing detectable.</p>
+<p>Resolvé Strict TDD desde la configuración del proyecto/sesión o una elección explícita, con su fuente y runner exacto. El soporte de testing detectable por sí solo no lo activa.</p>
 <ul>
-<li><code>/sdd-init</code> detecta las capacidades de testing del proyecto y activa Strict TDD si están disponibles.</li>
-<li>Cuando Strict TDD está activo, <strong><code>sdd-apply</code> trabaja test-first</strong>.</li>
-<li><strong><code>sdd-verify</code> audita la evidencia RED/GREEN</strong> y corre la verificación.</li>
-<li>El flag <code>strict_tdd</code> en <code>openspec/config.yaml</code> lo habilita o deshabilita; lo referencian <code>sdd-init</code>, los prompts del orquestador, <code>sdd-apply</code> y <code>sdd-verify</code>.</li>
-<li>La sección <code>testing</code> cachea las capacidades detectadas para que las fases no tengan que redescubrirlas cada vez.</li>
-<li>También se puede activar al sincronizar con <code>gentle-ai sync --strict-tdd</code>.</li>
+<li>Cuando está activado, observá <strong>RED → GREEN → REFACTOR</strong>: agregá un test de comportamiento enfocado, observá su falla, implementá el cambio mínimo y mantené verdes los chequeos enfocados al mejorar la claridad.</li>
+<li>Cuando está desactivado, corré chequeos funcionales ordinarios; desactivar TDD nunca significa no chequear.</li>
+<li>Registrá y pasá a la implementación el modo resuelto, la fuente y el runner exacto. En este proyecto, <code>openspec/config.yaml</code> configura Strict TDD y <code>npx playwright test</code> es el runner.</li>
+<li>El modo desconocido o conflictivo, o falta el runner, falla de forma cerrada hacia una aclaración para la próxima acción. No inventes precedencia, un comando ni una corrida de <code>/sdd-init</code>.</li>
 </ul>
 <p>En Pi, los assets de soporte viven en <code>.pi/gentle-ai/support/strict-tdd.md</code> y <code>.pi/gentle-ai/support/strict-tdd-verify.md</code>.</p>
 
@@ -509,7 +471,7 @@ gentle-ai skill-registry list --json   # legible por máquina, incluye descripci
 <hr>
 
 <h2 id="ruteo">Ruteo orgánico de implementación</h2>
-<p>Pedí el resultado. Gentle AI mantiene inline el trabajo ya comprendido, delega solo las acciones que se benefician de contexto fresco, y ofrece SDD únicamente cuando la planificación durable reduce la incertidumbre de forma material.</p>
+<p>Pedí el resultado. Gentle AI mantiene inline el trabajo ya comprendido, delega solo las acciones que se benefician de contexto fresco, y crea artefactos formales de SDD solo después de un pedido explícito o una propuesta aceptada.</p>
 
 <div class="imp">
   <b>Cada cambio toma exactamente una ruta</b>
@@ -524,7 +486,7 @@ gentle-ai skill-registry list --json   # legible por máquina, incluye descripci
 <li>Para trabajo autorizado sustancial, ODD persiste la continuidad en <code>odd/tasks/&lt;feature&gt;.md</code> con un espejo en Engram, y después retoma el trabajo sin terminar desde esos registros reconciliados.</li>
 <li>ODD usa el modo TDD configurado resuelto y su runner exacto. La sola presencia de tests no activa TDD silenciosamente.</li>
 <li>Cada tarea ODD completada cierra con un work-unit commit revisable en la rama de la funcionalidad.</li>
-<li>Cada commit se evalúa contra el último límite revisado: los commits de alto riesgo se revisan de inmediato, el trabajo de riesgo medio se acumula en slices de PR revisables, y se aplica una estrategia de PRs encadenados cuando hace falta.</li>
+<li>Cuando RDD está activado, cada commit se evalúa contra el último límite revisado: los commits de alto riesgo se revisan de inmediato, el trabajo de riesgo medio se acumula en slices de PR revisables, y se aplica una estrategia de PRs encadenados cuando hace falta.</li>
 </ul>
 <p>Cuando se dispara un trigger de la tabla de Reglas de parada de la delegación, delegar es obligatorio; la tabla define esos triggers sin cambiar la ruta de implementación.</p>
 
@@ -535,7 +497,7 @@ gentle-ai skill-registry list --json   # legible por máquina, incluye descripci
 <tbody>
 <tr><td><strong>Directa inline</strong></td><td>Decidir o verificar requiere <strong>1 a 3 archivos</strong>; o el cambio es <strong>un archivo mecánico ya comprendido</strong>, sin investigación ni decisiones de diseño pendientes</td><td>La acción acotada se mantiene inline</td></tr>
 <tr><td><strong>Delegada directa</strong></td><td>Entender requiere <strong>4 o más archivos</strong>; la lectura prepara una escritura; hace falta investigación amplia; o hay que escribir <strong>2 o más archivos no triviales</strong></td><td>Se delega la exploración acotada y/o un solo escritor para esa acción</td></tr>
-<tr><td><strong>SDD opcional</strong></td><td>El trabajo tiene ambigüedad sustancial, o artefactos durables de propuesta, spec, diseño o tareas reducirían la incertidumbre de forma material</td><td>Se propone SDD. Se selecciona solo tras un pedido explícito o una propuesta aceptada</td></tr>
+<tr><td><strong>SDD opcional</strong></td><td>El usuario pide planificación formal explícitamente o acepta una propuesta; la ambigüedad se mantiene en ODD</td><td>SDD crea artefactos de propuesta, especificación, diseño y tareas</td></tr>
 </tbody>
 </table>
 </div>
@@ -544,20 +506,21 @@ gentle-ai skill-registry list --json   # legible por máquina, incluye descripci
 
 <p>La delegación también aplica por acción: tests, builds, instalaciones y actores nativos de revisión pueden usar workers frescos sin cambiar la ruta de implementación ni crear una corrida de SDD. El trabajo directo y el delegado no crean artefactos de SDD, intentos de fase ni ciclos SDD sintéticos.</p>
 
-<p>Si un trabajo aparentemente simple revela ambigüedad sustancial, Gentle AI puede ofrecer SDD en el siguiente límite seguro. Rechazarlo lleva a un alcance reducido de forma segura, a una ruta directa o delegada justificada, o a <strong>Necesita tu decisión</strong> — nunca a una inscripción silenciosa en SDD.</p>
+<p>Si un trabajo aparentemente simple revela ambigüedad sustancial, Gentle AI la resuelve en ODD con investigación, aclaración o <strong>Necesita tu decisión</strong>; no ofrece ni selecciona artefactos formales de SDD por ambigüedad sola.</p>
 
 <h2 id="delegacion">Reglas de parada de la delegación</h2>
-<p>El orquestador debe dejar de actuar como ejecutor monolítico cuando aparece complejidad:</p>
+<p>El orquestador debe dejar de actuar como ejecutor monolítico cuando aparece complejidad. Estos disparadores son obligatorios, no opcionales:</p>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Regla</th><th>Disparador</th></tr></thead>
 <tbody>
-<tr><td><strong>Regla de 4 archivos</strong></td><td>Leer 4 o más archivos para entender un flujo implica delegar la exploración o correr una fase de exploración</td></tr>
-<tr><td><strong>Regla de escritura multiarchivo</strong></td><td>Tocar 2 o más archivos no triviales implica usar un solo escritor, o exigir revisión fresca antes de completar</td></tr>
-<tr><td><strong>Regla de PR</strong></td><td>La revisión puede aportar evidencia fresca para un commit, push o PR, pero nunca autoriza la entrega</td></tr>
-<tr><td><strong>Regla de incidente</strong></td><td>Después de un cwd equivocado, un accidente de worktree/git, una recuperación de merge, un comando de test confuso o un workaround del entorno: correr una auditoría fresca antes de continuar</td></tr>
-<tr><td><strong>Regla de sesión larga</strong></td><td>Después de unas 20 llamadas a herramientas, 5 lecturas exploratorias o 2 ediciones no mecánicas con complejidad creciente: pausar y delegar, replanificar, o justificar por qué no</td></tr>
-<tr><td><strong>Regla de revisión fresca</strong></td><td>Usar contexto fresco para revisión adversarial de diffs, conflictos, preparación de PR e incidentes, cuando la plataforma del agente lo soporta</td></tr>
+<tr><td><strong>Regla de 4 archivos</strong></td><td>Leer 4 o más archivos para entender un flujo implica delegar una exploración acotada antes de decidir o escribir</td></tr>
+<tr><td><strong>Regla de escritura multiarchivo</strong></td><td>Tocar 2 o más archivos no triviales implica usar un solo escritor acotado</td></tr>
+<tr><td><strong>Regla de preparación</strong></td><td>La lectura que prepara una escritura, la investigación amplia o la compresión de contexto requieren delegar junto con o antes de la escritura</td></tr>
+<tr><td><strong>Regla de incidente</strong></td><td>Después de un cwd equivocado, un accidente de worktree/git, una recuperación de merge, un comando de test confuso o un workaround del entorno: delegar un diagnóstico separado antes de retomar</td></tr>
+<tr><td><strong>Regla de sesión larga</strong></td><td>Después de unas 20 llamadas a herramientas, 5 lecturas exploratorias o 2 ediciones no mecánicas sin ninguna delegación: pausar y delegar la próxima unidad acotada de trabajo</td></tr>
+<tr><td><strong>Declaración de ruta</strong></td><td>Para trabajo sustancial, registrar la ruta elegida y la evidencia del disparador por tarea para que una delegación omitida sea observable</td></tr>
+<tr><td><strong>Regla de verificación</strong></td><td>Usar un worker fresco de verificación para comandos de test, build, lint u otra verificación; solo un chequeo de solo lectura de 1 a 3 archivos queda inline</td></tr>
 </tbody>
 </table>
 </div>
@@ -623,8 +586,8 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <p>Mientras RDD está desactivado, el trabajo continúa por ruteo directo inline, delegado directo o SDD opcional, sin iniciar, reintentar ni reactivar la revisión por cuenta propia. Los gates nativos de entrega reportan <code>disabled/unmanaged</code> cuando no aplica ningún receipt exacto, y <strong>nunca fabrican una aprobación</strong>.</p>
 
 <h2 id="rdd-ciclo">El ciclo atómico</h2>
-<pre>STATUS sin selector → START exacto → colección acotada → captura terminal → aprobado + quema → política ordinaria del repositorio</pre>
-<p>La revisión cierra en su último evento causal. Un resultado terminal de reviewer, refuter, validator, plan de corrección o zero-lens cierra la transacción y quema su linaje directamente: <strong>no hay un paso FINALIZE separado</strong>, ni publicación de receipt compacto, ni gate de entrega posterior.</p>
+<pre>STATUS sin selector → START exacto → colección acotada → captura terminal → aprobado pendiente de acuse exacto → el acuse quema la autoridad → política ordinaria del repositorio</pre>
+<p>Un resultado terminal de reviewer, refuter, validator, plan de corrección o zero-lens registra <code>approved</code>; la autoridad aprobada queda pendiente de su acuse exacto. <strong>No hay un paso FINALIZE separado</strong>. No sobrevive ningún receipt compacto ni autoridad de entrega.</p>
 
 <h3 id="1-status-sin-selector-solo-hace-preflight">1. STATUS sin selector solo hace preflight</h3>
 <p>STATUS sin selector evalúa <strong>únicamente el candidato del worktree actual</strong> y renderiza una invocación START exacta. <strong>No</strong> descubre autoridad ambiente, no retoma otro worktree, no recupera historia ni selecciona un linaje viejo. El padre corre solo la <code>next_transition</code> devuelta y sus tokens ordenados.</p>
@@ -640,7 +603,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <p>Un replay exacto de un START activo puede devolver <code>replayed</code>. Un START genuinamente nuevo es independiente. Un linaje quemado nunca se reutiliza.</p>
 
 <h3 id="3-las-llamadas-atadas-manejan-la-transaccion">3. Las llamadas atadas manejan la transacción</h3>
-<p>Cada STATUS y <code>review capture-result</code> posterior lleva esos tokens exactos; la captura terminal cierra la transacción por sí misma. El padre rutea únicamente desde la <code>next_transition</code> devuelta:</p>
+<p>Cada STATUS y <code>review capture-result</code> posterior lleva esos tokens exactos. Tras la aprobación terminal, STATUS atado vuelve a ofrecer el mismo acuse mientras la autoridad queda pendiente. El padre rutea únicamente desde la <code>next_transition</code> devuelta:</p>
 
 <div class="tblwrap">
 <table>
@@ -654,8 +617,8 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 </div>
 <p>Un <em>forecast</em> es descriptivo, no una ruta. Se relata completo, pero se ejecuta solo <code>next_transition</code>.</p>
 
-<h3 id="4-la-aprobacion-quema-la-autoridad">4. La aprobación quema la autoridad</h3>
-<p>Al tener éxito, el código nativo lee de vuelta la aprobación terminal y después <strong>quema</strong> el linaje exacto y sus artefactos antes de devolver <code>approved</code>. No sobrevive ningún receipt terminal, tombstone, testigo, espejo ni autoridad de entrega. Otros linajes y worktrees quedan intactos.</p>
+<h3 id="4-la-aprobacion-quema-la-autoridad">4. La aprobación espera acuse</h3>
+<p>El código nativo devuelve <code>approved</code> con una continuación de acuse exacta. <strong>Solo la continuación de acuse exacta quema la autoridad</strong>: valida el linaje, objetivo, revisión y token atados, y luego elimina esa autoridad y sus artefactos. Un acuse incorrecto, obsoleto o fallido no muta nada; STATUS atado vuelve a ofrecer la continuación pendiente. No sobrevive ningún receipt compacto ni autoridad de entrega. Otros linajes y worktrees quedan intactos.</p>
 
 <div class="warn">
   <b>Una captura terminal no limpia no es una aprobación</b>
@@ -671,7 +634,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <tr><td>Raíz del ciclo de vida</td><td>Una vez seleccionado B, el host mantiene B canónico desde STATUS hasta consentimiento, colección, corrección, validación, acuse y quema. A nunca es un respaldo</td></tr>
 <tr><td>Comandos</td><td>Se corren los tokens emitidos por el proveedor sin cambios. Si un comando omite <code>--cwd</code>, se corre con el cwd de proceso B</td></tr>
 <tr><td>Captura opaca</td><td><code>repository_context</code> puede materializarse o capturarse desde otro cwd de proceso, pero permanece atado a B</td></tr>
-<tr><td>Aislamiento</td><td>Un texto de linaje idéntico en A y B nombra transacciones independientes. La aprobación quema solo B; A queda intacto</td></tr>
+<tr><td>Aislamiento</td><td>Un texto de linaje idéntico en A y B nombra transacciones independientes. El acuse exacto quema solo B; A queda intacto</td></tr>
 <tr><td>Entrega</td><td>La política ordinaria del repositorio y cualquier autorización explícita de entrega nombran a B</td></tr>
 </tbody>
 </table>
@@ -729,7 +692,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <h2 id="rdd-correccion">Corrección acotada</h2>
 <p>Solo los findings severos <strong>causados por el candidato</strong> pueden bloquear. Los preexistentes o de solo base se convierten en seguimientos; lo desconocido escala; WARNING y SUGGESTION quedan como información.</p>
 
-<p>Una revisión ordinaria permite <strong>exactamente una transacción de corrección</strong>. START congela el presupuesto de corrección en <code>min(200, ceil(original_changed_lines / 2))</code>.</p>
+<p>Una revisión compacta ordinaria permite <strong>exactamente una transacción de corrección</strong>. START congela su presupuesto en <code>0</code> para cero líneas originales; si no, en <code>max(2, min(200, ceil(original_changed_lines / 2)))</code>. La fórmula anterior <code>min(200, ceil(original_changed_lines / 2))</code> queda para autoridad histórica y no compacta.</p>
 
 <ul>
 <li>Antes de editar se da un forecast positivo, y se continúa solo por la siguiente transición devuelta por el proveedor.</li>
@@ -840,7 +803,7 @@ gentle-ai review schema final-verification-incident</pre>
 <p>La evidencia de verificación cruda sigue siendo bytes arbitrarios no vacíos, pero <strong>por sí sola nunca es autoridad de resultado</strong>. La captura nativa persiste un registro estricto <code>gentle-ai.review-verification-evidence/v2</code> con un resultado cerrado y bindings inmutables de candidato, revisión, payload, ruta y ledger.</p>
 
 <h2 id="rdd-mantenimiento">Mantenimiento del store de revisión</h2>
-<p>La autoridad de revisión se acumula sin límite: cada candidato deja un linaje atrás y nada elimina uno ya entregado, así que un clon de vida larga termina con cientos de linajes y cientos de megabytes de checkouts de candidatos.</p>
+<p>El acuse exitoso quema y elimina la autoridad aprobada. Los linajes retenidos, abiertos o degradados pueden acumularse en un clon de vida larga, por eso el reset sigue disponible para la autoridad que todavía existe.</p>
 
 <div class="tblwrap">
 <table>
@@ -868,45 +831,25 @@ gentle-ai review schema final-verification-incident</pre>
 <hr>
 
 <h2 id="flujo-organico">Flujo orgánico completo</h2>
-<p>El agente elige la ruta más chica útil y RDD entra al final, sobre el candidato congelado.</p>
+<p>ODD sigue siete etapas: autorizar el pedido, explorar, resolver la incertidumbre, clasificar el trabajo, registrar el trabajo sustancial antes de la primera escritura, implementar tarea por tarea y cerrar con resultados verificados.</p>
 <pre class="mermaid">
 flowchart TD
-    A["El usuario pide un cambio"] --> B&#123;"Ruta de<br/>implementación"&#125;
-    B -->|"decidir/verificar<br/>1-3 archivos"| C["Directa inline"]
-    B -->|"explorar 4+ archivos<br/>o escribir 2+ no triviales"| D["Delegada directa<br/>(un worker acotado)"]
-    C --> E["Implementación + tests"]
-    D --> E
-    E --> F&#123;"¿RDD activado?<br/>(opt-in del usuario)"&#125;
-    F -->|"apagado (default)"| Z["Entrega ordinaria<br/>reporta disabled/unmanaged"]
-    F -->|"activado"| G["review status --next-transition<br/>(ruta negociada del proveedor)"]
-    G --> H&#123;"Riesgo congelado<br/>en START"&#125;
-    H -->|"bajo"| I["Lectura estructural<br/>0 lentes - silenciosa"]
-    H -->|"estándar"| J["1 lente de foco<br/>+ consentimiento"]
-    H -->|"alto"| K["4R canónicas + consentimiento<br/>+ forecast de costo"]
-    J --> L["Los revisores inspeccionan<br/>el candidato inmutable"]
-    K --> L
-    L --> M&#123;"¿Findings severos<br/>causados por el candidato?"&#125;
-    I --> N["Resultado: aprobado<br/>(informativo)"]
-    M -->|"no"| N
-    M -->|"sí"| O["Una corrección acotada<br/>(presupuesto congelado)"]
-    O --> P["Validador de arreglo<br/>(solo lectura)"]
-    P -->|"pasa"| N
-    P -->|"falla con evidencia"| Q["Escalado"]
-    P -->|"sin acceso al diff"| R["Inconcluso: el intento<br/>no se consume"]
-    R --> P
-    Q --> S["review recover<br/>(sucesor autorizado)"]
-    N --> T["Política ordinaria<br/>del repositorio"]
-    T --> U["Commit → Push → PR"]
-    Z --> U
+    A["1. Autorizar<br/>cambio o pedido de solo lectura"] --> B&#123;"¿Implementación<br/>autorizada?"&#125;
+    B -->|"no"| Z["Resultado de solo lectura"]
+    B -->|"sí"| C["2. Explorar<br/>código y requisitos"]
+    C --> D["3. Resolver la incertidumbre<br/>investigación, aclaración o desafío"]
+    D --> E["4. Clasificar<br/>chico o sustancial"]
+    E -->|"sustancial"| F["5. Registrar antes de la primera escritura<br/>documento de funcionalidad + espejo en Engram"]
+    E -->|"chico"| G["6. Implementar tarea por tarea<br/>TDD configurado + chequeos aplicables"]
+    F --> G
+    G --> H["7. Cerrar<br/>resultado verificado, chequeos, próximo paso"]
 
-    style N fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
-    style Q fill:#49443C,stroke:#FF9E3B,color:#DCD7BA
-    style U fill:#43242B,stroke:#D27E99,color:#DCD7BA
+    style H fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
     style Z fill:#1F1F28,stroke:#54546D,color:#727169
 </pre>
 
 <h2 id="flujo-sdd">Flujo SDD completo</h2>
-<p>Primero los artefactos durables de planificación, después apply, verificación independiente y una oferta opcional de revisión RDD. El archivado y la entrega siguen la política ordinaria del repositorio.</p>
+<p>Primero los artefactos durables de planificación y después apply. Verify es opcional y no bloquea Archive. Puede sugerir volver a Apply, pero cualquier reporte puede avanzar a Archive con el estado real. Archive puede registrar trabajo sin terminar cuando el usuario lo elige. SDD nunca invoca RDD. El archivado y la entrega siguen la política ordinaria del repositorio.</p>
 <pre class="mermaid">
 flowchart TD
     A["sdd-new / sdd-explore<br/>(o sdd-ff para adelantar la planificación)"] --> B["Explorar<br/>investigar código y enfoques"]
@@ -917,24 +860,15 @@ flowchart TD
     E --> F["Diseño<br/>decisiones de arquitectura"]
     F --> G["Tareas<br/>checklist ordenado"]
     G --> H["Apply<br/>el sub-agente implementa<br/>contra las specs"]
-    H --> Q["Verify<br/>verificación independiente contra<br/>spec - diseño - tareas"]
-    Q -->|"falla"| H
-    Q -->|"pasa"| I["Oferta opcional de revisión RDD"]
-    I --> J&#123;"Riesgo"&#125;
-    J -->|"bajo"| K["Lectura estructural"]
-    J -->|"estándar / alto"| L["1 lente o 4R + consentimiento"]
-    L --> M&#123;"¿Findings severos?"&#125;
-    M -->|"sí"| N["Una corrección acotada<br/>+ validador de arreglo"]
-    M -->|"no"| O["Resultado: aprobado<br/>(informativo)"]
-    K --> O
-    N -->|"valida"| O
-    N -->|"falla"| P["Escalado → recover"]
-    O --> R["Archive<br/>fusiona delta-specs - cierra el ciclo"]
+    H --> Q["Verify opcional<br/>diagnósticos prácticos contra<br/>spec - diseño - tareas"]
+    H --> R["Archive<br/>fusiona delta-specs - cierra el ciclo"]
+    Q -->|"sugiere rehacer"| H
+    Q -->|"reporta findings"| R
+    Q -->|"completa"| R
     R --> S["Política ordinaria del repositorio"]
     S --> T["Commit → Push → PR"]
 
-    style O fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
-    style P fill:#49443C,stroke:#FF9E3B,color:#DCD7BA
+    style R fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
     style T fill:#43242B,stroke:#D27E99,color:#DCD7BA
 </pre>
 
@@ -1091,42 +1025,40 @@ pi</pre>
 pi install npm:gentle-engram
 pi install npm:pi-mcp-adapter
 npm exec --yes --package gentle-engram@latest -- pi-engram init
-pi install npm:pi-subagents-j0k3r
 pi install npm:@juicesharp/rpiv-ask-user-question
 pi install npm:pi-web-access
-pi install npm:@juicesharp/rpiv-todo
 pi install npm:pi-btw</pre>
 
 <div class="tblwrap">
 <table>
 <thead><tr><th>Paquete</th><th>Qué agrega</th></tr></thead>
 <tbody>
-<tr><td><code>gentle-pi</code></td><td>Persona Gentleman, flujo SDD/OpenSpec, soporte de TDD estricto, política de seguridad, skills, prompts, agentes SDD y cadenas SDD</td></tr>
-<tr><td><code>gentle-engram</code></td><td>Integración de Pi con la memoria de sesión de Engram y sus herramientas MCP. <strong>No es el binario de Engram</strong></td></tr>
+<tr><td><code>gentle-pi</code></td><td>Persona Gentleman, ODD y SDD/OpenSpec opcional, soporte de TDD configurado, política de seguridad, skills, prompts, agentes SDD y cadenas SDD</td></tr>
+<tr><td><code>gentle-engram</code></td><td>Integración de Pi para la memoria de sesión de Engram y herramientas MCP. <strong>No es el binario de Engram</strong></td></tr>
 <tr><td><code>pi-mcp-adapter</code></td><td>Permite que Pi exponga servidores MCP, incluido Engram, a través del runtime MCP de Pi</td></tr>
-<tr><td><code>pi-engram init</code></td><td>Inicializa la forma de config MCP de Engram para Pi, propiedad de <code>gentle-engram</code></td></tr>
-<tr><td><code>pi-subagents-j0k3r</code></td><td>Descubre y corre agentes SDD desde <code>.pi/agents/</code></td></tr>
-<tr><td><code>@juicesharp/rpiv-ask-user-question</code></td><td>Permite que los agentes hijos de Pi le pidan aclaraciones a la sesión activa del usuario</td></tr>
-<tr><td><code>pi-web-access</code>, <code>@juicesharp/rpiv-todo</code>, <code>pi-btw</code></td><td>Acceso web, seguimiento de tareas y soporte de flujo acompañante</td></tr>
+<tr><td><code>pi-engram init</code></td><td>Inicializa la forma de configuración MCP de Engram para Pi, propiedad de <code>gentle-engram</code></td></tr>
+<tr><td><code>@juicesharp/rpiv-ask-user-question</code></td><td>Permite que los agentes hijos de Pi le pidan aclaraciones a la sesión activa del usuario cuando necesitan input humano</td></tr>
+<tr><td><code>pi-web-access</code></td><td>Agrega herramientas de acceso web a Pi</td></tr>
+<tr><td><code>pi-btw</code></td><td>Agrega soporte de flujo complementario BTW para Pi</td></tr>
 </tbody>
 </table>
 </div>
+<p>Descubrir y correr agentes SDD desde <code>.pi/agents/</code> lo proveen los Gentle Agents de <code>gentle-pi</code>, que incluyen las mismas herramientas <code>subagent_*</code> que proveía el paquete complementario retirado. Cuando un archivo de settings fija <code>gentle-pi</code> por debajo de <code>2.5.0</code>, Gentle AI conserva <code>npm:pi-subagents-j0k3r</code>. Para una instalación actual o sin pin, o un pin de <code>gentle-pi</code> en <code>2.5.0</code> o posterior, elimina <code>npm:pi-subagents-j0k3r</code> y <code>npm:@juicesharp/rpiv-todo</code> de <code>settings.json</code> en la próxima instalación o actualización para que Pi los desinstale en su próxima sincronización de paquetes.</p>
 
 <h3 id="comandos-de-pi">Comandos de Pi</h3>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Comando</th><th>Qué hace</th></tr></thead>
 <tbody>
-<tr><td><code>/gentle-ai:status</code></td><td>Muestra el estado de paquetes, assets SDD, OpenSpec y configuración de modelos</td></tr>
-<tr><td><code>/gentleman:persona</code></td><td>Cambia entre las personas <code>gentleman</code> y <code>neutral</code></td></tr>
-<tr><td><code>/gentleman:models</code></td><td>Abre el modal nativo de Pi para asignación de modelos</td></tr>
-<tr><td><code>/sdd-init</code></td><td>Inicializa o refresca <code>openspec/config.yaml</code></td></tr>
-<tr><td><code>/gentle-ai:install-sdd</code></td><td>Reinstala assets SDD sin sobrescribir archivos locales</td></tr>
-<tr><td><code>/gentle-ai:install-sdd --force</code></td><td>Fuerza el refresco de los assets SDD instalados, reemplazando copias locales</td></tr>
+<tr><td><code>/gentle:status</code></td><td>Muestra el estado de paquetes, assets SDD, OpenSpec y configuración de modelos</td></tr>
+<tr><td><code>/gentle:persona</code></td><td>Cambia entre las personas <code>gentleman</code> y <code>neutral</code></td></tr>
+<tr><td><code>/gentle:models</code></td><td>Abre el modal nativo de Pi para asignación de modelos</td></tr>
+<tr><td><code>/gentle-sdd-init</code></td><td>Inicia o refresca <code>openspec/config.yaml</code></td></tr>
+<tr><td><code>/gentle:install-sdd</code></td><td>Reinstala assets SDD sin sobrescribir archivos locales</td></tr>
+<tr><td><code>/gentle:install-sdd --force</code></td><td>Fuerza el refresco de los assets SDD instalados. Usalo cuando querés explícitamente que los assets del paquete reemplacen las copias locales.</td></tr>
 </tbody>
 </table>
 </div>
-<p><code>/gentle-ai:persona</code> y <code>/gentle-ai:models</code> siguen funcionando como alias de compatibilidad.</p>
 
 <h3 id="asignacion-de-modelos-recomendada">Asignación de modelos recomendada</h3>
 <div class="tblwrap">
@@ -1159,10 +1091,10 @@ pi install npm:pi-btw</pre>
 <thead><tr><th>Síntoma</th><th>Solución</th></tr></thead>
 <tbody>
 <tr><td>Gentle AI indica que falta Pi</td><td>Instale Pi primero y asegúrese de que <code>pi</code> esté en el <code>PATH</code></td></tr>
-<tr><td>Faltan agentes SDD en Pi</td><td>Inicie Pi normalmente en el proyecto para que ejecute <code>session_start</code>, o ejecute <code>/gentle-ai:install-sdd</code></td></tr>
+<tr><td>Faltan agentes SDD en Pi</td><td>Inicie Pi normalmente en el proyecto para que <code>gentle-pi</code> ejecute <code>session_start</code>, o ejecute <code>/gentle:install-sdd</code>. Si usó <code>pi -ns</code>, se omitieron los hooks de inicio.</td></tr>
 <tr><td>La persona no cambió de inmediato</td><td>Ejecute <code>/reload</code> o inicie una sesión nueva de Pi</td></tr>
-<tr><td>Desea quitar una anulación de modelo</td><td>Abra <code>/gentleman:models</code> y elija <em>Inherit active/default model</em></td></tr>
-<tr><td>Faltan herramientas de memoria o <code>/mcp</code></td><td>Ejecute de nuevo <code>gentle-ai install --agent pi</code> y revise <code>/gentle-ai:status</code></td></tr>
+<tr><td>Desea quitar una anulación de modelo</td><td>Abra <code>/gentle:models</code> y elija <em>Inherit active/default model</em></td></tr>
+<tr><td>Faltan herramientas de memoria o <code>/mcp</code></td><td>Ejecute de nuevo <code>gentle-ai install --agent pi</code> para refrescar <code>.pi/agent/settings.json</code>, <code>.pi/npm/package.json</code> y el cableado de <code>pi-engram init</code>; después revise <code>/gentle:status</code></td></tr>
 <tr><td><code>gentle-engram</code> está instalado, pero Engram no está disponible</td><td>Ejecute de nuevo <code>gentle-ai install --agent pi</code> para provisionar el componente real de Engram</td></tr>
 </tbody>
 </table>
@@ -1423,16 +1355,19 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
 <dd>El conjunto exacto de bytes que se va a revisar. Existe antes de que empiece la revisión y queda congelado en START.</dd>
 
 <dt>Linaje <span class="pill">lineage</span></dt>
-<dd>El identificador de una transacción de revisión. Se captura en START y se replica sin cambios en cada llamada posterior. Un linaje quemado nunca se reutiliza.</dd>
+<dd>El identificador de una transacción de revisión. Se captura en START y se replica sin cambios en cada llamada atada, incluido el acuse pendiente. Un linaje quemado nunca se reutiliza.</dd>
+
+<dt>Aprobación</dt>
+<dd>El estado terminal <code>approved</code> pendiente de su acuse exacto. No es autoridad de entrega.</dd>
 
 <dt>Receipt</dt>
-<dd>La evidencia terminal de una transacción de revisión completada. Es informativa: nunca autoriza la entrega. Al aprobarse, se quema junto con la autoridad. Retirado en <code>v2.5.0</code>, donde la revisión cierra en su evento terminal sin publicar ninguno.</dd>
+<dd>Un registro terminal histórico. La revisión compacta no publica un receipt, y ningún receipt autoriza la entrega.</dd>
 
 <dt>Lente <span class="pill">lens</span></dt>
 <dd>Un revisor de solo lectura que juzga una sola preocupación y emite un JSON estricto. Las cuatro canónicas son Riesgo, Resiliencia, Legibilidad y Confiabilidad (4R).</dd>
 
 <dt>Quema <span class="pill">burn</span></dt>
-<dd>La eliminación de la autoridad exacta y sus artefactos al aprobarse la revisión. No sobrevive ningún receipt, tombstone, testigo ni espejo.</dd>
+<dd>La eliminación de la autoridad exacta y sus artefactos después de que el acuse exacto tiene éxito. No es un receipt compacto ni autoridad de entrega.</dd>
 
 <dt>Proyección <span class="pill">projection</span></dt>
 <dd>Qué congela START: <code>workspace</code> (todo el espacio de trabajo, default) o <code>staged</code> (exactamente el índice de Git).</dd>
@@ -1444,7 +1379,7 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
 <dd>Un hallazgo que el cambio introdujo. Solo los severos de esta clase pueden bloquear. Los preexistentes se convierten en seguimientos.</dd>
 
 <dt>Presupuesto de corrección</dt>
-<dd>El límite de líneas para la única corrección permitida: <code>min(200, ceil(original_changed_lines / 2))</code>. Se congela en START y no se recalcula.</dd>
+<dd>El límite de líneas para la única corrección compacta: <code>0</code> para cero líneas originales; si no, <code>max(2, min(200, ceil(original_changed_lines / 2)))</code>. Se congela en START; la fórmula anterior aplica solo a autoridad histórica y no compacta.</dd>
 
 <dt>Delta-spec</dt>
 <dd>La especificación parcial de un cambio en curso. Al archivar, se fusiona con las specs principales del proyecto.</dd>
