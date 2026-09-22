@@ -29,7 +29,7 @@ import { releases } from '../data/versions';
 <tbody>
 <tr><td>Run the installer and choose agents and a preset</td><td>Manually edit generated configuration files</td></tr>
 <tr><td>Start programming with your agent</td><td>Memorize SDD phases or commands</td></tr>
-<tr><td>Let the agent propose SDD when the task warrants it</td><td>Force SDD for every small task</td></tr>
+<tr><td>Let ODD resolve uncertainty; use formal SDD artifacts only after an explicit request or accepted proposal</td><td>Force SDD for every small task</td></tr>
 <tr><td>Trust Engram to store context when it is installed and active</td><td>Inspect Engram storage unless you need <code>engram sync</code> or <code>engram tui</code></td></tr>
 <tr><td>Let startup hooks or <code>sdd-init</code> refresh the skill registry</td><td>Rescan skills manually unless you need <code>--force</code></td></tr>
 <tr><td>Say “use sdd” when you already know you want structured planning</td><td>Worry about which SDD phase comes next</td></tr>
@@ -85,12 +85,12 @@ brew install gentle-ai</pre>
 <table>
 <thead><tr><th>Command</th><th>What it does</th><th>When to run it again</th></tr></thead>
 <tbody>
-<tr><td><code>/sdd-init</code></td><td>Detects the stack and testing capabilities; enables Strict TDD when available</td><td>When the project adds or removes test frameworks, or the first time in a new project</td></tr>
+<tr><td><code>/sdd-init</code></td><td>When you explicitly select SDD, records project context and detectable testing capabilities; detection does not enable Strict TDD</td><td>When explicitly starting SDD in a new project, or when its project context needs refreshing</td></tr>
 <tr><td><code>gentle-ai skill-registry refresh</code></td><td>Scans installed skills and project conventions, then builds the registry</td><td>After installing or removing skills, or the first time in a new project</td></tr>
 </tbody>
 </table>
 </div>
-<p>The SDD orchestrator runs <code>/sdd-init</code> automatically when it does not detect context. Startup hooks usually keep the skill registry current for agents that support hooks — Codex, Claude Code, OpenCode, and Pi through <code>gentle-pi</code>. Starting Pi with <code>pi -ns</code> skips skill loading and startup hooks, so refresh the registry manually in that case.</p>
+<p>Only an explicitly selected SDD workflow may run <code>/sdd-init</code> automatically when it needs context. Detectable tests do not enable Strict TDD: resolve its mode, source, and exact runner from project/session configuration or an explicit choice. Startup hooks usually keep the skill registry current for agents that support hooks — Codex, Claude Code, OpenCode, and Pi through <code>gentle-pi</code>. Starting Pi with <code>pi -ns</code> skips skill loading and startup hooks, so refresh the registry manually in that case.</p>
 <p>At any time, you can run <code>gentle-ai doctor</code>, a read-only ecosystem health check.</p>
 
 <h2 id="presets">Components, skills, and presets</h2>
@@ -101,7 +101,7 @@ brew install gentle-ai</pre>
 <thead><tr><th>Component</th><th>ID</th><th>Description</th></tr></thead>
 <tbody>
 <tr><td>Engram</td><td><code>engram</code></td><td>Persistent memory between sessions through MCP: project-name detection, full-text search, Git synchronization, and project consolidation</td></tr>
-<tr><td>SDD</td><td><code>sdd</code></td><td>Specification-driven development workflow (10 phases, including <code>sdd-onboard</code>). The agent handles it organically when appropriate or when you request it</td></tr>
+<tr><td>SDD</td><td><code>sdd</code></td><td>Specification-driven development workflow (10 phases, including <code>sdd-onboard</code>). Its formal artifacts begin only after an explicit request or accepted proposal</td></tr>
 <tr><td>Skills</td><td><code>skills</code></td><td>Curated skills library</td></tr>
 <tr><td>Context7</td><td><code>context7</code></td><td>MCP server with live framework and library documentation</td></tr>
 <tr><td>Persona</td><td><code>persona</code></td><td>Managed Gentleman/neutral persona injection, or unmanaged custom-persona mode</td></tr>
@@ -204,7 +204,7 @@ engram sync --import</pre>
 
 <div class="cards">
   <div class="card"><h4>Small request</h4><p>The agent does it. No ceremony.</p></div>
-  <div class="card"><h4>Substantial feature</h4><p>The agent suggests SDD to plan it properly: explore the code, propose an approach, design the architecture, and then implement it step by step.</p></div>
+  <div class="card"><h4>Substantial feature</h4><p>ODD explores, resolves uncertainty, and tracks the work. Formal SDD artifacts begin only after an explicit request or accepted proposal.</p></div>
   <div class="card"><h4>You explicitly want SDD</h4><p>Say "use sdd" and the agent starts the workflow.</p></div>
 </div>
 
@@ -244,53 +244,17 @@ engram sync --import</pre>
 <li><strong>They persist phase artifacts when the backend supports it.</strong> In Engram-backed SDD workflows, phase agents save artifacts before returning. The next phase can continue from the saved proposal, spec, design, tasks, or apply progress — even across sessions.</li>
 </ol>
 
-<h2 id="sdd-research">SDD Research — the evidence lane</h2>
-<div class="note">
-  <b>New in <span class="pill">v2.5.0</span></b>
-  <p>The lane ships under the <code>gentle-ai.sdd-research/v1</code> contract. The ten phases above are unchanged: research is offered <em>alongside</em> them, never inserted into them.</p>
-</div>
-<p>SDD had local exploration but no first-class lane for auditable external evidence. Research is offered immediately after <code>sdd-explore</code>, and it is optional — but selecting it makes its admission and persistence checks mandatory.</p>
-<pre class="mermaid">
-flowchart TD
-    A["sdd-explore"] --&gt; B&#123;"Select the research lane?"&#125;
-    B --&gt;|"no"| G["Propose"]
-    B --&gt;|"yes"| C["Declare capability<br/>documentation / open-web"]
-    C --&gt; D["Collect sources<br/>claims - contradictions - uncertainty"]
-    D --&gt; E["Persist the artifact<br/>OpenSpec - Engram - both"]
-    E --&gt; F&#123;"Evidence done - store ready<br/>decisions confirmed?"&#125;
-    F --&gt;|"no"| H["Blocked<br/>no validated claim"]
-    H --&gt; D
-    F --&gt;|"yes"| G
-    G --&gt; I["Spec - Design - Tasks"]
+<h2 id="sdd-research">SDD Research — optional evidence</h2>
+<p>Research is optional read-only work for a named uncertainty. It can inform ODD or explicitly selected SDD, but it is not an SDD phase or administrative contract.</p>
 
-    style G fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
-    style H fill:#43242B,stroke:#D27E99,color:#DCD7BA
-</pre>
+<h3 id="como-se-declara">How to use it</h3>
+<p>State the question and use only actually available, authorized tools. Prefer primary sources when they answer the question; do not infer access from a tool name or from an unavailable source class. When delegated, the dedicated collector is an output-only evidence collector: it does not read local artifacts or repository state, and the orchestrator supplies code context.</p>
 
-<h3 id="como-se-declara">How it is declared</h3>
-<p>On installs that expose the slash command, <code>/sdd-research &lt;questions&gt;</code> runs the lane after Session Preflight and <code>sdd-init</code> have established the active change, the requested source classes, the artifact store, and the runtime capability declaration.</p>
-<p>Research accepts <strong>only</strong> the versioned <code>gentle-ai.sdd-research-capability/v1</code> declaration, with an exact grant for <code>documentation</code> or <code>open-web</code>. Nothing else opens the lane.</p>
+<h3 id="que-persiste">What it returns</h3>
+<p>Return concise, attributed evidence: material claims link to source URLs or code locations and distinguish verified facts, assumptions, contradictions, freshness, and explicit gaps. The parent handles any authorized persistence under existing project practices.</p>
 
-<h3 id="que-persiste">What it persists</h3>
-<p>It writes a <code>gentle-ai.sdd-research/v1</code> artifact recording questions, grants, sources, claim-to-source mappings, contradictions, uncertainty, freshness, and separate non-authoritative product choices.</p>
-<div class="tblwrap">
-<table>
-<thead><tr><th>Store</th><th>Location</th><th>Validation</th></tr></thead>
-<tbody>
-<tr><td>OpenSpec</td><td><code>openspec/changes/&#123;change-name&#125;/research.md</code></td><td>Validates the selected backend</td></tr>
-<tr><td>Engram</td><td><code>sdd/&#123;change-name&#125;/research</code></td><td>Validates the selected backend</td></tr>
-<tr><td>Hybrid</td><td>Both</td><td>Requires the same revision and the same bytes in both</td></tr>
-</tbody>
-</table>
-</div>
-<p>A one-sided hybrid failure recovers only from retained pre-write intent and canonical content. Otherwise the research and the proposal stay blocked — the system never prefers one copy over the other. No-store research cannot make a proposal ready.</p>
-
-<h3 id="la-compuerta-de-propuesta">The proposal gate</h3>
-<p>Once research is selected, <code>propose</code> requires <code>done</code> evidence, valid references, a ready backend, and confirmed product decisions. This is the part worth internalizing: <strong>choosing the lane is optional, finishing it is not</strong>.</p>
-<div class="warn">
-  <b>What produces no validated claim</b>
-  <p>Bash, generic MCP, persistence access, undeclared tools, unknown source classes, invalid sources, partial evidence, and failed admission. None of them create a validated claim, and none of them admit a proposal.</p>
-</div>
+<h3 id="la-compuerta-de-propuesta">How it informs a proposal</h3>
+<p>Research supports a recommendation, tradeoffs, open questions, and implementation implications. Missing evidence is disclosed rather than invented; only an unsafe decision that depends on it pauses. Research does not create an SDD phase, contract, admission grant, persistence requirement, readiness gate, or proposal block.</p>
 
 <hr>
 
@@ -379,14 +343,12 @@ testing:
 <p>In other words, <code>rules.apply</code> and <code>rules.verify</code> are currently treated as if they can contain structured keys, while other examples show the same phase rules as flat lists.</p>
 
 <h2 id="tdd">Strict TDD</h2>
-<p>Strict TDD mode is enabled when the project has detectable testing support.</p>
+<p>Resolve Strict TDD from project/session configuration or an explicit choice, with its source and exact runner. Detectable test support alone does not activate it.</p>
 <ul>
-<li><code>/sdd-init</code> detects the project's testing capabilities and enables Strict TDD when they are available.</li>
-<li>When Strict TDD is active, <strong><code>sdd-apply</code> works test-first</strong>.</li>
-<li><strong><code>sdd-verify</code> audits RED/GREEN evidence</strong> and runs verification.</li>
-<li>The <code>strict_tdd</code> flag in <code>openspec/config.yaml</code> enables or disables it; <code>sdd-init</code>, orchestrator prompts, <code>sdd-apply</code>, and <code>sdd-verify</code> reference it.</li>
-<li>The <code>testing</code> section caches detected capabilities so apply/verify workflows do not need to rediscover them every time.</li>
-<li>It can also be enabled when synchronizing with <code>gentle-ai sync --strict-tdd</code>.</li>
+<li>When enabled, observe <strong>RED → GREEN → REFACTOR</strong>: add a focused behavior test, observe its failure, implement the minimum change, then keep focused checks green while improving clarity.</li>
+<li>When disabled, run ordinary functional checks; disabled TDD never means no checks.</li>
+<li>Record and forward the resolved mode, source, and exact runner to implementation work. For this project, <code>openspec/config.yaml</code> configures Strict TDD and <code>npx playwright test</code> is the runner.</li>
+<li>Unknown or conflicting mode, or a missing runner, fails closed to a clarification for the next action. Do not invent precedence, a command, or a <code>/sdd-init</code> run.</li>
 </ul>
 <p>In Pi, support assets live in <code>.pi/gentle-ai/support/strict-tdd.md</code> and <code>.pi/gentle-ai/support/strict-tdd-verify.md</code>.</p>
 
@@ -507,7 +469,7 @@ gentle-ai skill-registry list --json   # machine-readable, including description
 <hr>
 
 <h2 id="ruteo">Organic implementation routing</h2>
-<p>Ask for the outcome. Gentle AI keeps already-understood work inline, delegates only actions that benefit from fresh context, and offers SDD only when durable planning materially reduces uncertainty.</p>
+<p>Ask for the outcome. Gentle AI keeps already-understood work inline, delegates only actions that benefit from fresh context, and creates formal SDD artifacts only after an explicit request or an accepted proposal.</p>
 
 <div class="imp">
   <b>Every change takes exactly one route</b>
@@ -522,7 +484,7 @@ gentle-ai skill-registry list --json   # machine-readable, including description
 <li>For substantial authorized work, ODD persists continuity in <code>odd/tasks/&lt;feature&gt;.md</code> with an Engram mirror, then resumes unfinished work from those reconciled records.</li>
 <li>ODD uses the resolved configured TDD mode and its exact runner. The presence of tests alone does not silently enable TDD.</li>
 <li>Every completed ODD task closes with a reviewable work-unit commit on the feature branch.</li>
-<li>Each commit is assessed against the last reviewed boundary: high-risk commits review immediately, medium-risk work accumulates into reviewable PR slices, and chained PR strategy applies when needed.</li>
+<li>When RDD is enabled, each commit is assessed against the last reviewed boundary: high-risk commits review immediately, medium-risk work accumulates into reviewable PR slices, and chained PR strategy applies when needed.</li>
 </ul>
 <p>When a trigger in the Delegation stop rules table fires, delegation is mandatory; the table defines those triggers without changing the implementation route.</p>
 
@@ -533,7 +495,7 @@ gentle-ai skill-registry list --json   # machine-readable, including description
 <tbody>
 <tr><td><strong>Direct inline</strong></td><td>Deciding or verifying requires <strong>1 to 3 files</strong>; or the change is <strong>one already-understood mechanical file</strong>, with no research or outstanding design decisions</td><td>The bounded action stays inline</td></tr>
 <tr><td><strong>Direct delegation</strong></td><td>Understanding requires <strong>4 or more files</strong>; reading prepares a write; broad research is needed; or <strong>2 or more non-trivial files</strong> must be written</td><td>Delegate bounded exploration and/or one writer for that action</td></tr>
-<tr><td><strong>Optional SDD</strong></td><td>The work has substantial ambiguity, or durable proposal, specification, design, or task artifacts would materially reduce uncertainty</td><td>SDD is proposed. It is selected only after an explicit request or an accepted proposal</td></tr>
+<tr><td><strong>Optional SDD</strong></td><td>The user explicitly requests formal planning or accepts a proposal; ambiguity remains in ODD</td><td>SDD creates proposal, specification, design, and task artifacts</td></tr>
 </tbody>
 </table>
 </div>
@@ -542,20 +504,21 @@ gentle-ai skill-registry list --json   # machine-readable, including description
 
 <p>Delegation also applies per action: tests, builds, installations, and native review actors may use fresh workers without changing the implementation route or creating an SDD run. Direct and delegated work do not create SDD artifacts, phase attempts, or synthetic SDD cycles.</p>
 
-<p>If apparently simple work reveals substantial ambiguity, Gentle AI can offer SDD at the next safe boundary. Declining it leads to safely reduced scope, a justified direct or delegated route, or <strong>Needs your decision</strong> — never silent SDD enrollment.</p>
+<p>If apparently simple work reveals substantial ambiguity, Gentle AI resolves it in ODD through research, clarification, or <strong>Needs your decision</strong>; it does not offer or select formal SDD artifacts from ambiguity alone.</p>
 
 <h2 id="delegacion">Delegation stop rules</h2>
-<p>The orchestrator must stop acting as a monolithic executor when complexity appears:</p>
+<p>The orchestrator must stop acting as a monolithic executor when complexity appears. These triggers are mandatory, not advisory:</p>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Rule</th><th>Trigger</th></tr></thead>
 <tbody>
-<tr><td><strong>Four-file rule</strong></td><td>Reading 4 or more files to understand a flow requires delegating exploration or running an exploration phase</td></tr>
-<tr><td><strong>Multi-file writing rule</strong></td><td>Touching 2 or more non-trivial files requires one writer, or fresh review before completion</td></tr>
-<tr><td><strong>PR rule</strong></td><td>Review can provide fresh evidence for a commit, push, or PR, but never authorizes delivery</td></tr>
-<tr><td><strong>Incident rule</strong></td><td>After an incorrect cwd, a worktree/Git accident, merge recovery, a confusing test command, or an environment workaround: run a fresh audit before continuing</td></tr>
-<tr><td><strong>Long-session rule</strong></td><td>After about 20 tool calls, 5 exploratory reads, or 2 non-mechanical edits with increasing complexity: pause and delegate, replan, or explain why not</td></tr>
-<tr><td><strong>Fresh-review rule</strong></td><td>Use fresh context for adversarial review of diffs, conflicts, PR preparation, and incidents when the agent platform supports it</td></tr>
+<tr><td><strong>Four-file rule</strong></td><td>Reading 4 or more files to understand a flow requires delegating one bounded exploration before deciding or writing</td></tr>
+<tr><td><strong>Multi-file writing rule</strong></td><td>Touching 2 or more non-trivial files requires one bounded writer</td></tr>
+<tr><td><strong>Preparation trigger</strong></td><td>Reading that prepares a write, broad research, or context compression requires delegation together with or ahead of the write</td></tr>
+<tr><td><strong>Incident rule</strong></td><td>After an incorrect cwd, a worktree/Git accident, merge recovery, a confusing test command, or an environment workaround: delegate a separate diagnosis before resuming</td></tr>
+<tr><td><strong>Long-session rule</strong></td><td>After about 20 tool calls, 5 exploratory reads, or 2 non-mechanical edits without any delegation: pause and delegate the next bounded unit of work</td></tr>
+<tr><td><strong>Route declaration</strong></td><td>For substantial work, record the chosen route and trigger evidence per task so skipped delegation is observable</td></tr>
+<tr><td><strong>Verification rule</strong></td><td>Use a fresh verification worker for test, build, lint, or other verification commands; only a 1-to-3-file read-only check stays inline</td></tr>
 </tbody>
 </table>
 </div>
@@ -621,8 +584,8 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <p>While RDD is disabled, work continues through direct inline routing, direct delegation, or optional SDD, without starting, retrying, or reactivating review on its own. Native delivery gates report <code>disabled/unmanaged</code> when no exact receipt applies, and <strong>never fabricate approval</strong>.</p>
 
 <h2 id="rdd-ciclo">The atomic cycle</h2>
-<pre>STATUS without a selector → exact START → bounded collection → terminal capture → approved + burn → ordinary repository policy</pre>
-<p>The review closes at its last causal event. A terminal reviewer, refuter, validator, correction-plan, or zero-lens result closes the transaction and burns its lineage directly: there is <strong>no separate FINALIZE step</strong>, no compact receipt publication, and no delivery gate afterwards.</p>
+<pre>STATUS without a selector → exact START → bounded collection → terminal capture → approved pending exact acknowledgement → acknowledgement burns authority → ordinary repository policy</pre>
+<p>A terminal reviewer, refuter, validator, correction-plan, or zero-lens result records <code>approved</code>; the approved authority remains pending its exact acknowledgement. There is <strong>no separate FINALIZE step</strong>. No compact receipt or delivery authority survives.</p>
 
 <h3 id="1-status-sin-selector-solo-hace-preflight">1. STATUS without a selector only performs preflight</h3>
 <p>STATUS without a selector evaluates <strong>only the current worktree candidate</strong> and renders one exact START invocation. It does <strong>not</strong> discover ambient authority, resume another worktree, recover history, or select an old lineage. The parent runs only the returned <code>next_transition</code> and its ordered tokens.</p>
@@ -638,7 +601,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <p>An exact replay of an active START can return <code>replayed</code>. A genuinely new START is independent. A burned lineage is never reused.</p>
 
 <h3 id="3-las-llamadas-atadas-manejan-la-transaccion">3. Bound calls manage the transaction</h3>
-<p>Every subsequent STATUS and <code>review capture-result</code> carries those exact tokens; the terminal capture itself closes the transaction. The parent routes only from the returned <code>next_transition</code>:</p>
+<p>Every subsequent STATUS and <code>review capture-result</code> carries those exact tokens. After terminal approval, bound STATUS reoffers the same acknowledgement while the authority remains pending. The parent routes only from the returned <code>next_transition</code>:</p>
 
 <div class="tblwrap">
 <table>
@@ -652,8 +615,8 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 </div>
 <p>A <em>forecast</em> is descriptive, not a route. It is fully reported, but only <code>next_transition</code> is executed.</p>
 
-<h3 id="4-la-aprobacion-quema-la-autoridad">4. Approval burns authority</h3>
-<p>On success, native code reads back terminal approval and then <strong>burns</strong> the exact lineage and its artifacts before returning <code>approved</code>. No terminal receipt, tombstone, witness, mirror, or delivery authority survives. Other lineages and worktrees remain intact.</p>
+<h3 id="4-la-aprobacion-quema-la-autoridad">4. Approval awaits acknowledgement</h3>
+<p>Native code returns <code>approved</code> with one exact acknowledgement continuation. <strong>Only the exact acknowledgement continuation burns the authority</strong>: it validates the bound lineage, target, revision, and token, then removes that authority and its artifacts. A wrong, stale, or failed acknowledgement is non-mutating; bound STATUS reoffers the pending continuation. No compact receipt or delivery authority survives. Other lineages and worktrees remain intact.</p>
 
 <div class="warn">
   <b>An unclean terminal capture is not approval</b>
@@ -669,7 +632,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <tr><td>Lifecycle root</td><td>Once B is selected, the host keeps canonical B from STATUS through consent, collection, correction, validation, acknowledgement, and burn. A is never a fallback</td></tr>
 <tr><td>Commands</td><td>Provider-issued tokens run unchanged. If a command omits <code>--cwd</code>, it runs with B as its process cwd</td></tr>
 <tr><td>Opaque capture</td><td><code>repository_context</code> may be materialized or captured from another process cwd, but remains bound to B</td></tr>
-<tr><td>Isolation</td><td>Identical lineage text in A and B names independent transactions. Approval burns only B; A remains intact</td></tr>
+<tr><td>Isolation</td><td>Identical lineage text in A and B names independent transactions. The exact acknowledgement burns only B; A remains intact</td></tr>
 <tr><td>Delivery</td><td>Ordinary repository policy and any explicit delivery authorization name B</td></tr>
 </tbody>
 </table>
@@ -727,7 +690,7 @@ gentle-ai review mode enable  --scope clone --cwd &lt;repo&gt;</pre>
 <h2 id="rdd-correccion">Bounded correction</h2>
 <p>Only severe findings <strong>caused by the candidate</strong> can block. Pre-existing or base-only findings become follow-ups; unknown findings escalate; WARNING and SUGGESTION remain information.</p>
 
-<p>An ordinary review permits <strong>exactly one correction transaction</strong>. START freezes the correction budget at <code>min(200, ceil(original_changed_lines / 2))</code>.</p>
+<p>An ordinary compact review permits <strong>exactly one correction transaction</strong>. START freezes its correction budget at <code>0</code> for zero original lines; otherwise <code>max(2, min(200, ceil(original_changed_lines / 2)))</code>. The old <code>min(200, ceil(original_changed_lines / 2))</code> formula remains only for historical and non-compact authority.</p>
 
 <ul>
 <li>Before editing, a positive forecast is provided, and work continues only through the provider's returned next transition.</li>
@@ -838,7 +801,7 @@ gentle-ai review schema final-verification-incident</pre>
 <p>Raw verification evidence remains arbitrary non-empty bytes, but <strong>by itself is never result authority</strong>. Native capture persists a strict <code>gentle-ai.review-verification-evidence/v2</code> record with a closed outcome and immutable candidate, revision, payload, path, and ledger bindings.</p>
 
 <h2 id="rdd-mantenimiento">Review store maintenance</h2>
-<p>Review authority accumulates without limit: every candidate leaves a lineage behind and nothing removes one already delivered, so a long-lived clone eventually has hundreds of lineages and hundreds of megabytes of candidate checkouts.</p>
+<p>Successful acknowledgement burns and removes approved authority. Retained, open, or degraded lineages can accumulate in a long-lived clone, so reset remains available for the authority that still exists.</p>
 
 <div class="tblwrap">
 <table>
@@ -866,45 +829,25 @@ gentle-ai review schema final-verification-incident</pre>
 <hr>
 
 <h2 id="flujo-organico">Complete organic workflow</h2>
-<p>The agent chooses the smallest useful route, and RDD enters at the end over the frozen candidate.</p>
+<p>ODD follows seven stages: authorize the request, explore, resolve uncertainty, classify the work, track substantial work before the first write, implement task by task, and close with verified results.</p>
 <pre class="mermaid">
 flowchart TD
-    A["The user requests a change"] --> B&#123;"Implementation<br/>route"&#125;
-    B -->|"decide/verify<br/>1-3 files"| C["Inline direct"]
-    B -->|"explore 4+ files<br/>or write 2+ non-trivial ones"| D["Delegated direct<br/>(one bounded worker)"]
-    C --> E["Implementation + tests"]
-    D --> E
-    E --> F&#123;"Is RDD enabled?<br/>(user opt-in)"&#125;
-    F -->|"off (default)"| Z["Ordinary delivery<br/>reports disabled/unmanaged"]
-    F -->|"enabled"| G["review status --next-transition<br/>(provider-negotiated route)"]
-    G --> H&#123;"Risk frozen<br/>at START"&#125;
-    H -->|"low"| I["Structural reading<br/>0 lenses - silent"]
-    H -->|"standard"| J["1 focus lens<br/>+ consent"]
-    H -->|"high"| K["Canonical 4R + consent<br/>+ cost forecast"]
-    J --> L["Reviewers inspect<br/>the immutable candidate"]
-    K --> L
-    L --> M&#123;"Severe findings<br/>caused by the candidate?"&#125;
-    I --> N["Result: approved<br/>(informative)"]
-    M -->|"no"| N
-    M -->|"yes"| O["One bounded correction<br/>(frozen budget)"]
-    O --> P["Fix validator<br/>(read-only)"]
-    P -->|"passes"| N
-    P -->|"fails with evidence"| Q["Escalation"]
-    P -->|"no diff access"| R["Inconclusive: the attempt<br/>is not consumed"]
-    R --> P
-    Q --> S["review recover<br/>(authorized successor)"]
-    N --> T["Ordinary repository<br/>policy"]
-    T --> U["Commit → Push → PR"]
-    Z --> U
+    A["1. Authorize<br/>change or read-only request"] --> B&#123;"Authorized<br/>implementation?"&#125;
+    B -->|"no"| Z["Read-only outcome"]
+    B -->|"yes"| C["2. Explore<br/>code and requirements"]
+    C --> D["3. Resolve uncertainty<br/>research, clarification, or challenge"]
+    D --> E["4. Classify<br/>small or substantial"]
+    E -->|"substantial"| F["5. Track before the first write<br/>feature document + Engram mirror"]
+    E -->|"small"| G["6. Implement task by task<br/>configured TDD + applicable checks"]
+    F --> G
+    G --> H["7. Close<br/>verified outcome, checks, next step"]
 
-    style N fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
-    style Q fill:#49443C,stroke:#FF9E3B,color:#DCD7BA
-    style U fill:#43242B,stroke:#D27E99,color:#DCD7BA
+    style H fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
     style Z fill:#1F1F28,stroke:#54546D,color:#727169
 </pre>
 
 <h2 id="flujo-sdd">Complete SDD workflow</h2>
-<p>First come durable planning artifacts, then apply, independent verification, and an optional RDD review offer. Archiving and delivery follow ordinary repository policy.</p>
+<p>First come durable planning artifacts, then apply. Verify is optional and does not gate Archive. It may suggest returning to Apply, but any report can proceed to Archive actual state. Archive can record unfinished work when the user chooses it. SDD never invokes RDD. Archiving and delivery follow ordinary repository policy.</p>
 <pre class="mermaid">
 flowchart TD
     A["sdd-new / sdd-explore<br/>(or sdd-ff to advance planning)"] --> B["Explore<br/>investigate code and approaches"]
@@ -915,24 +858,15 @@ flowchart TD
     E --> F["Design<br/>architecture decisions"]
     F --> G["Tasks<br/>ordered checklist"]
     G --> H["Apply<br/>the sub-agent implements<br/>against the specs"]
-    H --> Q["Verify<br/>independent verification against<br/>spec - design - tasks"]
-    Q -->|"fails"| H
-    Q -->|"passes"| I["Optional RDD review offer"]
-    I --> J&#123;"Risk"&#125;
-    J -->|"low"| K["Structural reading"]
-    J -->|"standard / high"| L["1 lens or canonical 4R + consent"]
-    L --> M&#123;"Severe findings?"&#125;
-    M -->|"yes"| N["One bounded correction<br/>+ fix validator"]
-    M -->|"no"| O["Result: approved<br/>(informative)"]
-    K --> O
-    N -->|"validates"| O
-    N -->|"fails"| P["Escalation → recover"]
-    O --> R["Archive<br/>merges delta specs - closes the cycle"]
+    H --> Q["Optional Verify<br/>practical diagnostics against<br/>spec - design - tasks"]
+    H --> R["Archive<br/>merges delta specs - closes the cycle"]
+    Q -->|"suggests rework"| H
+    Q -->|"reports findings"| R
+    Q -->|"complete"| R
     R --> S["Ordinary repository policy"]
     S --> T["Commit → Push → PR"]
 
-    style O fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
-    style P fill:#49443C,stroke:#FF9E3B,color:#DCD7BA
+    style R fill:#2B3328,stroke:#98BB6C,color:#DCD7BA
     style T fill:#43242B,stroke:#D27E99,color:#DCD7BA
 </pre>
 
@@ -1088,42 +1022,40 @@ pi</pre>
 pi install npm:gentle-engram
 pi install npm:pi-mcp-adapter
 npm exec --yes --package gentle-engram@latest -- pi-engram init
-pi install npm:pi-subagents-j0k3r
 pi install npm:@juicesharp/rpiv-ask-user-question
 pi install npm:pi-web-access
-pi install npm:@juicesharp/rpiv-todo
 pi install npm:pi-btw</pre>
 
 <div class="tblwrap">
 <table>
 <thead><tr><th>Package</th><th>What it adds</th></tr></thead>
 <tbody>
-<tr><td><code>gentle-pi</code></td><td>Gentleman persona, SDD/OpenSpec flow, Strict TDD support, security policy, skills, prompts, SDD agents, and SDD chains</td></tr>
-<tr><td><code>gentle-engram</code></td><td>Pi integration with Engram session memory and its MCP tools. <strong>It is not the Engram binary</strong></td></tr>
+<tr><td><code>gentle-pi</code></td><td>Gentleman persona, ODD and optional SDD/OpenSpec, configured TDD support, safety policy, skills, prompts, SDD agents, and SDD chains</td></tr>
+<tr><td><code>gentle-engram</code></td><td>Pi integration for Engram session memory and MCP tools. <strong>It is not the Engram binary</strong></td></tr>
 <tr><td><code>pi-mcp-adapter</code></td><td>Lets Pi expose MCP servers, including Engram, through Pi's MCP runtime</td></tr>
-<tr><td><code>pi-engram init</code></td><td>Initializes Engram's MCP configuration form for Pi, owned by <code>gentle-engram</code></td></tr>
-<tr><td><code>pi-subagents-j0k3r</code></td><td>Discovers and runs SDD agents from <code>.pi/agents/</code></td></tr>
-<tr><td><code>@juicesharp/rpiv-ask-user-question</code></td><td>Lets Pi child agents ask the active user session for clarification</td></tr>
-<tr><td><code>pi-web-access</code>, <code>@juicesharp/rpiv-todo</code>, <code>pi-btw</code></td><td>Web access, task tracking, and companion-flow support</td></tr>
+<tr><td><code>pi-engram init</code></td><td>Initializes the Pi Engram MCP configuration shape owned by <code>gentle-engram</code></td></tr>
+<tr><td><code>@juicesharp/rpiv-ask-user-question</code></td><td>Lets Pi child agents ask the active user session for clarification when they need human input</td></tr>
+<tr><td><code>pi-web-access</code></td><td>Adds web access tools for Pi</td></tr>
+<tr><td><code>pi-btw</code></td><td>Adds BTW companion workflow support for Pi</td></tr>
 </tbody>
 </table>
 </div>
+<p>Discovering and running SDD agents from <code>.pi/agents/</code> is provided by <code>gentle-pi</code>'s Gentle Agents, which ships the same <code>subagent_*</code> tools that the retired companion package provided. When a settings file pins <code>gentle-pi</code> below <code>2.5.0</code>, Gentle AI keeps <code>npm:pi-subagents-j0k3r</code>. For a current or unpinned install, or a <code>gentle-pi</code> pin at <code>2.5.0</code> or later, it removes <code>npm:pi-subagents-j0k3r</code> and <code>npm:@juicesharp/rpiv-todo</code> from <code>settings.json</code> on the next install or update so Pi uninstalls them on its next package sync.</p>
 
 <h3 id="comandos-de-pi">Pi commands</h3>
 <div class="tblwrap">
 <table>
 <thead><tr><th>Command</th><th>What it does</th></tr></thead>
 <tbody>
-<tr><td><code>/gentle-ai:status</code></td><td>Shows package, SDD asset, OpenSpec, and model configuration status</td></tr>
-<tr><td><code>/gentleman:persona</code></td><td>Switches between the <code>gentleman</code> and <code>neutral</code> personas</td></tr>
-<tr><td><code>/gentleman:models</code></td><td>Opens Pi's native model-assignment modal</td></tr>
-<tr><td><code>/sdd-init</code></td><td>Initializes or refreshes <code>openspec/config.yaml</code></td></tr>
-<tr><td><code>/gentle-ai:install-sdd</code></td><td>Reinstalls SDD assets without overwriting local files</td></tr>
-<tr><td><code>/gentle-ai:install-sdd --force</code></td><td>Forces a refresh of installed SDD assets, replacing local copies</td></tr>
+<tr><td><code>/gentle:status</code></td><td>Shows package, SDD asset, OpenSpec, and model configuration status</td></tr>
+<tr><td><code>/gentle:persona</code></td><td>Switches between the <code>gentleman</code> and <code>neutral</code> personas</td></tr>
+<tr><td><code>/gentle:models</code></td><td>Opens Pi's native model-assignment modal</td></tr>
+<tr><td><code>/gentle-sdd-init</code></td><td>Bootstraps or refreshes <code>openspec/config.yaml</code></td></tr>
+<tr><td><code>/gentle:install-sdd</code></td><td>Reinstalls SDD assets without overwriting local files</td></tr>
+<tr><td><code>/gentle:install-sdd --force</code></td><td>Force-refreshes installed SDD assets. Use this when you explicitly want package assets to replace local copies.</td></tr>
 </tbody>
 </table>
 </div>
-<p><code>/gentle-ai:persona</code> and <code>/gentle-ai:models</code> continue to work as compatibility aliases.</p>
 
 <h3 id="asignacion-de-modelos-recomendada">Recommended model assignment</h3>
 <div class="tblwrap">
@@ -1156,10 +1088,10 @@ pi install npm:pi-btw</pre>
 <thead><tr><th>Symptom</th><th>Solution</th></tr></thead>
 <tbody>
 <tr><td>Gentle AI says Pi is missing</td><td>Install Pi first and make sure <code>pi</code> is on the <code>PATH</code></td></tr>
-<tr><td>SDD agents are missing in Pi</td><td>Start Pi normally in the project so it runs <code>session_start</code>, or run <code>/gentle-ai:install-sdd</code></td></tr>
+<tr><td>SDD agents are missing in Pi</td><td>Start Pi normally in the project so <code>gentle-pi</code> can run <code>session_start</code>, or run <code>/gentle:install-sdd</code>. If you used <code>pi -ns</code>, startup hooks were skipped.</td></tr>
 <tr><td>The persona did not change immediately</td><td>Run <code>/reload</code> or start a new Pi session</td></tr>
-<tr><td>You want to remove a model override</td><td>Open <code>/gentleman:models</code> and choose <em>Inherit active/default model</em></td></tr>
-<tr><td>Memory tools or <code>/mcp</code> are missing</td><td>Run <code>gentle-ai install --agent pi</code> again and check <code>/gentle-ai:status</code></td></tr>
+<tr><td>You want to remove a model override</td><td>Open <code>/gentle:models</code> and choose <em>Inherit active/default model</em></td></tr>
+<tr><td>Memory tools or <code>/mcp</code> are missing</td><td>Run <code>gentle-ai install --agent pi</code> again to refresh <code>.pi/agent/settings.json</code>, <code>.pi/npm/package.json</code>, and the <code>pi-engram init</code> wiring, then check <code>/gentle:status</code></td></tr>
 <tr><td><code>gentle-engram</code> installed but Engram is unavailable</td><td>Run <code>gentle-ai install --agent pi</code> again so the real Engram component is provisioned</td></tr>
 </tbody>
 </table>
@@ -1400,16 +1332,19 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
 <dd>The exact set of bytes to be reviewed. It exists before the review begins and is frozen at START.</dd>
 
 <dt>Lineage <span class="pill">lineage</span></dt>
-<dd>The identifier of a review transaction. It is captured at START and replicated unchanged in every later call. A burned lineage is never reused.</dd>
+<dd>The identifier of a review transaction. It is captured at START and replicated unchanged in every bound call, including the pending acknowledgement. A burned lineage is never reused.</dd>
+
+<dt>Approval</dt>
+<dd>The terminal <code>approved</code> state pending its exact acknowledgement. It is not delivery authority.</dd>
 
 <dt>Receipt</dt>
-<dd>The terminal evidence of a completed review transaction. It is informative: it never authorizes delivery. On approval, it is burned together with the authority. Retired in <code>v2.5.0</code>, where the review closes at its terminal event without publishing one.</dd>
+<dd>A historical terminal record. Compact review does not publish a receipt, and no receipt authorizes delivery.</dd>
 
 <dt>Lens <span class="pill">lens</span></dt>
 <dd>A read-only reviewer that judges one concern and emits strict JSON. The four canonical lenses are Risk, Resilience, Readability, and Reliability (4R).</dd>
 
 <dt>Burn <span class="pill">burn</span></dt>
-<dd>The removal of the exact authority and its artifacts when a review is approved. No receipt, tombstone, witness, or mirror survives.</dd>
+<dd>The removal of the exact authority and its artifacts after the exact acknowledgement succeeds. It is not a compact receipt or delivery authority.</dd>
 
 <dt>Projection <span class="pill">projection</span></dt>
 <dd>What START freezes: <code>workspace</code> (the entire workspace, default) or <code>staged</code> (exactly the Git index).</dd>
@@ -1421,7 +1356,7 @@ sha256sum --check --strict --ignore-missing checksums.txt</pre>
 <dd>A finding introduced by the change. Only severe findings of this class can block. Pre-existing findings become follow-ups.</dd>
 
 <dt>Correction budget</dt>
-<dd>The line limit for the single permitted correction: <code>min(200, ceil(original_changed_lines / 2))</code>. It is frozen at START and is not recalculated.</dd>
+<dd>The line limit for the single compact correction: <code>0</code> for zero original lines; otherwise <code>max(2, min(200, ceil(original_changed_lines / 2)))</code>. It is frozen at START; the old formula applies only to historical and non-compact authority.</dd>
 
 <dt>Delta-spec</dt>
 <dd>The partial specification for a change in progress. At archive time, it is merged into the project's main specs.</dd>

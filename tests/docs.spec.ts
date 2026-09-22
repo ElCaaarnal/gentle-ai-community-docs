@@ -96,11 +96,11 @@ test('ecosystem uses localized headings with matching canonical IDs', async ({ p
 
   await page.goto('/');
   await expect(page.locator('h2#engram')).toContainText('persistent memory');
-  await expect(page.locator('h2#sdd-research')).toContainText('evidence lane');
+  await expect(page.locator('h2#sdd-research')).toContainText('optional evidence');
   await expect(page.locator('h2#skills')).toContainText('skill registry');
   await page.goto('/es/');
   await expect(page.locator('h2#engram')).toContainText('memoria persistente');
-  await expect(page.locator('h2#sdd-research')).toContainText('vía de evidencia');
+  await expect(page.locator('h2#sdd-research')).toContainText('evidencia opcional');
   await expect(page.locator('h2#skills')).toContainText('registro de skills');
 });
 
@@ -164,6 +164,46 @@ test('cumulative v3 ODD and OpenCode contracts are localized and section-scoped'
   }
 });
 
+test('audit-aligned SDD context, research, TDD, and delegation contracts stay bilingual and scoped', async ({ page }) => {
+  const locales = [
+    {
+      path: '/',
+      context: ['Only an explicitly selected SDD workflow', 'does not enable Strict TDD', 'configuration or an explicit choice'],
+      research: ['Research is optional read-only work', 'output-only evidence collector', 'does not read local artifacts or repository state', 'authorized tools', 'material claims link to source URLs', 'explicit gaps', 'does not create an SDD phase, contract, admission grant, persistence requirement, readiness gate, or proposal block'],
+      tdd: ['configuration or an explicit choice', 'exact runner', 'RED → GREEN → REFACTOR', 'ordinary functional checks', 'Unknown or conflicting mode, or a missing runner'],
+      delegation: ['mandatory, not advisory', '4 or more files', 'one bounded writer', 'Preparation trigger', 'Reading that prepares a write, broad research, or context compression', 'without any delegation', 'Route declaration', 'record the chosen route and trigger evidence per task', 'delegate a separate diagnosis', 'delegate the next bounded unit', 'fresh verification worker'],
+      absent: ['gentle-ai.sdd-research/v1', 'sdd-research-capability/v1', 'proposal_ready'],
+    },
+    {
+      path: '/es/',
+      context: ['Solo un flujo SDD seleccionado explícitamente', 'no activa Strict TDD', 'configuración del proyecto/sesión o una elección explícita'],
+      research: ['La investigación es trabajo opcional de solo lectura', 'colector de evidencia solo de salida', 'no lee artefactos locales ni estado del repositorio', 'herramientas que estén disponibles y autorizadas', 'los claims materiales enlazan URLs de fuentes', 'brechas explícitas', 'No crea una fase, contrato, grant de admisión, requisito de persistencia, gate de preparación ni bloqueo de propuesta de SDD'],
+      tdd: ['configuración del proyecto/sesión o una elección explícita', 'runner exacto', 'RED → GREEN → REFACTOR', 'chequeos funcionales ordinarios', 'modo desconocido o conflictivo, o falta el runner'],
+      delegation: ['obligatorios, no opcionales', '4 o más archivos', 'un solo escritor acotado', 'Regla de preparación', 'La lectura que prepara una escritura, la investigación amplia o la compresión de contexto', 'sin ninguna delegación', 'Declaración de ruta', 'registrar la ruta elegida y la evidencia del disparador por tarea', 'delegar un diagnóstico separado', 'delegar la próxima unidad acotada', 'worker fresco de verificación'],
+      absent: ['gentle-ai.sdd-research/v1', 'sdd-research-capability/v1', 'proposal_ready'],
+    },
+  ];
+
+  for (const locale of locales) {
+    await page.goto(locale.path);
+    const sectionText = async (id: string) => page.locator(`#${id}`).evaluate((heading) => {
+      let text = '';
+      for (let node: Element | null = heading; node; node = node.nextElementSibling) {
+        if (node !== heading && node.tagName === 'H2') break;
+        text += node.textContent ?? '';
+      }
+      return text;
+    });
+
+    for (const [id, literals] of Object.entries({ contexto: locale.context, 'sdd-research': locale.research, tdd: locale.tdd, delegacion: locale.delegation })) {
+      const text = await sectionText(id);
+      for (const literal of literals) expect(text).toContain(literal);
+    }
+    const research = await sectionText('sdd-research');
+    for (const literal of locale.absent) expect(research).not.toContain(literal);
+  }
+});
+
 test('RDD uses localized headings with matching canonical IDs', async ({ page }) => {
   const sections = ['rdd', 'rdd-control', 'rdd-ciclo', 'rdd-lentes', 'rdd-correccion', 'rdd-entrega', 'rdd-limites', 'rdd-mantenimiento'];
   const subsections = ['el-modelo-en-tres-frases', '1-status-sin-selector-solo-hace-preflight', '2-start-congela-una-transaccion-independiente', '3-las-llamadas-atadas-manejan-la-transaccion', '4-la-aprobacion-quema-la-autoridad', 'continuidad-entre-repositorios', 'las-lentes-son-de-solo-lectura', 'la-forma-de-un-resultado-de-revisor', 'evidencia-independiente', 'proyecciones-del-candidato', 'codigos-de-parada', 'que-protege-el-modelo-de-amenazas-y-que-no', 'controles-retenidos', 'esquemas-de-entrada'];
@@ -180,6 +220,101 @@ test('RDD uses localized headings with matching canonical IDs', async ({ page })
   await page.goto('/es/');
   await expect(page.locator('h2#rdd')).toContainText('RDD — Receipt-Driven Development');
   await expect(page.locator('h3#el-modelo-en-tres-frases')).toContainText('El modelo en tres frases');
+});
+
+test('RDD terminal acknowledgement and compact correction contracts stay bilingual and scoped', async ({ page }) => {
+  const locales = [
+    {
+      path: '/',
+      cycle: ['terminal capture → approved pending exact acknowledgement → acknowledgement burns authority', 'approved authority remains pending', 'Only the exact acknowledgement continuation burns the authority', 'exact acknowledgement burns only B', 'No compact receipt or delivery authority survives'],
+      correction: ['0 for zero original lines', 'max(2, min(200, ceil(original_changed_lines / 2)))', 'formula remains only for historical and non-compact authority'],
+      maintenance: ['Successful acknowledgement burns and removes approved authority', 'Retained, open, or degraded lineages can accumulate'],
+      glossary: ['The terminal approved state pending its exact acknowledgement.', 'removal of the exact authority and its artifacts after the exact acknowledgement succeeds', 'not a compact receipt or delivery authority'],
+      absent: ['approved + burn', 'burns its lineage directly', 'Approval burns only B', 'every candidate leaves a lineage behind'],
+    },
+    {
+      path: '/es/',
+      cycle: ['captura terminal → aprobado pendiente de acuse exacto → el acuse quema la autoridad', 'la autoridad aprobada queda pendiente', 'Solo la continuación de acuse exacta quema la autoridad', 'El acuse exacto quema solo B', 'No sobrevive ningún receipt compacto ni autoridad de entrega'],
+      correction: ['0 para cero líneas originales', 'max(2, min(200, ceil(original_changed_lines / 2)))', 'queda para autoridad histórica y no compacta'],
+      maintenance: ['El acuse exitoso quema y elimina la autoridad aprobada', 'Los linajes retenidos, abiertos o degradados pueden acumularse'],
+      glossary: ['El estado terminal approved pendiente de su acuse exacto.', 'eliminación de la autoridad exacta y sus artefactos después de que el acuse exacto tiene éxito', 'No es un receipt compacto ni autoridad de entrega'],
+      absent: ['aprobado + quema', 'quema su linaje directamente', 'La aprobación quema solo B', 'cada candidato deja un linaje atrás'],
+    },
+  ];
+
+  const sectionText = async (id: string) => page.locator(`#${id}`).evaluate((heading) => {
+    let text = '';
+    for (let node: Element | null = heading; node; node = node.nextElementSibling) {
+      if (node !== heading && node.tagName === 'H2') break;
+      text += node.textContent ?? '';
+    }
+    return text;
+  });
+
+  for (const locale of locales) {
+    await page.goto(locale.path);
+    for (const [id, literals] of Object.entries({ 'rdd-ciclo': locale.cycle, 'rdd-correccion': locale.correction, 'rdd-mantenimiento': locale.maintenance, glosario: locale.glossary })) {
+      const text = await sectionText(id);
+      for (const literal of literals) expect(text).toContain(literal);
+    }
+    const cycle = await sectionText('rdd-ciclo');
+    const maintenance = await sectionText('rdd-mantenimiento');
+    for (const literal of locale.absent) {
+      expect(cycle).not.toContain(literal);
+      expect(maintenance).not.toContain(literal);
+    }
+  }
+});
+
+test('canonical ODD and SDD workflow contracts are localized and preserve shared IDs', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  const locales = [
+    {
+      path: '/',
+      oddStages: ['Authorize', 'Explore', 'Resolve uncertainty', 'Classify', 'Track before the first write', 'Implement task by task', 'Close'],
+      routing: ['formal SDD artifacts only after an explicit request or an accepted proposal', 'When RDD is enabled'],
+      absentRouting: ['The work has substantial ambiguity'],
+      sdd: ['Verify is optional and does not gate Archive.', 'Archive can record unfinished work when the user chooses it.', 'SDD never invokes RDD.', 'Apply', 'Archive'],
+      verifyArchiveEdges: ['Q -->|"reports findings"| R'],
+      absentSdd: ['Optional RDD review offer'],
+    },
+    {
+      path: '/es/',
+      oddStages: ['Autorizar', 'Explorar', 'Resolver la incertidumbre', 'Clasificar', 'Registrar antes de la primera escritura', 'Implementar tarea por tarea', 'Cerrar'],
+      routing: ['artefactos formales de SDD solo después de un pedido explícito o una propuesta aceptada', 'Cuando RDD está activado'],
+      absentRouting: ['El trabajo tiene ambigüedad sustancial'],
+      sdd: ['Verify es opcional y no bloquea Archive.', 'Archive puede registrar trabajo sin terminar cuando el usuario lo elige.', 'SDD nunca invoca RDD.', 'Apply', 'Archive'],
+      verifyArchiveEdges: ['Q -->|"reporta findings"| R'],
+      absentSdd: ['Oferta opcional de revisión RDD'],
+    },
+  ];
+
+  for (const locale of locales) {
+    await page.goto(locale.path);
+    const routing = await page.locator('h2#ruteo').evaluate((heading) => {
+      let text = '';
+      for (let node: Element | null = heading; node; node = node.nextElementSibling) {
+        if (node !== heading && node.tagName === 'H2') break;
+        text += node.textContent ?? '';
+      }
+      return text;
+    });
+    for (const literal of locale.routing) expect(routing).toContain(literal);
+    for (const literal of locale.absentRouting) expect(routing).not.toContain(literal);
+
+    const oddWorkflow = await page.locator('h2#flujo-organico + p + .mermaid').textContent() ?? '';
+    for (const stage of locale.oddStages) expect(oddWorkflow).toContain(stage);
+    const sddWorkflow = (await Promise.all([
+      page.locator('h2#flujo-sdd + p').textContent(),
+      page.locator('h2#flujo-sdd + p + .mermaid').textContent(),
+    ])).join('');
+    for (const literal of locale.sdd) expect(sddWorkflow).toContain(literal);
+    for (const edge of locale.verifyArchiveEdges) expect(sddWorkflow).toContain(edge);
+    for (const literal of locale.absentSdd) expect(sddWorkflow).not.toContain(literal);
+  }
+
+  await context.close();
 });
 
 test('complete workflows use localized server-rendered headings with equivalent Mermaid topology', async ({ browser }) => {
@@ -214,16 +349,15 @@ test('every Mermaid diagram keeps its statement separators and renders an SVG', 
     const sources = await sourcePage.locator('.mermaid').evaluateAll((nodes) => nodes.map((node) => node.textContent ?? ''));
 
     // Mermaid separates flowchart statements by newline, so the build must never collapse them.
-    expect(sources).toHaveLength(3);
+    expect(sources).toHaveLength(2);
     for (const source of sources) expect(source.trim().split('\n').length).toBeGreaterThan(10);
     perRoute.push(sources);
 
     await page.goto(route);
     const diagrams = page.locator('.mermaid');
-    await expect(diagrams).toHaveCount(3);
+    await expect(diagrams).toHaveCount(2);
     await expect(diagrams.nth(0).locator('svg')).toBeVisible();
     await expect(diagrams.nth(1).locator('svg')).toBeVisible();
-    await expect(diagrams.nth(2).locator('svg')).toBeVisible();
     await expect(diagrams.filter({ hasText: 'Syntax error' })).toHaveCount(0);
   }
 
@@ -253,6 +387,55 @@ test('agents and Pi use localized headings with matching canonical IDs', async (
   await page.goto('/es/');
   await expect(page.locator('h2#agentes')).toContainText('Matriz de agentes compatibles');
   await expect(page.locator('h3#instalacion-2')).toContainText('Instalación');
+});
+
+test('Pi packages and commands stay current, bilingual, and section-scoped', async ({ page }) => {
+  const locales = [
+    {
+      path: '/',
+      current: ['pi install npm:gentle-pi', 'pi install npm:gentle-engram', 'pi install npm:pi-mcp-adapter', 'pi-engram init', 'pi install npm:@juicesharp/rpiv-ask-user-question', 'pi install npm:pi-web-access', 'pi install npm:pi-btw', 'Gentle Agents', 'subagent_* tools', 'retired', 'from settings.json on the next install or update', '/gentle:status', '/gentle:persona', '/gentle:models', '/gentle-sdd-init', '/gentle:install-sdd', '/gentle:install-sdd --force'],
+      retiredPackagePolicy: ['pins gentle-pi below 2.5.0', 'keeps npm:pi-subagents-j0k3r', 'current or unpinned install, or a gentle-pi pin at 2.5.0 or later', 'removes npm:pi-subagents-j0k3r and npm:@juicesharp/rpiv-todo'],
+      absent: ['rpiv-todo', '/gentle-ai:status', '/gentleman:persona', '/gentleman:models', '/sdd-init', '/gentle-ai:install-sdd', 'compatibility aliases'],
+    },
+    {
+      path: '/es/',
+      current: ['pi install npm:gentle-pi', 'pi install npm:gentle-engram', 'pi install npm:pi-mcp-adapter', 'pi-engram init', 'pi install npm:@juicesharp/rpiv-ask-user-question', 'pi install npm:pi-web-access', 'pi install npm:pi-btw', 'Gentle Agents', 'herramientas subagent_*', 'retirado', 'de settings.json en la próxima instalación o actualización', '/gentle:status', '/gentle:persona', '/gentle:models', '/gentle-sdd-init', '/gentle:install-sdd', '/gentle:install-sdd --force'],
+      retiredPackagePolicy: ['fija gentle-pi por debajo de 2.5.0', 'conserva npm:pi-subagents-j0k3r', 'instalación actual o sin pin, o un pin de gentle-pi en 2.5.0 o posterior', 'elimina npm:pi-subagents-j0k3r y npm:@juicesharp/rpiv-todo'],
+      absent: ['rpiv-todo', '/gentle-ai:status', '/gentleman:persona', '/gentleman:models', '/sdd-init', '/gentle-ai:install-sdd', 'alias de compatibilidad'],
+    },
+  ];
+
+  for (const locale of locales) {
+    await page.goto(locale.path);
+    const pi = await page.locator('h2#pi').evaluate((heading) => {
+      let text = '';
+      for (let node: Element | null = heading; node; node = node.nextElementSibling) {
+        if (node !== heading && node.tagName === 'H2') break;
+        text += node.textContent ?? '';
+      }
+      return text;
+    });
+    const packageList = await page.locator('h3#paquetes-que-instala').evaluate((heading) => {
+      for (let node = heading.nextElementSibling; node; node = node.nextElementSibling) {
+        const pre = node.matches('pre') ? node : node.querySelector('pre');
+        if (pre) return pre.textContent;
+      }
+      return null;
+    });
+    expect(packageList?.trim()).toBe([
+      'pi install npm:gentle-pi',
+      'pi install npm:gentle-engram',
+      'pi install npm:pi-mcp-adapter',
+      'npm exec --yes --package gentle-engram@latest -- pi-engram init',
+      'pi install npm:@juicesharp/rpiv-ask-user-question',
+      'pi install npm:pi-web-access',
+      'pi install npm:pi-btw',
+    ].join('\n'));
+    for (const literal of locale.current) expect(pi).toContain(literal);
+    for (const literal of locale.retiredPackagePolicy) expect(pi).toContain(literal);
+    for (const literal of locale.absent) expect(packageList).not.toContain(literal);
+    for (const literal of locale.absent.slice(1)) expect(pi).not.toContain(literal);
+  }
 });
 
 test('operations use localized headings, shared IDs, and literal boundaries', async ({ page }) => {
@@ -291,8 +474,8 @@ test('version policy and reference content is localized with exact shared litera
   const bound = {
     stable: { version: 'v3.4.0', released: '2026-09-19' },
   };
-  const glossary = ['Candidate', 'Lineage', 'Receipt', 'Lens', 'Burn', 'Projection', 'Gate', 'Candidate-caused finding', 'Correction budget', 'Delta-spec', 'Escalated'];
-  const spanishGlossary = ['Candidato', 'Linaje', 'Receipt', 'Lente', 'Quema', 'Proyección', 'Gate', 'Finding causado por el candidato', 'Presupuesto de corrección', 'Delta-spec', 'Escalado'];
+  const glossary = ['Candidate', 'Lineage', 'Approval', 'Receipt', 'Lens', 'Burn', 'Projection', 'Gate', 'Candidate-caused finding', 'Correction budget', 'Delta-spec', 'Escalated'];
+  const spanishGlossary = ['Candidato', 'Linaje', 'Aprobación', 'Receipt', 'Lente', 'Quema', 'Proyección', 'Gate', 'Finding causado por el candidato', 'Presupuesto de corrección', 'Delta-spec', 'Escalado'];
   const officialLinks = [
     'https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/intended-usage.md',
     'https://github.com/Gentleman-Programming/gentle-ai/blob/v3.4.0/docs/trigger-rules.md',
